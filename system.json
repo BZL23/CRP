@@ -1,0 +1,44 @@
+{
+  "id": "crp",
+  "title": "Corona Regni Poloniae",
+  "description": "Corona Regni Poloniae RPG system for FoundryVTT!",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "BZL",
+      "role": "Creator"
+    }
+  ],
+  "esmodules": ["module/crp.mjs"],
+  "styles": ["styles/crp.css"],
+  "languages": [
+    {
+      "lang": "pl",
+      "name": "Polish",
+      "path": "lang/pl.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {},
+      "npc": {},
+      "creature": {}
+    },
+    "Item": {
+      "armor": {},
+      "effect": {},
+      "flaw": {},
+      "origin": {},
+      "trait": {},
+      "weapon": {}
+    }
+  },
+  "relationships": {},
+  "url": "https://trpg.pl",
+  "manifest": "...",
+  "download": "..."
+}
