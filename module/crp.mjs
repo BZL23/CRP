@@ -90,3 +90,10 @@ const button = html.querySelector(".crp-use-fate");
 });
 
 });
+
+Hooks.on("updateCombat", async (combat) => {
+  const actor = combat.combatant?.actor;
+  if (!actor) return;
+
+  await CRPRoll.processTurn(actor);
+});

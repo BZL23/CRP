@@ -3,7 +3,9 @@
 const { TypeDataModel } = foundry.abstract;
 const { 
   SchemaField, 
-  NumberField 
+  NumberField,
+  StringField,
+  BooleanField
 } = foundry.data.fields;
 
 export class CRPActorData extends TypeDataModel {
@@ -86,7 +88,16 @@ export class CRPActorData extends TypeDataModel {
         fate: new SchemaField({
           value: new NumberField({ initial: 2, min: 0 })
         })
-      })
+      }),
+
+      state: new SchemaField({
+  life: new StringField({
+    initial: "alive"
+  }),
+  bleeding: new BooleanField({
+    initial: false
+  })
+})
 
     };
   }

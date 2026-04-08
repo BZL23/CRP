@@ -8,11 +8,6 @@ export class CRPRoll {
             return null;
         }
 
-if (actor.system.derived.health.value <= 0) {
-  ui.notifications.warn("Postać jest ciężko ranna — wykonaj test tężyzny");
-  return null;
-}
-
         const attr = actor.system.attributes[attrKey];
 
         if (!attr) {
@@ -28,11 +23,11 @@ if (actor.system.derived.health.value <= 0) {
         }
 
         const penalty = actor.system.derived.woundPenalty ?? 0;
-        const target = attr.value + skill.value - Math.abs(penalty);
+        const target = Math.max(2, attr.value + skill.value + penalty);
 
         // rzut 2k10
         const roll = await new Roll("2d10").roll();
-        const dice = roll.dice[0].results.map(r => r.result);
+        const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
         const total = roll.total;
 
         // poziom sukcesu
@@ -42,7 +37,7 @@ if (actor.system.derived.health.value <= 0) {
         let success = total <= target;
 
         // krytyki
-        const isDouble = dice[0] === dice[1];
+        const isDouble = dice.length === 2 && dice[0] === dice[1];
         let critical = null;
 
         if (isDouble) {
@@ -127,9 +122,10 @@ if (actor.system.derived.health.value <= 0) {
                 ` : ""}
 
                 ${usedFate ? `<p>✨ Użyto Doli</p>` : ""}
-                <p><strong>Kostki:</strong> ${result.dice.join(", ")}</p>
+                <p><strong>Kostki:</strong> ${result.dice.length ? result.dice.join(", ") : "—"}</p>
                 <p><strong>Wynik:</strong> ${result.total}</p>
                 <p><strong>Cel:</strong> ${result.target}</p>
+                ${penalty !== 0 ? `<p>⚠ Kara za rany: ${penalty}</p>` : ""}
                 <p><strong>${resultText}</strong></p>
                 <p><strong>Margin:</strong> ${marginText}</p>
                 ${symbols ? `<p>${symbols}</p>` : ""}
@@ -170,6 +166,9 @@ if (actor.system.derived.health.value <= 0) {
             return;
         }
 
+        const penaltyA = actorA.system.derived.woundPenalty ?? 0;
+        const penaltyB = actorB.system.derived.woundPenalty ?? 0;
+
         const marginTextA = rollA.margin >= 0 
         ? `+${rollA.margin}` 
         : rollA.margin;
@@ -179,15 +178,29 @@ if (actor.system.derived.health.value <= 0) {
         : rollB.margin;
 
         //  porównanie marginów
-        let winner = null;
+        let winner;
 
-        if (rollA.margin > rollB.margin) {
-            winner = "A";
-        } else if (rollB.margin > rollA.margin) {
-            winner = "B";
-        } else {
-            winner = "tie";
-        }
+
+       
+
+if (rollA.critical === "criticalSuccess") {
+  winner = "A";
+} else if (rollB.critical === "criticalSuccess") {
+  winner = "B";
+} else if (rollA.critical === "criticalFailure") {
+  winner = "B";
+} else if (rollB.critical === "criticalFailure") {
+  winner = "A";
+} else {
+  if (rollA.margin > rollB.margin) {
+    winner = "A";
+  } else if (rollB.margin > rollA.margin) {
+    winner = "B";
+  } else {
+    winner = "tie";
+  }
+}
+
 
         //  Chat summary
         const speaker = ChatMessage.getSpeaker({ actor: actorA });
@@ -217,15 +230,17 @@ if (actor.system.derived.health.value <= 0) {
                 <p>
                     <strong>${actorA.name}</strong><br>
                     ${skillLabelA} (${attrLabelA})<br>
-                    🎲 ${rollA.dice.join(", ")} = ${rollA.total}<br>
+                    🎲 ${rollA.dice.length ? rollA.dice.join(", ") : "—"} = ${rollA.total}<br>
                     Cel: ${rollA.target}<br>
+                    ${penaltyA !== 0 ? `⚠ Kara za rany: ${penaltyA}<br>` : ""}
                     Margin: ${marginTextA}
                 </p>
                 <p>
                     <strong>${actorB.name}</strong><br>
                     ${skillLabelB} (${attrLabelB})<br>
-                    🎲 ${rollB.dice.join(", ")} = ${rollB.total}<br>
+                    🎲 ${rollB.dice.length ? rollB.dice.join(", ") : "—"} = ${rollB.total}<br>
                     Cel: ${rollB.target}<br>
+                    ${penaltyB !== 0 ? `⚠ Kara za rany: ${penaltyB}<br>` : ""}
                     Margin: ${marginTextB}
                 </p>
                 <hr>
@@ -247,42 +262,230 @@ if (actor.system.derived.health.value <= 0) {
 
     static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false } = {}) {
 
-  const skillLabel = CONFIG.CRP.skills[skillKey] ?? skillKey;
-  const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
+        const skillLabel = CONFIG.CRP.skills[skillKey] ?? skillKey;
+        const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
 
-  const label = `${skillLabel} (${attrLabel})`;
+        const label = `${skillLabel} (${attrLabel})`;
+        const penalty = actor.system.derived.woundPenalty ?? 0;
 
-  let resultText;
+        let resultText;
 
-  if (result.critical === "criticalSuccess") {
-    resultText = "🔥 KRYTYCZNY SUKCES";
-  } else if (result.critical === "criticalFailure") {
-    resultText = "💀 KRYTYCZNA PORAŻKA";
-  } else {
-    resultText = result.success ? "SUKCES" : "PORAŻKA";
+        if (result.critical === "criticalSuccess") {
+            resultText = "🔥 KRYTYCZNY SUKCES";
+        } else if (result.critical === "criticalFailure") {
+            resultText = "💀 KRYTYCZNA PORAŻKA";
+        } else {
+            resultText = result.success ? "SUKCES" : "PORAŻKA";
+        }
+
+        const marginText = result.margin >= 0 ? `+${result.margin}` : result.margin;
+
+        let symbols = "";
+        if (result.eagles > 0) symbols += `🦅 ${result.eagles} `;
+        if (result.shields > 0) symbols += `🛡️ ${result.shields}`;
+
+        return `
+            <div class="crp-roll">
+            <h3>${label}</h3>
+            ${usedFate ? `<p>✔ Dola użyta</p>` : ""}
+
+            <p><strong>Kostki:</strong> ${result.dice.length ? result.dice.join(", ") : "—"}</p>
+            <p><strong>Wynik:</strong> ${result.total}</p>
+            <p><strong>Cel:</strong> ${result.target}</p>
+            ${penalty !== 0 ? `<p>⚠ Kara za rany: ${penalty}</p>` : ""}
+            <p><strong>${resultText}</strong></p>
+            <p><strong>Margin:</strong> ${marginText}</p>
+
+            ${symbols ? `<p>${symbols}</p>` : ""}
+            </div>
+        `;
+    }
+
+   static async fortitude(actor, { chat = true } = {}) {
+
+  // jeśli już martwy → nic nie rób
+  if (actor.system.state?.life === "dead") return null;
+
+  const attr = actor.system.attributes.strength;
+
+  if (!attr) {
+    console.error("Brak atrybutu tężyzny");
+    return null;
   }
 
-  const marginText = result.margin >= 0 ? `+${result.margin}` : result.margin;
+  const penalty = actor.system.derived.woundPenalty ?? 0;
+  const target = Math.max(2, attr.value + penalty);
 
-  let symbols = "";
-  if (result.eagles > 0) symbols += `🦅 ${result.eagles} `;
-  if (result.shields > 0) symbols += `🛡️ ${result.shields}`;
+  // rzut
+  const roll = await new Roll("2d10").roll();
+  const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
+  const total = roll.total;
 
-  return `
+  // sukces bazowy
+  let success = total <= target;
+
+  // krytyki (spójne ze skill)
+  const isDouble = dice.length === 2 && dice[0] === dice[1];
+  let critical = null;
+
+  if (isDouble) {
+    if (total === 2) {
+      success = true;
+      critical = "criticalSuccess";
+    } else if (total === 20) {
+      success = false;
+      critical = "criticalFailure";
+    }
+  }
+
+  const margin = target - total;
+
+  // tekst wyniku
+  let resultText;
+
+  if (critical === "criticalSuccess") {
+    resultText = "🔥 CUD! PRZETRWAŁ";
+  } else if (critical === "criticalFailure") {
+    resultText = "💀 NATYCHMIASTOWA ŚMIERĆ";
+  } else {
+    resultText = success ? "PRZETRWAŁ" : "UMIERA";
+  }
+
+  const result = {
+    dice,
+    total,
+    target,
+    success,
+    margin,
+    critical
+  };
+
+  const speaker = ChatMessage.getSpeaker({
+    actor,
+    token: actor.token ?? null
+  });
+
+  const content = `
     <div class="crp-roll">
-      <h3>${label}</h3>
-      ${usedFate ? `<p>✔ Dola użyta</p>` : ""}
+      <h3>💀 Test tężyzny</h3>
 
-      <p><strong>Kostki:</strong> ${result.dice.join(", ")}</p>
-      <p><strong>Wynik:</strong> ${result.total}</p>
-      <p><strong>Cel:</strong> ${result.target}</p>
+      <p><strong>Kostki:</strong> ${dice.length ? dice.join(", ") : "—"}</p>
+      <p><strong>Wynik:</strong> ${total}</p>
+      <p><strong>Cel:</strong> ${target}</p>
+
+      ${penalty !== 0 ? `<p>⚠ Kara za rany: ${penalty}</p>` : ""}
 
       <p><strong>${resultText}</strong></p>
-      <p><strong>Margin:</strong> ${marginText}</p>
-
-      ${symbols ? `<p>${symbols}</p>` : ""}
+      <p>Margin: ${margin}</p>
     </div>
   `;
+
+  if (chat) {
+    await ChatMessage.create({
+      speaker,
+      content
+    });
+  }
+
+  return result;
+}
+
+static async processTurn(actor) {
+
+  const state = actor.system.state;
+
+  // martwy → nic
+  if (state.life === "dead") return;
+
+  // nie krwawi → nic
+  if (!state.bleeding) return;
+
+  // test tężyzny
+  const result = await this.fortitude(actor, { chat: true });
+
+  if (!result) return;
+
+  // =====================
+  // PRZYTOMNY → NIEPRZYTOMNY
+  // =====================
+  if (state.life === "alive") {
+
+    if (!result.success) {
+      await actor.update({
+        "system.state.life": "unconscious"
+      });
+
+      ui.notifications.warn(`${actor.name} traci przytomność!`);
+    }
+
+    return;
+  }
+
+  // =====================
+  // NIEPRZYTOMNY → ŚMIERĆ
+  // =====================
+  if (state.life === "unconscious") {
+
+    if (!result.success) {
+      await actor.update({
+       // system.state.life": "dead",
+        "system.state.bleeding": false
+      });
+
+      ui.notifications.error(`${actor.name} umiera!`);
+    }
+
+    return;
+  }
+}
+
+static async processTurn(actor) {
+
+  const state = actor.system.state;
+
+  // martwy → nic
+  if (state.life === "dead") return;
+
+  // nie krwawi → nic
+  if (!state.bleeding) return;
+
+  // rzut na tężyznę
+  const result = await this.fortitude(actor, { chat: true });
+
+  if (!result) return;
+
+  // =====================
+  // PRZYTOMNY → NIEPRZYTOMNY
+  // =====================
+  if (state.life === "alive") {
+
+    if (!result.success) {
+      await actor.update({
+        "system.state.life": "unconscious"
+      });
+
+      ui.notifications.warn(`${actor.name} traci przytomność!`);
+    }
+
+    return;
+  }
+
+  // =====================
+  // NIEPRZYTOMNY → ŚMIERĆ
+  // =====================
+  if (state.life === "unconscious") {
+
+    if (!result.success) {
+      await actor.update({
+        // "system.state.life": "dead",
+        "system.state.bleeding": false
+      });
+
+      ui.notifications.error(`${actor.name} umiera!`);
+    }
+
+    return;
+  }
 }
 
 }

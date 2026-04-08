@@ -2,7 +2,7 @@
   "id": "crp",
   "title": "Corona Regni Poloniae",
   "description": "Corona Regni Poloniae RPG system for FoundryVTT!",
-  "version": "0.0.1",
+  "version": "0.4.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -39,6 +39,6 @@
   },
   "relationships": {},
   "url": "https://trpg.pl",
-  "manifest": "...",
-  "download": "..."
+  "manifest": "https://github.com/BZL23/CRP/blob/main/system.json",
+  "download": "https://github.com/BZL23/CRP/archive/refs/heads/main.zip"
 }

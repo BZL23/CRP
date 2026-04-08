@@ -49,20 +49,36 @@ export class CRPActor extends Actor {
       attr.character.skills.charisma.value;
 
     const hp = system.derived.health.value;
-const max = system.derived.health.max;
+    const max = system.derived.health.max;
 
-let penalty = 0;
+    let penalty = 0;
 
-// progi
-if (hp <= 0) {
-  penalty = -2;
-} else if (hp <= Math.floor(max / 2)) {
-  penalty = -1;
-}
+    // progi
+    if (hp <= 0) {
+      penalty = -2;
+    } else if (hp <= Math.floor(max / 2)) {
+      penalty = -1;
+    }
 
-system.derived.woundPenalty = penalty;
+    system.derived.woundPenalty = penalty;
 
-    
+    let woundState = "healthy";
+
+    if (hp <= 0) {
+      woundState = "critical";
+    } else if (hp <= Math.floor(max / 2)) {
+      woundState = "wounded";
+    }
+
+    system.derived.woundState = woundState;
+
+    let lifeState = "alive";
+
+    if (hp <= 0) {
+      lifeState = "critical";
+    }
+
+    system.derived.lifeState = lifeState;
     
   }
 
@@ -102,7 +118,43 @@ async spendFate(amount = 1) {
   return true;
 }
 
+async applyWoundsState() {
+  const hp = this.system.derived.health.value;
+  const max = this.system.derived.health.max;
 
+  let update = {};
+
+  if (hp <= 0) {
+    update["system.state.bleeding"] = true;
+  } else {
+    update["system.state.bleeding"] = false;
+    update["system.state.life"] = "alive";
+  }
+
+  await this.update(update);
+}
+
+async clearWoundsState() {
+  await this.update({
+    "system.state.bleeding": false,
+    "system.state.life": "alive"
+  });
+}
+
+
+async applyDamage(amount) {
+
+  const hp = this.system.derived.health.value;
+  const max = this.system.derived.health.max;
+
+  const newHp = Math.max(-max, hp - amount);
+
+  await this.update({
+    "system.derived.health.value": newHp
+  });
+
+  await this.applyWoundsState();
+}
 
 }
 
