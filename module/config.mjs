@@ -2,15 +2,15 @@
 
 export const CRP = {};
 
-CRP.attributes = {
+CRP.attributes = Object.freeze({
   strength: "Siła",
   agility: "Zręczność",
   perception: "Percepcja",
   character: "Charakter",
   reason: "Rozum"
-};
+});
 
-CRP.skills = {
+CRP.skills = Object.freeze({
   athletics: "Atletyka",
   twoHanded: "Broń dwuręczna",
   endurance: "Tężyzna",
@@ -40,4 +40,4 @@ CRP.skills = {
   medicine: "Leczenie",
   politics: "Polityka",
   knowledge: "Wiedza"
-};
+});

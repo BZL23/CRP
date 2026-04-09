@@ -1,3 +1,4 @@
 .crp-use-fate.used {
   opacity: 0.6;
+  filter: grayscale(0.5);
 }

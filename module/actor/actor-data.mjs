@@ -76,8 +76,8 @@ export class CRPActorData extends TypeDataModel {
         willpower: new NumberField({ initial: 0 }),
 
         health: new SchemaField({
-          value: new NumberField({ initial: 0, min: 0 }),
-          max: new NumberField({ initial: 0, min: 0 })
+          value: new NumberField({ initial: 1 }),
+          max: new NumberField({ initial: 1, min: 1 })
         }),
 
         maneuver: new NumberField({ initial: 0 })
@@ -90,14 +90,15 @@ export class CRPActorData extends TypeDataModel {
         })
       }),
 
+      // STANY
       state: new SchemaField({
-  life: new StringField({
-    initial: "alive"
-  }),
-  bleeding: new BooleanField({
-    initial: false
-  })
-})
+        life: new StringField({
+          initial: "alive",
+          choices: ["alive", "dead"]
+        }),
+        bleeding: new BooleanField({ initial: false }),
+        unconscious: new BooleanField({ initial: false })
+      })
 
     };
   }

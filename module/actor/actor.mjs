@@ -4,6 +4,7 @@ import { CRPRoll } from "../rolls/roll.mjs";
 
 export class CRPActor extends Actor {
   prepareDerivedData() {
+
     super.prepareDerivedData();
 
     const system = this.system;
@@ -48,8 +49,8 @@ export class CRPActor extends Actor {
       bestCombatSkill +
       attr.character.skills.charisma.value;
 
-    const hp = system.derived.health.value;
-    const max = system.derived.health.max;
+    const hp = derived.health.value;
+const max = derived.health.max;
 
     let penalty = 0;
 
@@ -71,15 +72,7 @@ export class CRPActor extends Actor {
     }
 
     system.derived.woundState = woundState;
-
-    let lifeState = "alive";
-
-    if (hp <= 0) {
-      lifeState = "critical";
-    }
-
-    system.derived.lifeState = lifeState;
-    
+  
   }
 
   async rollSkill(attrKey, skillKey) {
@@ -104,15 +97,8 @@ async spendFate(amount = 1) {
     return false;
   }
 
-  // dodatkowa ochrona (opcjonalna na przyszłość)
-  if (this.system.resources.fate.usedThisRoll) {
-    ui.notifications.warn("Dola już użyta!");
-    return false;
-  }
-
   await this.update({
-    "system.resources.fate.value": current - amount,
-    "system.resources.fate.usedThisRoll": true
+    "system.resources.fate.value": current - amount
   });
 
   return true;
@@ -120,34 +106,39 @@ async spendFate(amount = 1) {
 
 async applyWoundsState() {
   const hp = this.system.derived.health.value;
-  const max = this.system.derived.health.max;
 
-  let update = {};
+  const update = {};
 
-  if (hp <= 0) {
+  if (hp <= 0 && !this.system.state.bleeding) {
     update["system.state.bleeding"] = true;
-  } else {
-    update["system.state.bleeding"] = false;
-    update["system.state.life"] = "alive";
   }
 
-  await this.update(update);
+  if (hp > 0 && this.system.state.bleeding) {
+    update["system.state.bleeding"] = false;
+  }
+
+  if (Object.keys(update).length) {
+    await this.update(update);
+  }
 }
 
 async clearWoundsState() {
   await this.update({
     "system.state.bleeding": false,
+    "system.state.unconscious": false,
     "system.state.life": "alive"
   });
 }
 
-
 async applyDamage(amount) {
+
+  if (amount <= 0) return;
 
   const hp = this.system.derived.health.value;
   const max = this.system.derived.health.max;
 
-  const newHp = Math.max(-max, hp - amount);
+  const currentHp = Number(hp) || 0;
+  const newHp = Math.max(-max, currentHp - amount);
 
   await this.update({
     "system.derived.health.value": newHp
