@@ -4,6 +4,7 @@ import { CRPActor } from "./actor/actor.mjs";
 import { CRPActorData } from "./actor/actor-data.mjs";
 import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
+import { CRPActorSheet } from "./actor/sheet.mjs";
 
 Hooks.once("init", () => {
   console.log("CRP | System init");
@@ -15,7 +16,14 @@ Hooks.once("init", () => {
     npc: CRPActorData,
     creature: CRPActorData
   };
+
   CONFIG.CRP = CRP;
+
+foundry.documents.collections.Actors.registerSheet("crp", CRPActorSheet, {
+  types: ["character"],
+  makeDefault: true
+});
+
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {

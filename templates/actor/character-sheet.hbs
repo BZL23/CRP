@@ -1,0 +1,100 @@
+<section class="crp-sheet">
+
+  <header class="crp-header">
+
+    <div class="crp-portrait">
+      <img src="{{document.img}}" data-edit="img">
+    </div>
+
+    <div class="crp-header-main">
+      <h1 class="crp-name" contenteditable="true" data-edit="name">{{document.name}}</h1>
+
+      <div class="crp-resources">
+
+        
+        <div class="crp-resource">
+          <label>Zdrowie</label>
+
+
+
+          <div class="crp-health-values">
+            <input type="number"
+                   data-path="system.derived.health.value"
+                   value="{{system.derived.health.value}}">
+            / {{system.derived.health.max}}
+          </div>
+                    <div class="crp-health-bar">
+            <div class="crp-health-fill {{system.derived.woundState}}"
+                 style="width: {{system.derived.health.percent}}%;">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="crp-resource">
+          <label>Dola</label>
+          <input type="number"
+                 data-path="system.resources.fate.value"
+                 value="{{system.resources.fate.value}}">
+        </div>
+
+
+      </div>
+    </div>
+
+  </header>
+
+  <section class="crp-attributes">
+    {{#each attributesList}}
+      <div class="crp-attr">
+
+        <h2>{{this.label}}</h2>
+
+        <input type="number"
+               class="crp-attr-value"
+               min="0"
+               max="10"
+               data-path="system.attributes.{{this.key}}.value"
+               value="{{this.value}}">
+
+<div class="crp-skills">
+  {{#each this.skills as |skill|}}
+
+    
+    <div class="crp-skill"
+     data-attr="{{../key}}"
+     data-skill="{{skill.key}}" 
+     title="{{skill.label}}" >
+
+  <span class="crp-skill-label">
+    {{skill.label}}
+  </span>
+
+  <input type="number"
+         class="crp-skill-value"
+         min="0"
+         max="10"
+         data-path="system.attributes.{{../key}}.skills.{{skill.key}}.value"
+         value="{{skill.value}}">
+
+  <div class="crp-skill-total">
+    {{skill.total}}
+  </div>
+
+</div>
+
+
+  {{/each}}
+</div>
+
+      </div>
+    {{/each}}
+  </section>
+
+  <section class="crp-derived">
+    <div>Inicjatywa: {{system.derived.initiative}}</div>
+    <div>Siła woli: {{system.derived.willpower}}</div>
+    <div>Manewry: {{system.derived.maneuver}}</div>
+  </section>
+
+</section>

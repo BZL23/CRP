@@ -15,57 +15,57 @@ export class CRPActorData extends TypeDataModel {
       // ATRYBUTY + SKILLE
       attributes: new SchemaField({
         strength: new SchemaField({
-          value: new NumberField({ initial: 3, min: 0 }),
+          value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
-            athletics: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            twoHanded: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            endurance: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            brawl: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            intimidate: new SchemaField({ value: new NumberField({ initial: 0 }) })
+            athletics: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            twoHanded: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            endurance: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            brawl: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            intimidate: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         }),
 
         agility: new SchemaField({
-          value: new NumberField({ initial: 3, min: 0 }),
+          value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
-            oneHanded: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            lightWeapons: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            craft: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            shield: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            stealth: new SchemaField({ value: new NumberField({ initial: 0 }) })
+            oneHanded: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            lightWeapons: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            craft: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            shield: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            stealth: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         }),
 
         perception: new SchemaField({
-          value: new NumberField({ initial: 3, min: 0 }),
+          value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
-            empathy: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            disguise: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            survival: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            awareness: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            ranged: new SchemaField({ value: new NumberField({ initial: 0 }) })
+            empathy: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            disguise: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            survival: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            awareness: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            ranged: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         }),
 
         character: new SchemaField({
-          value: new NumberField({ initial: 3, min: 0 }),
+          value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
-            charisma: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            animals: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            carousing: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            gossip: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            persuasion: new SchemaField({ value: new NumberField({ initial: 0 }) })
+            charisma: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            animals: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            carousing: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            gossip: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            persuasion: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         }),
 
         reason: new SchemaField({
-          value: new NumberField({ initial: 3, min: 0 }),
+          value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
-            literacy: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            languages: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            medicine: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            politics: new SchemaField({ value: new NumberField({ initial: 0 }) }),
-            knowledge: new SchemaField({ value: new NumberField({ initial: 0 }) })
+            literacy: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            languages: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            medicine: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            politics: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            knowledge: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         })
       }),

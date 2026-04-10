@@ -1,4 +1,288 @@
+/* ===== OGÓLNE ===== */
+
+
+@font-face {
+  font-family: "CRP-Header";
+  src: url("../fonts/TrajanPro-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "CRP-Header";
+  src: url("../fonts/TrajanPro-Bold.otf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+
+.crp-sheet {
+  font-family: serif;
+  padding: 10px;
+}
+
+/* ===== HEADER ===== */
+
+.crp-header {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.crp-header-main {
+  flex: 1;
+}
+
+/* ===== PORTRET ===== */
+
+.crp-portrait {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #444;
+  background: #ddd;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.crp-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* ===== RESOURCES ===== */
+
+.crp-resources {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.crp-resource label {
+  font-size: 12px;
+  display: block;
+}
+
+.crp-resource input {
+  width: 60px;
+}
+
+/* ===== ATTRIBUTES GRID ===== */
+
+.crp-attributes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+/* ===== ATTRIBUTE CARD ===== */
+
+.crp-attr {
+  background: #f5f2e9;
+  border: 1px solid #999;
+  padding: 8px;
+}
+
+.crp-attr h2 {
+  font-family: "CRP-Header", serif;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #222;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.crp-attr-value {
+  width: 100%;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+/* ===== SKILLS ===== */
+
+.crp-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crp-skill {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 12px;
+}
+
+.crp-skill:hover {
+  background: #e6e0d0;
+}
+
+/* ===== KOLORY ATRYBUTÓW ===== */
+
+.crp-attr:nth-child(1) { border-top: 4px solid #a33; }
+.crp-attr:nth-child(2) { border-top: 4px solid #3a3; }
+.crp-attr:nth-child(3) { border-top: 4px solid #36a; }
+.crp-attr:nth-child(4) { border-top: 4px solid #a63; }
+.crp-attr:nth-child(5) { border-top: 4px solid #639; }
+
+/* ===== HEALTH BAR ===== */
+
+.crp-health-bar {
+  width: 100%;
+  height: 10px;
+  background: #222;
+  border: 1px solid #555;
+  margin: 4px 0;
+}
+
+.crp-health-fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+/* STANY */
+.crp-health-fill.healthy { background: #2ecc71; }
+.crp-health-fill.wounded { background: #f1c40f; }
+.crp-health-fill.critical { background: #e74c3c; }
+
+.crp-health-values {
+  font-size: 12px;
+}
+
+/* ===== FATE ===== */
+
 .crp-use-fate.used {
   opacity: 0.6;
   filter: grayscale(0.5);
+}
+
+.crp-name {
+  font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
+}
+
+
+.crp-skill:active {
+  transform: scale(0.97);
+}
+
+input:focus {
+  outline: 2px solid #a63;
+}
+
+.crp-health-bar {
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.crp-sheet {
+  overflow-y: auto;
+}
+
+.crp-skill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 2px 4px;
+}
+
+.crp-skill-label {
+  font-family: "CRP-Header", serif;
+  color: #4b3014;
+  cursor: pointer;
+}
+
+.crp-skill-value {
+  width: 40px;
+  text-align: center;
+  border: none;
+  background: transparent;
+}
+
+.crp-skill-value:focus {
+  outline: 1px solid #a63;
+  background: #fff8e6;
+  color: #4b3014;
+}
+
+.crp-skill-total {
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+.crp-skill-total {
+  color: #2c3e50;
+}
+
+.crp-skill-total.high {
+  color: #2ecc71;
+}
+
+
+.crp-skill {
+  display: grid;
+  grid-template-columns: 1fr 30px 36px;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 2px 4px;
+}
+
+/* NAZWA */
+.crp-skill-label {
+  overflow: hidden;
+  white-space: normal;
+}
+
+/* VALUE */
+.crp-skill-value {
+  width: 30px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+}
+
+/* TOTAL */
+.crp-skill-total {
+  width: 36px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+  background: #eee;
+  border: 1px solid #999;
+  border-radius: 3px;
+}
+
+.crp-skill:hover {
+  background: #f0ead6;
+}
+
+.crp-skill {
+  cursor: pointer;
+}
+
+.crp-skill input {
+  cursor: text;
+}
+
+.crp-skill:hover {
+  background: #f0ead6;
+}
+
+.crp-skill:active {
+  transform: scale(0.98);
 }

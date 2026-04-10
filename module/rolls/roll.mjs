@@ -68,20 +68,30 @@ const { critical, success } = this.resolveOutcome(dice, total, target);
         const shields = dice.filter(d => d === 10).length;
 
         // wynik
-        const result = {
-            dice,
-            total,
-            target,
-            margin,
-            success,
-            critical,
-            eagles,
-            shields
-        };
+const result = {
+  dice,
+  total,
+  target,
+  margin,
+  success,
+  critical,
+  eagles,
+  shields
+};
 
-        console.log("CRP Roll:", result);
+console.log("CRP Roll:", result);
 
-        return result;    
+if (chat) {
+  const content = this.renderRollHTML(actor, attrKey, skillKey, result);
+
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content
+  });
+}
+
+return result;
+
 
     }
 
