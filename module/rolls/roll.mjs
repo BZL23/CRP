@@ -82,7 +82,10 @@ const result = {
 console.log("CRP Roll:", result);
 
 if (chat) {
-  const content = this.renderRollHTML(actor, attrKey, skillKey, result);
+  const content = this.renderRollHTML(actor, attrKey, skillKey, result, {
+    usedFate: false,
+    allowFate
+  });
 
   await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }),
@@ -204,138 +207,83 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
         };
     }
 
-    static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false } = {}) {
+static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allowFate = true } = {}) {
 
-        const skillLabel = CONFIG.CRP.skills[skillKey] ?? skillKey;
-        const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
+  const canUseFate = actor.isOwner || game.user.isGM;
 
-        const label = `${skillLabel} (${attrLabel})`;
-        const penalty = actor.system.derived.woundPenalty ?? 0;
-
-        let resultText;
-
-        if (result.critical === "criticalSuccess") {
-            resultText = "🔥 KRYTYCZNY SUKCES";
-        } else if (result.critical === "criticalFailure") {
-            resultText = "💀 KRYTYCZNA PORAŻKA";
-        } else {
-            resultText = result.success ? "SUKCES" : "PORAŻKA";
-        }
-
-const marginText = result.critical
-  ? null
-  : this.formatMargin(result.margin);
-
-        let symbols = "";
-        if (result.eagles > 0) symbols += `🦅 ${result.eagles} `;
-        if (result.shields > 0) symbols += `🛡️ ${result.shields}`;
-
-        return `
-            <div class="crp-roll">
-            <h3>${label}</h3>
-            ${usedFate ? `<p>✔ Dola użyta</p>` : ""}
-
-            <p><strong>Kostki:</strong> ${result.dice.length ? result.dice.join(", ") : "—"}</p>
-            <p><strong>Wynik:</strong> ${result.total}</p>
-            <p><strong>Cel:</strong> ${result.target}</p>
-            ${penalty !== 0 ? `<p>⚠ Kara za rany: ${penalty}</p>` : ""}
-            <p><strong>${resultText}</strong></p>
-            ${marginText !== null ? `<p><strong>Margin:</strong> ${marginText}</p>` : ""}
-
-            ${symbols ? `<p>${symbols}</p>` : ""}
-            </div>
-        `;
-    }
-
-
-
-
-
-
-   static async fortitude(actor, { chat = true } = {}) {
-
-  // jeśli już martwy → nic nie rób
-  if (actor.system.state?.life === "dead") return null;
-
-  const attr = actor.system.attributes.strength;
-
-  if (!attr) {
-    console.error("Brak atrybutu tężyzny");
-    return null;
-  }
+  const skillLabel = CONFIG.CRP.skills[skillKey] ?? skillKey;
+  const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
 
   const penalty = actor.system.derived.woundPenalty ?? 0;
-  const target = Math.max(2, attr.value + penalty);
 
-  // rzut
-  const roll = await new Roll("2d10").roll();
-  const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
-  const total = roll.total;
-
-const { critical, success } = this.resolveOutcome(dice, total, target);
-
-  const margin = target - total;
-
-  // tekst wyniku
+  //  wynik tekstowy
   let resultText;
-
-  if (critical === "criticalSuccess") {
-    resultText = "🔥 CUD! PRZETRWAŁ";
-  } else if (critical === "criticalFailure") {
-    resultText = "💀 NATYCHMIASTOWA ŚMIERĆ";
+  if (result.critical === "criticalSuccess") {
+    resultText = "🔥 KRYTYCZNY SUKCES";
+  } else if (result.critical === "criticalFailure") {
+    resultText = "💀 KRYTYCZNA PORAŻKA";
   } else {
-    resultText = success ? "PRZETRWAŁ" : "UMIERA";
+    resultText = result.success ? "✔ SUKCES" : "❌ PORAŻKA";
   }
 
-  const result = {
-    dice,
-    total,
-    target,
-    success,
-    margin,
-    critical
-  };
+  //  margin
+  const marginText = result.critical
+    ? ""
+    : `<div class="crp-roll-margin">Margin: ${this.formatMargin(result.margin)}</div>`;
 
-  const speaker = ChatMessage.getSpeaker({
-    actor,
-    token: actor.token ?? null
-  });
+  //  symbole
+  let symbols = "";
+  if (result.eagles > 0) symbols += `🦅 ${result.eagles} `;
+  if (result.shields > 0) symbols += `🛡️ ${result.shields}`;
 
-const marginText = result.critical
-  ? null
-  : this.formatMargin(margin);
+  //  przycisk Doli
+const fateButton = canUseFate ? `
+  <button class="crp-use-fate ${usedFate ? "used" : ""}"
+          data-actor-uuid="${actor.uuid}"
+          data-attr="${attrKey}"
+          data-skill="${skillKey}"
+          ${usedFate ? "disabled" : ""}>
+    ${usedFate ? "✔ Dola użyta" : "✨ Użyj Doli"}
+  </button>
+` : "";
 
-  const content = `
-    <div class="crp-roll">
-      <h3>💀 Test tężyzny</h3>
+  return `
+    <div class="crp-roll-card ${result.success ? "success" : "fail"}">
 
-      <p><strong>Kostki:</strong> ${dice.length ? dice.join(", ") : "—"}</p>
-      <p><strong>Wynik:</strong> ${total}</p>
-      <p><strong>Cel:</strong> ${target}</p>
+      <div class="crp-roll-header">
+        <img src="${actor.img}" class="crp-roll-avatar">
+        <div>
+          <div class="crp-roll-actor">${actor.name}</div>
+          <div class="crp-roll-skill">${skillLabel} (${attrLabel})</div>
+        </div>
+      </div>
 
-      ${penalty !== 0 ? `<p>⚠ Kara za rany: ${penalty}</p>` : ""}
+      <div class="crp-roll-body">
 
-      <p><strong>${resultText}</strong></p>
-      ${marginText !== null ? `<p><strong>Margin:</strong> ${marginText}</p>` : ""}
+        ${usedFate ? `<div class="crp-roll-fate-used">✔ Dola użyta</div>` : ""}
 
-        <p>Stan: ${
-            actor.system.state.life === "dead" ? "💀 martwy" :
-            actor.system.state.unconscious ? "😵 nieprzytomny" :
-            actor.system.state.bleeding ? "🩸 krwawi" :
-            "✔ stabilny"
-        }</p> 
+        <div class="crp-roll-dice">
+          🎲 ${result.dice.length ? result.dice.join(", ") : "—"} 
+          → <strong>${result.total}</strong>
+        </div>
 
+        <div class="crp-roll-target">
+          🎯 Cel: ${result.target}
+        </div>
+
+        ${penalty !== 0 ? `<div class="crp-roll-penalty">⚠ Kara za rany: ${penalty}</div>` : ""}
+
+        <div class="crp-roll-result">${resultText}</div>
+
+        ${marginText}
+
+        ${symbols ? `<div class="crp-roll-symbols">${symbols}</div>` : ""}
+
+        ${fateButton}
+
+      </div>
     </div>
   `;
-
-  if (chat) {
-    await ChatMessage.create({
-      speaker,
-      content
-    });
-  }
-
-  return result;
 }
 
 

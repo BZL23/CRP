@@ -26,104 +26,103 @@ foundry.documents.collections.Actors.registerSheet("crp", CRPActorSheet, {
 
 });
 
+
 Hooks.on("renderChatMessageHTML", (message, html) => {
 
-const buttons = html.querySelectorAll(".crp-use-fate");
-if (!buttons.length) return;
+  const buttons = html.querySelectorAll(".crp-use-fate");
+  if (!buttons.length) return;
 
-for (const button of buttons) {
+  for (const button of buttons) {
 
-  if (button.dataset.bound) continue;
-  if (!button.dataset.messageId) continue;
+    //  zabezpieczenie przed wielokrotnym bindem
+    if (button.dataset.bound) continue;
+    button.dataset.bound = "true";
 
-  button.dataset.bound = "true";
+    button.addEventListener("click", async ev => {
 
-  button.addEventListener("click", async ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
 
-  ev.preventDefault();
-  ev.stopPropagation();
+      //  jeśli już użyto
+      if (button.classList.contains("used")) return;
 
-  if (button.classList.contains("used")) return;
+      button.disabled = true;
+      button.innerText = "⏳ Rzut...";
 
-  button.disabled = true;
-  button.innerText = "⏳ Rzut...";
+      const actorUuid = button.dataset.actorUuid;
+      const attrKey = button.dataset.attr;
+      const skillKey = button.dataset.skill;
 
-  const actorUuid = button.dataset.actorUuid;
-  const attrKey = button.dataset.attr;
-  const skillKey = button.dataset.skill;
-  const messageId = button.dataset.messageId;
+      if (!actorUuid) {
+        ui.notifications.error("Brak UUID aktora");
+        button.disabled = false;
+        button.innerText = "✨ Użyj Doli";
+        return;
+      }
 
-  if (!actorUuid) {
-    ui.notifications.error("Brak UUID aktora");
-    button.disabled = false;
-    button.innerText = "✨ Użyj Doli";
-    return;
+      const actor = await fromUuid(actorUuid);
+
+      if (!actor || (!actor.isOwner && !game.user.isGM)) {
+        ui.notifications.error("Brak uprawnień do aktora");
+        button.disabled = false;
+        button.innerText = "✨ Użyj Doli";
+        return;
+      }
+
+      //  zużycie Doli
+      let spent;
+      try {
+        spent = await actor.spendFate(1);
+      } catch (e) {
+        console.error(e);
+        ui.notifications.error("Błąd Doli");
+        button.disabled = false;
+        button.innerText = "✨ Użyj Doli";
+        return;
+      }
+
+      if (!spent) {
+        button.disabled = false;
+        button.innerText = "✨ Użyj Doli";
+        return;
+      }
+
+      //  reroll (bez nowej wiadomości)
+      const result = await CRPRoll.skill(actor, attrKey, skillKey, {
+        chat: false
+      });
+
+      if (!result) {
+        button.disabled = false;
+        button.innerText = "✨ Użyj Doli";
+        return;
+      }
+
+      //  generujemy nowy HTML
+const newContent = CRPRoll.renderRollHTML(
+  
+  actor,
+  attrKey,
+  skillKey,
+  result,
+  {
+    usedFate: true,
+    allowFate: false
   }
+);
 
-const actor = await fromUuid(actorUuid);
-if (!actor || !actor.isOwner) {
-  ui.notifications.error("Brak uprawnień do aktora");
-  button.disabled = false;
-  button.innerText = "✨ Użyj Doli";
-  return;
-}
+      //  KLUCZ: aktualizujemy TĘ wiadomość
+      await message.update({
+        content: newContent
+      });
 
-  const chatMessage = game.messages.get(messageId);
+      button.innerText = "✔ Dola użyta";
+button.classList.add("used");
+button.disabled = true;
 
-  if (!chatMessage) {
-    ui.notifications.error("Błąd danych");
-    button.disabled = false;
-    button.innerText = "✨ Użyj Doli";
-    return;
+    });
+
   }
-
-
-  let spent;
-
-try {
-  spent = await actor.spendFate(1);
-} catch (e) {
-  console.error(e);
-  ui.notifications.error("Błąd Doli");
-  button.disabled = false;
-  button.innerText = "✨ Użyj Doli";
-  return;
-}
-
-if (!spent) {
-  button.disabled = false;
-  button.innerText = "✨ Użyj Doli";
-  return;
-}
-
-  const result = await CRPRoll.skill(actor, attrKey, skillKey, {
-    chat: false
-  });
-
-  if (!result) {
-    button.disabled = false;
-    button.innerText = "✨ Użyj Doli";
-    return;
-  }
-
-  const newContent = CRPRoll.renderRollHTML(
-    actor,
-    attrKey,
-    skillKey,
-    result,
-    { usedFate: true }
-  );
-
-  await chatMessage.update({
-    content: newContent
-  });
-
-  button.innerText = "✔ Dola użyta";
-  button.style.pointerEvents = "none";
-  button.classList.add("used");
-  button.disabled = true;
-
-}); }
 
 });
 
