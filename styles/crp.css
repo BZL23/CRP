@@ -1,24 +1,27 @@
-/* ===== OGÓLNE ===== */
-
+/* ===== FONTS ===== */
 
 @font-face {
   font-family: "CRP-Header";
   src: url("../fonts/TrajanPro-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
 }
 
 @font-face {
   font-family: "CRP-Header";
-  src: url("../fonts/TrajanPro-Bold.otf") format("truetype");
+  src: url("../fonts/TrajanPro-Bold.otf") format("opentype");
   font-weight: bold;
-  font-style: normal;
 }
 
+/* ===== OGÓLNE ===== */
 
 .crp-sheet {
   font-family: serif;
   padding: 10px;
+  overflow-y: auto;
+}
+
+.crp-name {
+  font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
 }
 
 /* ===== HEADER ===== */
@@ -69,15 +72,13 @@
   width: 60px;
 }
 
-/* ===== ATTRIBUTES GRID ===== */
+/* ===== ATTRIBUTES ===== */
 
 .crp-attributes {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
 }
-
-/* ===== ATTRIBUTE CARD ===== */
 
 .crp-attr {
   background: #f5f2e9;
@@ -89,40 +90,17 @@
   font-family: "CRP-Header", serif;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #222;
-  font-weight: bold;
   text-align: center;
-  margin-bottom: 5px;
   font-size: 14px;
+  margin-bottom: 5px;
+  color: #4b3014;
 }
 
 .crp-attr-value {
   width: 100%;
-  font-size: 16px;
   text-align: center;
+  font-size: 16px;
   margin-bottom: 5px;
-}
-
-/* ===== SKILLS ===== */
-
-.crp-skills {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.crp-skill {
-  display: flex;
-  justify-content: space-between;
-  background: #fff;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  padding: 2px 4px;
-  font-size: 12px;
-}
-
-.crp-skill:hover {
-  background: #e6e0d0;
 }
 
 /* ===== KOLORY ATRYBUTÓW ===== */
@@ -133,13 +111,82 @@
 .crp-attr:nth-child(4) { border-top: 4px solid #a63; }
 .crp-attr:nth-child(5) { border-top: 4px solid #639; }
 
-/* ===== HEALTH BAR ===== */
+/* ===== SKILLS ===== */
+
+.crp-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crp-skill {
+  display: grid;
+  grid-template-columns: 1fr 30px 36px;
+  align-items: center;
+  gap: 6px;
+  
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 2px 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.crp-skill:hover {
+  background: #f0ead6;
+}
+
+.crp-skill:active {
+  transform: scale(0.98);
+}
+
+.crp-skill-label {
+  font-family: "CRP-Header", serif;
+  color: #4b3014;
+  white-space: normal;
+  overflow: hidden;
+}
+
+.crp-skill-value {
+  width: 30px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+}
+
+.crp-skill-value:focus {
+  outline: 1px solid #a63;
+  background: #fff8e6;  
+  color: #4b3014;
+}
+
+.crp-skill-total {
+  width: 36px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+  color: #4b3014;
+  background: #eee;
+  border: 1px solid #999;
+  border-radius: 3px;
+}
+
+/* ===== INPUT ===== */
+
+input:focus {
+  outline: 2px solid #a63;
+}
+
+/* ===== HEALTH ===== */
 
 .crp-health-bar {
   width: 100%;
   height: 10px;
   background: #222;
   border: 1px solid #555;
+  border-radius: 3px;
+  overflow: hidden;
   margin: 4px 0;
 }
 
@@ -148,7 +195,6 @@
   transition: width 0.3s;
 }
 
-/* STANY */
 .crp-health-fill.healthy { background: #2ecc71; }
 .crp-health-fill.wounded { background: #f1c40f; }
 .crp-health-fill.critical { background: #e74c3c; }
@@ -161,144 +207,28 @@
 
 .crp-use-fate.used {
   opacity: 0.6;
-  filter: grayscale(0.5);
+  pointer-events: none;
 }
 
-.crp-name {
-  font-family: "CRP-Header", serif;
-  letter-spacing: 1px;
-}
-
-
-.crp-skill:active {
-  transform: scale(0.97);
-}
-
-input:focus {
-  outline: 2px solid #a63;
-}
-
-.crp-health-bar {
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.crp-sheet {
-  overflow-y: auto;
-}
-
-.crp-skill {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 2px 4px;
-}
-
-.crp-skill-label {
-  font-family: "CRP-Header", serif;
-  color: #4b3014;
-  cursor: pointer;
-}
-
-.crp-skill-value {
-  width: 40px;
-  text-align: center;
-  border: none;
-  background: transparent;
-}
-
-.crp-skill-value:focus {
-  outline: 1px solid #a63;
-  background: #fff8e6;
-  color: #4b3014;
-}
-
-.crp-skill-total {
-  background: #eee;
-  border: 1px solid #ccc;
-  padding: 0 4px;
-  border-radius: 3px;
-}
-
-.crp-skill-total {
-  color: #2c3e50;
-}
-
-.crp-skill-total.high {
-  color: #2ecc71;
-}
-
-
-.crp-skill {
-  display: grid;
-  grid-template-columns: 1fr 30px 36px;
-  align-items: center;
-  gap: 6px;
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 2px 4px;
-}
-
-/* NAZWA */
-.crp-skill-label {
-  overflow: hidden;
-  white-space: normal;
-}
-
-/* VALUE */
-.crp-skill-value {
-  width: 30px;
-  text-align: center;
-  border: none;
-  background: transparent;
-  font-size: 12px;
-}
-
-/* TOTAL */
-.crp-skill-total {
-  width: 36px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 12px;
-  background: #eee;
-  border: 1px solid #999;
-  border-radius: 3px;
-}
-
-.crp-skill:hover {
-  background: #f0ead6;
-}
-
-.crp-skill {
-  cursor: pointer;
-}
-
-.crp-skill input {
-  cursor: text;
-}
-
-.crp-skill:hover {
-  background: #f0ead6;
-}
-
-.crp-skill:active {
-  transform: scale(0.98);
-}
-
-/* ===== CHAT ROLL CARD ===== */
+/* ===== CHAT ===== */
 
 .crp-roll-card {
   border: 2px solid #444;
-  background: #f5f2e9;
+  border-radius: 6px;
   padding: 8px;
   margin: 4px 0;
-  border-radius: 6px;
   font-family: serif;
+
+  /* background poprawiony */
+  background:
+  url("../assets/parchment.png");
+  background-size: cover;
+
+  color: #222;
 }
 
 /* HEADER */
+
 .crp-roll-header {
   display: flex;
   gap: 8px;
@@ -325,38 +255,32 @@ input:focus {
 }
 
 /* BODY */
+
 .crp-roll-body {
   font-size: 13px;
 }
 
-.crp-roll-dice {
-  margin-bottom: 4px;
-}
-
+.crp-roll-dice,
 .crp-roll-target {
   margin-bottom: 4px;
 }
 
 .crp-roll-result {
   font-weight: bold;
+  font-size: 14px;
   margin-top: 4px;
 }
 
-/* SUKCES / PORAŻKA */
+/* SUCCESS / FAIL */
 
 .crp-roll-card.success {
   border: 3px solid #2ecc71;
   box-shadow: inset 0 0 0 1px #4b3014;
 }
 
-
 .crp-roll-card.fail {
   border: 3px solid #e74c3c;
   box-shadow: inset 0 0 0 1px #4b3014;
-}
-
-.crp-roll-result {
-  font-size: 14px;
 }
 
 .crp-roll-card.success .crp-roll-result {
@@ -367,19 +291,113 @@ input:focus {
   color: #e74c3c;
 }
 
-.crp-use-fate.used {
-  opacity: 0.6;
-  pointer-events: none;
+.crp-token {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #444;
+  background: #ddd;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.crp-roll-card {
-  background: url("../assets/parchment.png");
-  background-size: cover;
-  color: #222; /* kontrast */
-  background:
-    linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
+.crp-token img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
 }
 
-.crp-roll-card {
-  border-radius: 6px;
+
+.crp-gm-button {
+  margin-left: 8px;
+  padding: 4px 8px;
+  background: #3a2a1a;
+  color: #f5f2e9;
+  border: 1px solid #999;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 100;
+}
+
+.crp-gm-button:hover {
+  background: #5a3a1a;
+}
+
+.crp-gm-panel {
+  padding: 10px;
+  background: #f5f2e9;
+  font-family: serif;
+}
+
+/* TYTUŁ */
+.crp-panel-title {
+  text-align: center;
+  font-family: "CRP-Header", serif;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+/* SEKCJE */
+.crp-panel-section {
+  margin-bottom: 12px;
+  padding: 6px;
+  border: 1px solid #999;
+  background: #ece6d8;
+}
+
+.crp-panel-section h3 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: #4b3014;
+}
+
+/* GRID */
+.crp-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* PRZYCISKI */
+.crp-panel-grid button {
+  padding: 6px;
+  background: linear-gradient(#5a3a1a, #3a2a1a);
+  color: #f5f2e9;
+  border: 1px solid #222;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.crp-panel-grid button:hover {
+  background: linear-gradient(#7a4a1a, #5a3a1a);
+}
+
+.crp-panel-grid button:active {
+  transform: scale(0.97);
+}
+
+.crp-actor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.crp-actor-row {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+
+.crp-actor-row:hover {
+  background: #f0ead6;
+}
+
+.crp-fate {
+  font-weight: bold;
+  color: #4b3014;
 }

@@ -5,6 +5,7 @@ import { CRPActorData } from "./actor/actor-data.mjs";
 import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet } from "./actor/sheet.mjs";
+import { CRPGMPanel } from "./gm-panel.mjs";
 
 Hooks.once("init", () => {
   console.log("CRP | System init");
@@ -26,6 +27,18 @@ foundry.documents.collections.Actors.registerSheet("crp", CRPActorSheet, {
 
 });
 
+
+Hooks.on("createActor", async (actor) => {
+
+  if (actor.type !== "character") return;
+
+  const max = actor.system.derived.health.max;
+
+  await actor.update({
+    "system.derived.health.value": max
+  });
+
+});
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
 
@@ -148,4 +161,23 @@ await Promise.all(
   if (actor.type !== "character") return;
 
   await CRPRoll.processTurn(actor);
+});
+
+
+Hooks.on("renderActorDirectory", (app, html) => {
+
+  if (!game.user.isGM) return;
+
+  if (html.querySelector(".crp-btn")) return;
+
+  const btn = document.createElement("button");
+  btn.innerHTML = "👑 CRP Panel";
+  btn.classList.add("crp-btn");
+
+  btn.addEventListener("click", () => {
+    new CRPGMPanel().render(true);
+  });
+
+  html.querySelector(".directory-header").appendChild(btn);
+
 });

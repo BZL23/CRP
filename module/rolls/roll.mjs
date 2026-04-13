@@ -281,6 +281,8 @@ const fateButton = canUseFate ? `
 
         ${fateButton}
 
+
+        
       </div>
     </div>
   `;

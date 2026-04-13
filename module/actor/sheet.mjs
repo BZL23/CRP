@@ -28,6 +28,10 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const system = this.document.system;
     const config = CONFIG.CRP;
 
+    const tokenImg =
+  this.document.prototypeToken?.texture?.src ||
+  this.document.img;
+
     const attributesList = [];
 
     for (const key of Object.keys(config.attributes)) {
@@ -58,11 +62,13 @@ hp.percent = hp.max > 0
   : 0;
 
     return {
-      ...context,
-      system,
-      config,
-      attributesList
-    };
+  ...context,
+  system,
+  config,
+  attributesList,
+  tokenImg
+};
+
   }
 
   _onRender(context, options) {
@@ -117,17 +123,46 @@ value = Math.max(0, Math.min(10, value));
     //  PORTRET
     html.querySelectorAll("[data-edit='img']").forEach(img => {
       img.addEventListener("click", () => {
-        new FilePicker({
+        new foundry.applications.apps.FilePicker({
           type: "image",
           current: this.document.img,
           callback: async (path) => {
-            await this.document.update({
-              img: path,
-              "prototypeToken.texture.src": path
-            });
+
+            const currentToken = this.document.prototypeToken?.texture?.src;
+const currentPortrait = this.document.img;
+
+const isDefaultToken =
+  !currentToken || currentToken === currentPortrait;
+
+await this.document.update({
+  img: path,
+  ...(isDefaultToken && {
+    "prototypeToken.texture.src": path
+  })
+});
+
           }
         }).render(true);
       });
     });
+
+    // TOKEN (zmiana obrazka)
+html.querySelectorAll("[data-edit='token']").forEach(img => {
+  img.addEventListener("click", () => {
+    new foundry.applications.apps.FilePicker({
+      type: "image",
+      current: this.document.prototypeToken?.texture?.src || this.document.img,
+      callback: async (path) => {
+
+        await this.document.update({
+          "prototypeToken.texture.src": path
+        });
+
+      }
+    }).render(true);
+  });
+});
+
+
   }
 }

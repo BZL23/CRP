@@ -1,12 +1,14 @@
 <section class="crp-sheet">
 
-  <header class="crp-header">
+<header class="crp-header">
 
-    <div class="crp-portrait">
-      <img src="{{document.img}}" data-edit="img">
-    </div>
+  <!-- PORTRET -->
+  <div class="crp-portrait">
+    <img src="{{document.img}}" data-edit="img">
+  </div>
 
-    <div class="crp-header-main">
+  <!-- ŚRODEK -->
+  <div class="crp-header-main">
       <h1 class="crp-name" contenteditable="true" data-edit="name">{{document.name}}</h1>
 
       <div class="crp-resources">
@@ -41,8 +43,12 @@
 
       </div>
     </div>
+  <!-- TOKEN -->
+  <div class="crp-token">
+    <img src="{{tokenImg}}" data-edit="token">
+  </div>
 
-  </header>
+</header>
 
   <section class="crp-attributes">
     {{#each attributesList}}

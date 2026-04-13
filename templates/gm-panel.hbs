@@ -1,0 +1,51 @@
+<div class="crp-gm-panel">
+
+  <h2 class="crp-panel-title">Panel MG</h2>
+
+  <div class="crp-panel-section">
+    <h3>🎲 Dola</h3>
+
+    <div class="crp-actor-list">
+      {{#each actors}}
+        <label class="crp-actor-row">
+          <input type="checkbox" value="{{this.id}}">
+          <span>{{this.name}}</span>
+          <span class="crp-fate">({{this.fate}})</span>
+        </label>
+      {{/each}}
+    </div>
+
+    <div class="crp-panel-grid">
+      <button data-action="select-all">Zaznacz wszystkich</button>
+
+      <button data-action="reset-fate">
+        Reset (2)
+      </button>
+
+      <button data-action="give-fate-selected">
+        +1 Doli
+      </button>
+    </div>
+  </div>
+
+  <div class="crp-panel-section">
+    <h3>❤️ Zdrowie</h3>
+
+    <div class="crp-panel-grid">
+      <button data-action="heal-all">
+        Wylecz wszystkich
+      </button>
+    </div>
+  </div>
+
+  <div class="crp-panel-section">
+    <h3>⚙️ Narzędzia</h3>
+
+    <div class="crp-panel-grid">
+      <button data-action="refresh">
+        Odśwież aktorów
+      </button>
+    </div>
+  </div>
+
+</div>
