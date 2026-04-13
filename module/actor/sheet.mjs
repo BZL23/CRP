@@ -94,19 +94,21 @@ html.querySelectorAll(".crp-skill").forEach(el => {
     //  INPUTY
     html.querySelectorAll("input[data-path]").forEach(input => {
       input.addEventListener("change", async ev => {
-        const path = ev.currentTarget.dataset.path;
-        let value = Number(ev.currentTarget.value);
+const path = ev.currentTarget.dataset.path;
+let value = Number(ev.currentTarget.value);
 
 if (isNaN(value)) value = 0;
 
-// clamp
-value = Math.max(0, Math.min(10, value));
+// 🔥 warunkowy clamp
+if (path.startsWith("system.attributes")) {
+  value = Math.max(0, Math.min(10, value));
+} else {
+  value = Math.max(0, value);
+}
 
-        if (isNaN(value)) value = 0;
-
-        await this.document.update({
-          [path]: value
-        });
+await this.document.update({
+  [path]: value
+});
       });
     });
 
