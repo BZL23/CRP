@@ -47,8 +47,22 @@ static formatMargin(margin) {
             return null;
         }
 
+        const weapon = actor.getEquippedWeapon();
+
+let weaponBonus = 0;
+
+if (weapon && weapon.system.skill === skillKey) {
+  weaponBonus += weapon.system.accuracy ?? 0;
+}
+
+
         const penalty = actor.system.derived.woundPenalty ?? 0;
-        const target = Math.max(2, attr.value + skill.value + penalty);
+
+        const target = Math.max(
+  2,
+  attr.value + skill.value + penalty + weaponBonus
+);
+
 
         // rzut 2k10
         const roll = await new Roll("2d10").roll();
@@ -378,6 +392,29 @@ const marginText = result.critical
       }</p>
     </div>
   `;
+}
+
+// actor.mjs
+
+async rollAttack(skillKey) {
+
+  const weapon = this.getEquippedWeapon();
+
+  const attrKey = this._mapSkillToAttribute(skillKey);
+
+  const result = await this.rollSkill(attrKey, skillKey);
+
+  if (!result.success) return result;
+
+  let damage = weapon?.system.damage ?? 1;
+
+  // opcjonalnie margin jako bonus
+  damage += Math.max(0, result.margin);
+
+  return {
+    ...result,
+    damage
+  };
 }
 
 }

@@ -33,12 +33,10 @@
 
         </div>
 
-        <div class="crp-resource">
-          <label>Dola</label>
-          <input type="number"
-                 data-path="system.resources.fate.value"
-                 value="{{system.resources.fate.value}}">
-        </div>
+    <div>Dola: {{system.resources.fate.value}}</div>
+    <div>Inicjatywa: {{system.derived.initiative}}</div>
+    <div>Siła woli: {{system.derived.willpower}}</div>
+    <div>Manewry: {{system.derived.maneuver}}</div>
 
 
       </div>
@@ -89,18 +87,40 @@
 
 </div>
 
-
   {{/each}}
 </div>
 
       </div>
     {{/each}}
-  </section>
 
-  <section class="crp-derived">
-    <div>Inicjatywa: {{system.derived.initiative}}</div>
-    <div>Siła woli: {{system.derived.willpower}}</div>
-    <div>Manewry: {{system.derived.maneuver}}</div>
+
+<h2>Broń</h2>
+
+<div class="crp-weapons">
+
+  {{#each document.items as |item|}}
+    {{#if (eq item.type "weapon")}}
+
+      <div class="crp-weapon-row {{#if item.system.equipped}}equipped{{/if}}"
+           data-item-id="{{item.id}}">
+
+        <img src="{{item.img}}" class="crp-weapon-img">
+
+        <span class="crp-weapon-name">
+          {{item.name}}
+        </span>
+
+        <span class="crp-weapon-dmg">
+          ⚔ {{item.system.damage}}
+        </span>
+
+      </div>
+
+    {{/if}}
+  {{/each}}
+
+</div>
+
   </section>
 
 </section>

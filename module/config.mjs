@@ -41,3 +41,10 @@ CRP.skills = Object.freeze({
   politics: "Polityka",
   knowledge: "Wiedza"
 });
+
+CRP.combatSkills = [
+  "oneHanded",
+  "twoHanded",
+  "lightWeapons",
+  "ranged"
+];

@@ -50,7 +50,7 @@ export class CRPActor extends Actor {
       attr.character.skills.charisma.value;
 
     const hp = derived.health.value;
-const max = derived.health.max;
+    const max = derived.health.max;
 
     let penalty = 0;
 
@@ -83,6 +83,35 @@ const max = derived.health.max;
 
   
 }
+
+_mapSkillToAttribute(skillKey) {
+
+  const map = {
+    // STR
+    twoHanded: "strength",
+    brawl: "strength",
+    endurance: "strength",
+    athletics: "strength",
+    intimidate: "strength",
+
+    // AGI
+    oneHanded: "agility",
+    lightWeapons: "agility",
+    shield: "agility",
+    craft: "agility",
+    stealth: "agility",
+
+    // PER
+    ranged: "perception"
+  };
+
+  return map[skillKey];
+}
+
+getEquippedWeapon() {
+  return this.items.find(i => i.type === "weapon" && i.system.equipped);
+}
+
 
 async opposedTest(targetActor, attrA, skillA, attrB, skillB) {
   return await CRPRoll.opposed(

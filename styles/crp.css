@@ -401,3 +401,81 @@ input:focus {
   font-weight: bold;
   color: #4b3014;
 }
+
+/* HEADER */
+.crp-item-header {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* LEWA STRONA (nazwa) */
+.crp-item-left {
+  flex: 1;
+}
+
+/* PRAWA STRONA (obraz) */
+.crp-item-img {
+  width: 50%;
+  max-width: 300px; /* opcjonalne ograniczenie */
+  aspect-ratio: 1 / 1;
+  border: 1px solid #444;
+  background: #ddd;
+  overflow: hidden;
+}
+
+.crp-item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* OPIS */
+.crp-item-description textarea {
+  width: 100%;
+  min-height: 100px;
+  margin-top: 10px;
+  resize: vertical;
+}
+
+.crp-weapons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crp-weapon-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+
+.crp-weapon-row:hover {
+  background: #f0ead6;
+}
+
+.crp-weapon-row.equipped {
+  border: 2px solid #a63;
+  background: #f8f1dc;
+}
+
+.crp-weapon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border: 1px solid #444;
+}
+
+.crp-weapon-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+.crp-weapon-dmg {
+  font-size: 12px;
+}

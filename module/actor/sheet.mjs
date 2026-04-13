@@ -12,7 +12,10 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     position: {
       width: 950,
       height: 800
-    }
+    },
+
+    dragDrop: [{ dropSelector: ".crp-sheet" }]
+
   };
 
   static PARTS = {
@@ -99,7 +102,7 @@ let value = Number(ev.currentTarget.value);
 
 if (isNaN(value)) value = 0;
 
-// 🔥 warunkowy clamp
+// warunkowy clamp
 if (path.startsWith("system.attributes")) {
   value = Math.max(0, Math.min(10, value));
 } else {
@@ -165,6 +168,49 @@ html.querySelectorAll("[data-edit='token']").forEach(img => {
   });
 });
 
+html.querySelectorAll(".crp-equip").forEach(el => {
+  el.addEventListener("change", async ev => {
+
+    const item = this.document.items.get(ev.target.dataset.itemId);
+
+    await item.update({
+      "system.equipped": ev.target.checked
+    });
+
+  });
+});
+
+const root = this.element;
+
+  root.addEventListener("dragover", ev => ev.preventDefault());
+
+  root.addEventListener("drop", async ev => {
+    ev.preventDefault();
+
+    console.log("DROP 🔥");
+
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
+    console.log(data);
+
+    if (data.type !== "Item") return;
+
+    const item = await fromUuid(data.uuid);
+    if (!item) return;
+
+    const itemData = item.toObject();
+
+    const [created] = await this.document.createEmbeddedDocuments("Item", [itemData]);
+
+    if (created.type === "weapon") {
+      await created.update({ "system.equipped": true });
+    }
+
+    console.log("DODANO ITEM ✅");
+  });
+
 
   }
+
+
+
 }

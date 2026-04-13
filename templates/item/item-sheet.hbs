@@ -1,0 +1,75 @@
+<section class="crp-item">
+
+  <div class="crp-item-header">
+
+    <div class="crp-item-left">
+      <h1 contenteditable="true" data-edit="name">
+        {{item.name}}
+      </h1>
+    </div>
+
+    <div class="crp-item-img">
+      <img src="{{item.img}}" data-edit="img">
+    </div>
+
+  </div>
+
+  <div class="crp-item-description">
+    <textarea data-path="system.description">
+      {{system.description}}
+    </textarea>
+  </div>
+
+  <hr>
+
+  <div class="crp-form">
+
+    <label>Obrażenia</label>
+    <input type="number"
+           data-path="system.damage"
+           value="{{system.damage}}">
+
+<label>Umiejętność</label>
+
+<select data-path="system.skill">
+
+  {{#each config.combatSkills as |key|}}
+    <option value="{{key}}"
+      {{#if (eq key ../system.skill)}}selected{{/if}}>
+      {{lookup ../config.skills key}}
+    </option>
+  {{/each}}
+
+</select>
+
+    <label>Rodzaj broni</label>
+    <select data-path="system.hands">
+  <option value="1" {{#if (eq system.hands 1)}}selected{{/if}}>Jednoręczna</option>
+  <option value="2" {{#if (eq system.hands 2)}}selected{{/if}}>Dwuręczna</option>
+</select>
+
+    <label>Zasięg</label>
+    <select data-path="system.range">
+      <option value="melee">Wręcz</option>
+      <option value="ranged">Dystans</option>
+    </select>
+
+    <label>Celność</label>
+    <input type="number"
+           data-path="system.accuracy"
+           value="{{system.accuracy}}">
+
+    <label>Inicjatywa</label>
+    <input type="number"
+           data-path="system.initiative"
+           value="{{system.initiative}}">
+
+    <label>Waga</label>
+    <input type="number"
+           data-path="system.weight"
+           value="{{system.weight}}">
+
+
+  </div>
+
+</section>
