@@ -479,3 +479,16 @@ input:focus {
 .crp-weapon-dmg {
   font-size: 12px;
 }
+
+.crp-weapon-delete {
+  background: transparent;
+  border: none;
+  color: #a33;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+
+.crp-weapon-delete:hover {
+  color: #e00;
+}

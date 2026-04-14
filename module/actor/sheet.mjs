@@ -80,7 +80,7 @@ _onRender(context, options) {
   const html = this.element;
 
   // ======================
-  // 🎲 ROLL
+  //  ROLL
   // ======================
   html.querySelectorAll(".crp-skill").forEach(el => {
     el.addEventListener("click", ev => {
@@ -95,7 +95,7 @@ _onRender(context, options) {
   });
 
   // ======================
-  // 🔢 INPUTY
+  //  INPUTY
   // ======================
   html.querySelectorAll("input[data-path]").forEach(input => {
     input.addEventListener("change", async ev => {
@@ -117,7 +117,7 @@ _onRender(context, options) {
   });
 
   // ======================
-  // ✏️ NAZWA
+  //  NAZWA
   // ======================
   const nameEl = html.querySelector("[data-edit='name']");
   if (nameEl) {
@@ -129,7 +129,7 @@ _onRender(context, options) {
   }
 
   // ======================
-  // 🖼️ PORTRET
+  //  PORTRET
   // ======================
   html.querySelectorAll("[data-edit='img']").forEach(img => {
     img.addEventListener("click", () => {
@@ -157,7 +157,7 @@ _onRender(context, options) {
   });
 
   // ======================
-  // 🎭 TOKEN
+  //  TOKEN
   // ======================
   html.querySelectorAll("[data-edit='token']").forEach(img => {
     img.addEventListener("click", () => {
@@ -176,7 +176,7 @@ _onRender(context, options) {
   });
 
   // ======================
-  // 🗡️ EQUIP
+  //  EQUIP
   // ======================
   html.querySelectorAll(".crp-equip").forEach(el => {
     el.addEventListener("change", async ev => {
@@ -191,8 +191,32 @@ _onRender(context, options) {
     });
   });
 
+//  USUWANIE BRONI
+html.querySelectorAll(".crp-weapon-delete").forEach(btn => {
+  btn.addEventListener("click", async ev => {
+
+    ev.stopPropagation(); // 👈 żeby nie triggerować kliknięcia equip
+
+    const itemId = ev.currentTarget.dataset.itemId;
+    const item = this.document.items.get(itemId);
+
+    if (!item) return;
+
+    // 👇 opcjonalne potwierdzenie
+    const confirmed = await Dialog.confirm({
+      title: "Usuń broń",
+      content: `<p>Czy na pewno chcesz usunąć <b>${item.name}</b>?</p>`
+    });
+
+    if (!confirmed) return;
+
+    await item.delete();
+
+  });
+});
+
   // ======================
-  // 🔥 DRAG & DROP (FIX)
+  //  DRAG & DROP (FIX)
   // ======================
   const root = this.element;
 
