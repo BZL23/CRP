@@ -38,7 +38,7 @@ export class CRPItemSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const html = this.element;
 
     // INPUTY
-    html.querySelectorAll("input[data-path]").forEach(input => {
+    html.querySelectorAll("input[data-path], textarea[data-path]").forEach(input => {
       input.addEventListener("change", async ev => {
 
         const path = ev.currentTarget.dataset.path;
