@@ -97,6 +97,9 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
     }
 
     ui.notifications.info("✨ Dola ustawiona na 2");
+
+    this.render(); // odśwież panel
+    
   });
 
   // ➕ +1 DOLA
@@ -112,6 +115,7 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
     }
 
     ui.notifications.info("✨ Dodano +1 Doli");
+
   });
 
   // ❤️ HEAL
