@@ -74,142 +74,169 @@ hp.percent = hp.max > 0
 
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
+_onRender(context, options) {
+  super._onRender(context, options);
 
-    const html = this.element;
+  const html = this.element;
 
-    //  ROLL
-html.querySelectorAll(".crp-skill").forEach(el => {
-  el.addEventListener("click", ev => {
+  // ======================
+  // 🎲 ROLL
+  // ======================
+  html.querySelectorAll(".crp-skill").forEach(el => {
+    el.addEventListener("click", ev => {
 
-    // NIE rzucaj jeśli kliknięto input
-    if (ev.target.closest("input")) return;
+      if (ev.target.closest("input")) return;
 
-    const attr = el.dataset.attr;
-    const skill = el.dataset.skill;
+      const attr = el.dataset.attr;
+      const skill = el.dataset.skill;
 
-    this.document.rollSkill(attr, skill);
+      this.document.rollSkill(attr, skill);
+    });
   });
-});
 
+  // ======================
+  // 🔢 INPUTY
+  // ======================
+  html.querySelectorAll("input[data-path]").forEach(input => {
+    input.addEventListener("change", async ev => {
+      const path = ev.currentTarget.dataset.path;
+      let value = Number(ev.currentTarget.value);
 
-    //  INPUTY
-    html.querySelectorAll("input[data-path]").forEach(input => {
-      input.addEventListener("change", async ev => {
-const path = ev.currentTarget.dataset.path;
-let value = Number(ev.currentTarget.value);
+      if (isNaN(value)) value = 0;
 
-if (isNaN(value)) value = 0;
-
-// warunkowy clamp
-if (path.startsWith("system.attributes")) {
-  value = Math.max(0, Math.min(10, value));
-} else {
-  value = Math.max(0, value);
-}
-
-await this.document.update({
-  [path]: value
-});
-      });
-    });
-
-    //  NAZWA
-    const nameEl = html.querySelector("[data-edit='name']");
-    if (nameEl) {
-      nameEl.addEventListener("blur", async ev => {
-        await this.document.update({
-          name: ev.currentTarget.innerText
-        });
-      });
-    }
-
-    //  PORTRET
-    html.querySelectorAll("[data-edit='img']").forEach(img => {
-      img.addEventListener("click", () => {
-        new foundry.applications.apps.FilePicker({
-          type: "image",
-          current: this.document.img,
-          callback: async (path) => {
-
-            const currentToken = this.document.prototypeToken?.texture?.src;
-const currentPortrait = this.document.img;
-
-const isDefaultToken =
-  !currentToken || currentToken === currentPortrait;
-
-await this.document.update({
-  img: path,
-  ...(isDefaultToken && {
-    "prototypeToken.texture.src": path
-  })
-});
-
-          }
-        }).render(true);
-      });
-    });
-
-    // TOKEN (zmiana obrazka)
-html.querySelectorAll("[data-edit='token']").forEach(img => {
-  img.addEventListener("click", () => {
-    new foundry.applications.apps.FilePicker({
-      type: "image",
-      current: this.document.prototypeToken?.texture?.src || this.document.img,
-      callback: async (path) => {
-
-        await this.document.update({
-          "prototypeToken.texture.src": path
-        });
-
+      if (path.startsWith("system.attributes")) {
+        value = Math.max(0, Math.min(10, value));
+      } else {
+        value = Math.max(0, value);
       }
-    }).render(true);
-  });
-});
 
-html.querySelectorAll(".crp-equip").forEach(el => {
-  el.addEventListener("change", async ev => {
-
-    const item = this.document.items.get(ev.target.dataset.itemId);
-
-    await item.update({
-      "system.equipped": ev.target.checked
+      await this.document.update({
+        [path]: value
+      });
     });
-
   });
-});
 
-const root = this.element;
+  // ======================
+  // ✏️ NAZWA
+  // ======================
+  const nameEl = html.querySelector("[data-edit='name']");
+  if (nameEl) {
+    nameEl.addEventListener("blur", async ev => {
+      await this.document.update({
+        name: ev.currentTarget.innerText
+      });
+    });
+  }
+
+  // ======================
+  // 🖼️ PORTRET
+  // ======================
+  html.querySelectorAll("[data-edit='img']").forEach(img => {
+    img.addEventListener("click", () => {
+      new foundry.applications.apps.FilePicker.implementation({
+        type: "image",
+        current: this.document.img,
+        callback: async (path) => {
+
+          const currentToken = this.document.prototypeToken?.texture?.src;
+          const currentPortrait = this.document.img;
+
+          const isDefaultToken =
+            !currentToken || currentToken === currentPortrait;
+
+          await this.document.update({
+            img: path,
+            ...(isDefaultToken && {
+              "prototypeToken.texture.src": path
+            })
+          });
+
+        }
+      }).render(true);
+    });
+  });
+
+  // ======================
+  // 🎭 TOKEN
+  // ======================
+  html.querySelectorAll("[data-edit='token']").forEach(img => {
+    img.addEventListener("click", () => {
+      new foundry.applications.apps.FilePicker.implementation({
+        type: "image",
+        current: this.document.prototypeToken?.texture?.src || this.document.img,
+        callback: async (path) => {
+
+          await this.document.update({
+            "prototypeToken.texture.src": path
+          });
+
+        }
+      }).render(true);
+    });
+  });
+
+  // ======================
+  // 🗡️ EQUIP
+  // ======================
+  html.querySelectorAll(".crp-equip").forEach(el => {
+    el.addEventListener("change", async ev => {
+
+      const item = this.document.items.get(ev.target.dataset.itemId);
+      if (!item) return;
+
+      await item.update({
+        "system.equipped": ev.target.checked
+      });
+
+    });
+  });
+
+  // ======================
+  // 🔥 DRAG & DROP (FIX)
+  // ======================
+  const root = this.element;
+
+  // 👇 KLUCZOWE — blokuje wielokrotne bindowanie
+  if (root.dataset.dropBound) return;
+  root.dataset.dropBound = "true";
 
   root.addEventListener("dragover", ev => ev.preventDefault());
 
   root.addEventListener("drop", async ev => {
     ev.preventDefault();
 
-    console.log("DROP 🔥");
+    // 👇 zabezpieczenie przed spamem
+    if (this._dropping) return;
+    this._dropping = true;
 
-    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
-    console.log(data);
+    try {
+      console.log("DROP 🔥");
 
-    if (data.type !== "Item") return;
+      const TextEditorImpl =
+        foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
 
-    const item = await fromUuid(data.uuid);
-    if (!item) return;
+      const data = TextEditorImpl.getDragEventData(ev);
+      console.log(data);
 
-    const itemData = item.toObject();
+      if (data.type !== "Item") return;
 
-    const [created] = await this.document.createEmbeddedDocuments("Item", [itemData]);
+      const item = await fromUuid(data.uuid);
+      if (!item) return;
 
-    if (created.type === "weapon") {
-      await created.update({ "system.equipped": true });
+      const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
+
+      if (created.type === "weapon") {
+        await created.update({ "system.equipped": true });
+      }
+
+      console.log("DODANO ITEM ✅");
+
+    } finally {
+      this._dropping = false;
     }
-
-    console.log("DODANO ITEM ✅");
   });
 
-
-  }
+}
 
 
 
