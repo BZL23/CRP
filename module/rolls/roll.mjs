@@ -112,10 +112,11 @@ return result;
 
     }
 
-    static async opposed(
-        actorA, attrA, skillA,
-        actorB, attrB, skillB
-    ) {
+    static async opposed(actorA, attrA, skillA, actorB, attrB, skillB, options = {})
+    {
+
+      const { messageId = null, defenseType = null } = options;
+      
         const rollA = await this.skill(actorA, attrA, skillA, { chat: false });
         const rollB = await this.skill(actorB, attrB, skillB, { chat: false });
 
@@ -198,6 +199,7 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
                 </p>
                 <p>
                     <strong>${actorB.name}</strong><br>
+                    ${options?.defenseType ? `<p>Obrona: <b>${options.defenseType}</b></p>` : ""}
                     ${skillLabelB} (${attrLabelB})<br>
                     🎲 ${rollB.dice.length ? rollB.dice.join(", ") : "—"} = ${rollB.total}<br>
                     Cel: ${rollB.target}<br>
@@ -209,10 +211,27 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
             </div>
         `;
 
-        await ChatMessage.create({
-            speaker,
-            content
-        });
+
+const newMsg = setTimeout(async () => {
+  await ChatMessage.create({
+    user: game.user.id,
+    speaker,
+    content
+  });
+}, 0);
+
+if (options.messageId) {
+  const oldMsg = game.messages.get(options.messageId);
+  if (oldMsg) {
+
+    // 🔥 lokalne ukrycie (działa dla gracza)
+    const el = document.querySelector(`[data-message-id="${oldMsg.id}"]`);
+    if (el) el.style.display = "none";
+
+  }
+}
+
+return;
 
         return {
             rollA,

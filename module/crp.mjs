@@ -12,6 +12,8 @@ import { CRPItemSheet } from "./item/sheet.mjs";
 Hooks.once("init", () => {
   console.log("CRP | System init");
 
+
+
   CONFIG.Actor.documentClass = CRPActor;
 
   CONFIG.Actor.dataModels = {
@@ -39,6 +41,7 @@ Hooks.once("init", () => {
   });
 
 });
+
 
 
 Hooks.on("createActor", async (actor) => {
@@ -197,3 +200,149 @@ Hooks.on("renderActorDirectory", (app, html) => {
   html.querySelector(".directory-header").appendChild(btn);
 
 });
+
+Hooks.on("renderChatMessageHTML", (message, html) => {
+
+  // 👉 tylko nasze wiadomości
+  if (message.flags?.crp?.type !== "defensePrompt") return;
+
+  html.querySelectorAll(".defense-btn").forEach(btn => {
+
+    // zabezpieczenie przed wielokrotnym bindem
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "true";
+
+    btn.addEventListener("click", async ev => {
+
+      const container = ev.currentTarget.closest(".crp-defense-choice");
+
+      const attackerId = container.dataset.attacker;
+      const defenderId = container.dataset.defender;
+      const weaponId = container.dataset.weapon;
+
+      const defenseType = ev.currentTarget.dataset.type;
+
+      const attacker = game.actors.get(attackerId);
+      const defender = game.actors.get(defenderId);
+      const weapon = attacker.items.get(weaponId);
+
+const isGM = game.user.isGM;
+
+// ✔ czy user kontroluje token tego aktora
+const controlsDefender = canvas.tokens.placeables
+  .filter(t => t.actor?.id === defenderId)
+  .some(t => t.isOwner);
+
+if (!isGM && !controlsDefender) {
+  ui.notifications.warn("Nie kontrolujesz tej postaci.");
+  return;
+}
+
+      //  blokada lokalna (UX)
+      html.querySelectorAll(".defense-btn").forEach(b => b.disabled = true);
+
+      //  MAPOWANIE
+      let defSkill, defAttr;
+
+      switch (defenseType) {
+        case "parry":
+          defSkill = weapon.system.skill;
+          defAttr = defender._mapSkillToAttribute?.(defSkill);
+          break;
+
+        case "dodge":
+          defSkill = "athletics";
+          defAttr = "strength";
+          break;
+
+        case "shield":
+          defSkill = "shield";
+          defAttr = defender._mapSkillToAttribute?.(defSkill);
+          break;
+      }
+
+      const atkSkill = weapon.system.skill;
+      const atkAttr = attacker._mapSkillToAttribute?.(atkSkill);
+
+      if (!atkAttr || !defAttr) {
+        ui.notifications.error("Błąd mapowania cech/skilli");
+        return;
+      }
+
+// 🔥 ZAWSZE wykonujemy test lokalnie
+await CRPRoll.opposed(
+  attacker, atkAttr, atkSkill,
+  defender, defAttr, defSkill,
+  {
+    messageId: message.id,
+    defenseType
+  }
+);
+
+
+    });
+
+  });
+
+});
+
+Hooks.once("ready", () => {
+
+  game.socket.on(`system.${game.system.id}`, async data => {
+
+    if (!game.user.isGM) return;
+
+    console.log("CRP SOCKET RECEIVED", data);
+
+    // 🔥 DODAJ TO:
+    if (data.type === "updateMessage") {
+      const msg = game.messages.get(data.messageId);
+      if (msg) await msg.update({ content: data.content });
+      return;
+    }
+    console.log("GM UPDATE MESSAGE", data);
+
+    if (data.type === "resolveDefense") {
+
+const { attackerUuid, defenderUuid, weaponUuid, defenseType, messageId } = data;
+
+const attacker = await fromUuid(attackerUuid);
+const defender = await fromUuid(defenderUuid);
+
+const weaponDoc = await fromUuid(weaponUuid);
+const weapon = attacker.items.get(weaponDoc.id) ?? weaponDoc;
+
+      let defSkill, defAttr;
+
+      switch (defenseType) {
+        case "parry":
+          defSkill = weapon.system.skill;
+          defAttr = defender._mapSkillToAttribute?.(defSkill);
+          break;
+        case "dodge":
+          defSkill = "athletics";
+          defAttr = "strength";
+          break;
+        case "shield":
+          defSkill = "shield";
+          defAttr = defender._mapSkillToAttribute?.(defSkill);
+          break;
+      }
+
+      const atkSkill = weapon.system.skill;
+      const atkAttr = attacker._mapSkillToAttribute?.(atkSkill);
+
+      await CRPRoll.opposed(
+        attacker, atkAttr, atkSkill,
+        defender, defAttr, defSkill,
+        {
+          messageId,
+          defenseType
+        }
+      );
+    }
+
+  });
+
+});
+

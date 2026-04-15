@@ -359,15 +359,19 @@ html.querySelectorAll(".crp-attack-card").forEach(card => {
     const item = this.document.items.get(itemId);
     if (!item) return;
 
-    const skill = item.system.skill;
-    const attr = this.document._mapSkillToAttribute?.(skill);
+    // 🎯 TARGET
+    const targets = Array.from(game.user.targets);
 
-    if (!attr) {
-      ui.notifications.error("Brak mapowania skilla");
+    if (targets.length !== 1) {
+      ui.notifications.warn("Wybierz dokładnie jeden cel.");
       return;
     }
 
-    await this.document.rollSkill(attr, skill);
+    const target = targets[0];
+    const targetActor = target.actor;
+
+    // nowy flow zamiast rollSkill
+    await this._createDefensePrompt(item, targetActor);
 
   });
 
@@ -391,6 +395,34 @@ html.querySelectorAll(".crp-attack-card").forEach(card => {
 
   }
 
+
+async _createDefensePrompt(weapon, targetActor) {
+
+const content = await foundry.applications.handlebars.renderTemplate(
+  "systems/crp/templates/chat/defense-choice.hbs",
+  {
+    attackerId: this.document.id,
+    defenderId: targetActor.id,
+    weaponId: weapon.id,
+    defenderName: targetActor.name
+  }
+);
+
+  await ChatMessage.create({
+    user: game.user.id,
+    speaker: ChatMessage.getSpeaker({ actor: this.document }),
+    content,
+    flags: {
+      crp: {
+        type: "defensePrompt",
+        attackerId: this.document.id,
+        defenderId: targetActor.id,
+        weaponId: weapon.id
+      }
+    }
+  });
+
+}
 
 
 }
