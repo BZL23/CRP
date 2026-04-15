@@ -492,3 +492,31 @@ input:focus {
 .crp-weapon-delete:hover {
   color: #e00;
 }
+
+.crp-attack-slot {
+  border: 2px dashed #999;
+  padding: 10px;
+  min-height: 80px;
+}
+
+.crp-attack-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: #f5f2e9;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.crp-attack-info {
+  flex: 1;
+}
+
+.crp-attack-empty {
+  text-align: center;
+  color: #777;
+}
+
+.crp-attack-slot.dragover {
+  background: #f0ead6;
+}

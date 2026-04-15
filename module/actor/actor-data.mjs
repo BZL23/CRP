@@ -98,7 +98,11 @@ export class CRPActorData extends TypeDataModel {
         }),
         bleeding: new BooleanField({ initial: false }),
         unconscious: new BooleanField({ initial: false })
-      })
+      }),
+
+      attack: new SchemaField({
+        weaponId: new StringField({ initial: null, nullable: true })
+      }),
 
     };
   }

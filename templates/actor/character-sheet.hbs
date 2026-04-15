@@ -94,6 +94,38 @@
     {{/each}}
 
 
+<h2>Atak</h2>
+
+<div class="crp-attack-slot" data-drop="attack">
+
+{{#if attackWeapon}}
+
+  <div class="crp-attack-card" data-item-id="{{attackWeapon.id}}">
+
+    <img src="{{attackWeapon.img}}" class="crp-weapon-img">
+
+    <div class="crp-attack-info">
+      <div><b>{{attackWeapon.name}}</b></div>
+      <div>⚔ {{attackWeapon.system.damage}}</div>
+      <div>🎯 {{attackWeapon.system.accuracy}}</div>
+      <div>{{lookup ../config.skills attackWeapon.system.skill}}</div>
+    </div>
+
+    <button class="crp-attack-remove">✖</button>
+
+  </div>
+
+{{else}}
+
+  <div class="crp-attack-empty">
+    Przeciągnij broń tutaj
+  </div>
+
+{{/if}}
+</div>
+
+
+
 <h2>Broń</h2>
 
 <div class="crp-weapons">
@@ -102,7 +134,7 @@
     {{#if (eq item.type "weapon")}}
 
       <div class="crp-weapon-row {{#if item.system.equipped}}equipped{{/if}}"
-           data-item-id="{{item.id}}">
+           data-item-id="{{item.id}}" draggable="true">
 
         <img src="{{item.img}}" class="crp-weapon-img">
 
