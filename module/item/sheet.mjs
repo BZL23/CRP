@@ -15,11 +15,30 @@ export class CRPItemSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
   };
 
-  static PARTS = {
-    body: {
-      template: "systems/crp/templates/item/item-sheet.hbs"
+
+static PARTS = {
+  body: {
+    template: "systems/crp/templates/item/weapon-sheet.hbs"
+  }
+};
+
+_getPartConfig(partId) {
+  const config = super._getPartConfig(partId);
+
+  if (partId === "body") {
+
+    if (this.document.type === "armor") {
+      config.template = "systems/crp/templates/item/armor-sheet.hbs";
     }
-  };
+
+    if (this.document.type === "weapon") {
+      config.template = "systems/crp/templates/item/weapon-sheet.hbs";
+    }
+  }
+
+  return config;
+}
+
 
   _preparePartContext(partId, context) {
     if (partId !== "body") return context;
@@ -101,4 +120,22 @@ html.querySelectorAll(".crp-weapon-row").forEach(row => {
 });
 
   }
+
+  
+}
+
+export class CRPWeaponSheet extends CRPItemSheet {
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/weapon-sheet.hbs"
+    }
+  };
+}
+
+export class CRPArmorSheet extends CRPItemSheet {
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/armor-sheet.hbs"
+    }
+  };
 }

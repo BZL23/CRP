@@ -1,0 +1,38 @@
+<form class="crp-sheet">
+
+  <!-- HEADER -->
+  <div class="crp-item-header">
+
+    <!-- LEWA STRONA -->
+       <div class="crp-item-left">
+      <h1 contenteditable="true" data-edit="name">
+        {{item.name}}
+      </h1>
+    </div>
+
+    <!-- PRAWA STRONA -->
+    <div class="crp-item-img">
+      <img src="{{item.img}}" data-edit="img">
+    </div>
+
+  </div>
+
+  <!-- OPIS -->
+  <div class="crp-item-description">
+    <textarea data-path="system.description">{{system.description}}</textarea>
+  </div>
+
+  <hr>
+
+  <!-- PARAMETRY -->
+  <div class="crp-form">
+
+    <label>Redukcja pancerza</label>
+    <input type="number" data-path="system.reduction" value="{{system.reduction}}">
+
+    <label>Masa</label>
+    <input type="number" data-path="system.weight" value="{{system.weight}}">
+
+  </div>
+
+</form>

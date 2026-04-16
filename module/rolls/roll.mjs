@@ -176,13 +176,29 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
         // wynik
         let resultText;
 
-        if (winner === "A") {
-            resultText = `👉 ${actorA.name} wygrywa`;
-        } else if (winner === "B") {
-            resultText = `👉 ${actorB.name} wygrywa`;
-        } else {
-            resultText = "👉 REMIS";
-        }
+let damage = 0;
+
+if (winner === "A") {
+    resultText = `👉 ${actorA.name} trafia`;
+
+    // 🔥 obrażenia = baza + margin
+    const weapon = actorA.getEquippedWeapon();
+    const baseDamage = weapon?.system.damage ?? 1;
+
+    const marginDiff = rollA.margin - rollB.margin;
+damage = Math.max(0, marginDiff);
+
+    resultText += `<br>💥 Obrażenia: ${damage}`;
+
+} else if (winner === "B") {
+    resultText = `👉 ${actorB.name} broni się`;
+} else {
+    resultText = "👉 REMIS";
+}
+
+if (winner === "A" && damage > 0) {
+  await this.applyDamage(actorB, damage);
+}
 
         // HTML
         const content = `
@@ -436,4 +452,16 @@ async rollAttack(skillKey) {
   };
 }
 
+static async applyDamage(actor, amount) {
+
+  const hp = actor.system.derived?.health?.value ?? 0;
+
+  const newHp = Math.max(0, hp - amount);
+
+  await actor.update({
+    "system.derived.health.value": newHp
+  });
+
+  console.log(`CRP DAMAGE: ${actor.name} -${amount} HP (${newHp})`);
+}
 }
