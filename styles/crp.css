@@ -453,6 +453,7 @@ input:focus {
   border: 1px solid #ccc;
   background: #fff;
   cursor: pointer;
+  color: #4b3014;
 }
 
 .crp-weapon-row:hover {
@@ -497,6 +498,7 @@ input:focus {
   border: 2px dashed #999;
   padding: 10px;
   min-height: 80px;
+  color: #4b3014;
 }
 
 .crp-attack-card {
