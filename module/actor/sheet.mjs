@@ -457,6 +457,9 @@ html.querySelectorAll(".crp-attack-card").forEach(card => {
     const item = this.document.items.get(itemId);
     if (!item) return;
 
+    // 🔥 NOWE — blokuj jeśli to NIE broń
+    if (item.type !== "weapon") return;
+
     // 🎯 TARGET
     const targets = Array.from(game.user.targets);
 
@@ -468,12 +471,13 @@ html.querySelectorAll(".crp-attack-card").forEach(card => {
     const target = targets[0];
     const targetActor = target.actor;
 
-    // nowy flow zamiast rollSkill
     await this._createDefensePrompt(item, targetActor);
 
   });
 
 });
+
+
 
 html.querySelectorAll(".crp-attack-remove").forEach(btn => {
 

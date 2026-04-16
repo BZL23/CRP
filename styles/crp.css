@@ -522,3 +522,7 @@ input:focus {
 .crp-attack-slot.dragover {
   background: #f0ead6;
 }
+
+.crp-armor-slot .crp-attack-card {
+  cursor: default;
+}
