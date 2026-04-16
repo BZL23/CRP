@@ -94,7 +94,7 @@
     {{/each}}
 
 
-<h2>Atak</h2>
+<h2>Ręce</h2>
 
 <div class="crp-attack-slot" data-drop="attack">
 
@@ -123,37 +123,89 @@
 
 {{/if}}
 </div>
+<h2>Pancerz</h2>
 
+<div class="crp-attack-slot crp-armor-slot">
 
+  {{#if equippedArmor}}
+    <div class="crp-attack-card" data-item-id="{{equippedArmor.id}}">
+      <button class="crp-attack-remove">✖</button>
+      <img src="{{equippedArmor.img}}" class="crp-weapon-img">
 
-<h2>Broń</h2>
-
-<div class="crp-weapons">
-
-  {{#each document.items as |item|}}
-    {{#if (eq item.type "weapon")}}
-
-      <div class="crp-weapon-row {{#if item.system.equipped}}equipped{{/if}}"
-           data-item-id="{{item.id}}" draggable="true">
-
-        <img src="{{item.img}}" class="crp-weapon-img">
-
-        <span class="crp-weapon-name">
-          {{item.name}}
-        </span>
-
-        <span class="crp-weapon-dmg">
-          ⚔ {{item.system.damage}}
-        </span>
-
-          <button class="crp-weapon-delete" data-item-id="{{item.id}}">
-    ✖
-  </button>
-
+      <div class="crp-attack-info">
+        <div>{{equippedArmor.name}}</div>
+        <div>Redukcja: {{equippedArmor.system.reduction}}</div>
       </div>
+    </div>
+  {{else}}
+    <div class="crp-attack-empty">
+      Przeciągnij zbroję tutaj
+    </div>
+  {{/if}}
 
-    {{/if}}
-  {{/each}}
+</div>
+
+<br>
+
+<h2>Ekwipunek</h2>
+
+<div class="crp-equipment">
+
+  <!-- BROŃ -->
+  <h3>Broń</h3>
+  <div class="crp-weapons">
+
+    {{#each items}}
+      {{#if (eq this.type "weapon")}}
+
+        <div class="crp-weapon-row {{#if this.system.equipped}}equipped{{/if}}" data-item-id="{{this.id}}" draggable="true">
+
+          <img src="{{this.img}}" class="crp-weapon-img">
+
+          <div class="crp-weapon-name">{{this.name}}</div>
+
+          <div class="crp-weapon-dmg">
+            {{this.system.damage}}
+          </div>
+
+          <button class="crp-weapon-delete" data-item-id="{{this.id}}">
+            ✖
+          </button>
+
+        </div>
+
+      {{/if}}
+    {{/each}}
+
+  </div>
+
+  <!-- ZBROJE -->
+  <h3>Zbroje</h3>
+  <div class="crp-weapons">
+
+    {{#each items}}
+      {{#if (eq this.type "armor")}}
+
+        <div class="crp-weapon-row {{#if this.system.equipped}}equipped{{/if}}" data-item-id="{{this.id}}" draggable="true">
+
+          <img src="{{this.img}}" class="crp-weapon-img">
+
+          <div class="crp-weapon-name">{{this.name}}</div>
+
+          <div class="crp-weapon-dmg">
+            {{this.system.reduction}}
+          </div>
+
+          <button class="crp-weapon-delete" data-item-id="{{this.id}}">
+            ✖
+          </button>
+
+        </div>
+
+      {{/if}}
+    {{/each}}
+
+  </div>
 
 </div>
 

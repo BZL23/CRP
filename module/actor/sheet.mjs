@@ -63,13 +63,21 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
 const attackWeapon = this.document.items.get(system.attack?.weaponId);
 
+const equippedArmor = this.document.items.find(i =>
+  i.type === "armor" && i.system.equipped
+);
+
 return {
   ...context,
   system,
   config,
   attributesList,
   tokenImg,
-  attackWeapon
+  attackWeapon,
+  equippedArmor,
+
+  actor: this.document,    
+  items: this.document.items  
 };
 
   }
@@ -192,7 +200,7 @@ if (input._updateTimeout) {
       });
     });
 
-    html.querySelectorAll(".crp-attack-slot").forEach(slot => {
+    html.querySelectorAll(".crp-attack-slot:not(.crp-armor-slot)").forEach(slot => {
 
         //  hover efekt
 slot.addEventListener("dragenter", () => {
@@ -247,6 +255,67 @@ console.log("ACTOR ITEMS", this.document.items);
     });
 
     });
+
+
+    html.querySelectorAll(".crp-armor-slot").forEach(slot => {
+
+  slot.addEventListener("dragenter", () => {
+    slot.classList.add("dragover");
+  });
+
+  slot.addEventListener("dragleave", ev => {
+    if (!slot.contains(ev.relatedTarget)) {
+      slot.classList.remove("dragover");
+    }
+  });
+
+  slot.addEventListener("dragover", ev => {
+    ev.preventDefault();
+  });
+
+  slot.addEventListener("drop", async ev => {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    slot.classList.remove("dragover");
+
+    const data = TextEditorImpl.getDragEventData(ev);
+    if (data.type !== "Item") return;
+
+    const item = await fromUuid(data.uuid);
+    if (!item || item.type !== "armor") {
+      ui.notifications.warn("Tu możesz wrzucić tylko zbroję");
+      return;
+    }
+
+    const actorItem =
+      this.document.items.get(item.id) ??
+      this.document.items.find(i => i.uuid === item.uuid);
+
+    if (!actorItem) {
+      ui.notifications.warn("Najpierw dodaj zbroję do ekwipunku");
+      return;
+    }
+
+    //  zdejmij inne
+    for (const i of this.document.items) {
+      if (i.type === "armor" && i.system.equipped) {
+        await i.update({ "system.equipped": false });
+      }
+    }
+
+    // 🔥 załóż nową
+    await actorItem.update({
+      "system.equipped": true
+    });
+
+  });
+
+});
+
+
+
+
 
     // ======================
     //  EQUIP
@@ -304,30 +373,59 @@ if (!this._dropBound) {
 
   root.addEventListener("dragover", ev => ev.preventDefault());
 
-  root.addEventListener("drop", async ev => {
+root.addEventListener("drop", async ev => {
 
-    if (ev.target.closest(".crp-attack-slot")) return;
+  // 🔥 ZATRZYMAJ jeśli to armor slot
+  if (ev.target.closest(".crp-armor-slot")) return;
 
-    ev.preventDefault();
+  // 🔥 ZATRZYMAJ jeśli to attack slot
+  if (ev.target.closest(".crp-attack-slot")) return;
 
-    const data = TextEditorImpl.getDragEventData(ev);
 
-    if (data.type !== "Item") return;
+  ev.preventDefault();
 
-    const item = await fromUuid(data.uuid);
-    if (!item) return;
+  const data = TextEditorImpl.getDragEventData(ev);
+  if (data.type !== "Item") return;
 
-    const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
+  const item = await fromUuid(data.uuid);
+  if (!item) return;
 
-    if (created.type === "weapon") {
-      await created.update({ "system.equipped": true });
-    }
+  //  NOWE — blokuj weapon jeśli NIE drop na tło
+  if (ev.target.closest(".crp-equipment")) return;
 
-  });
+  const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
+
+  if (created.type === "weapon") {
+    await created.update({ "system.equipped": true });
+  }
+
+});
 }
 
 
 html.querySelectorAll(".crp-weapon-row").forEach(row => {
+
+  if (row.dataset.dragBound) return;
+  row.dataset.dragBound = "true";
+
+  row.addEventListener("dragstart", ev => {
+
+    const itemId = row.dataset.itemId;
+    const item = this.document.items.get(itemId);
+    if (!item) return;
+
+    ev.dataTransfer.setData("text/plain", JSON.stringify({
+      type: "Item",
+      uuid: item.uuid
+    }));
+
+  });
+
+});
+
+
+
+html.querySelectorAll(".crp-armor-row").forEach(row => {
 
   if (row.dataset.dragBound) return;
   row.dataset.dragBound = "true";
@@ -377,19 +475,36 @@ html.querySelectorAll(".crp-attack-card").forEach(card => {
 
 });
 
-    html.querySelectorAll(".crp-attack-remove").forEach(btn => {
+html.querySelectorAll(".crp-attack-remove").forEach(btn => {
 
-      btn.addEventListener("click", async ev => {
-        ev.stopPropagation();
+  btn.addEventListener("click", async ev => {
+    ev.stopPropagation();
 
-        await this.document.update({
-          "system.attack.weaponId": null
-        });
+    const card = ev.currentTarget.closest(".crp-attack-card");
+    const itemId = card?.dataset.itemId;
 
+    const item = this.document.items.get(itemId);
+    if (!item) return;
+
+    // 🔥 JEŚLI BROŃ
+    if (item.type === "weapon") {
+      await this.document.update({
+        "system.attack.weaponId": null
       });
+      return;
+    }
 
-    });
+    // 🔥 JEŚLI ZBROJA
+    if (item.type === "armor") {
+      await item.update({
+        "system.equipped": false
+      });
+      return;
+    }
 
+  });
+
+});
 
 
 
