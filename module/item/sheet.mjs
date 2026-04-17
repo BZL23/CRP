@@ -75,6 +75,18 @@ _getPartConfig(partId) {
       });
     });
 
+// ======================
+//  NAZWA ITEMU
+// ======================
+const nameEl = html.querySelector("[data-edit='name']");
+if (nameEl) {
+  nameEl.addEventListener("blur", async ev => {
+    await this.document.update({
+      name: ev.currentTarget.innerText.trim()
+    });
+  });
+}
+
 html.querySelectorAll("[data-edit='img']").forEach(img => {
   img.addEventListener("click", () => {
 
