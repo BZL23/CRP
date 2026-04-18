@@ -287,13 +287,28 @@ const leftSkill = getParrySkill("leftHand");
     if (defenseType === "dodge") defSkill = "athletics";
     if (defenseType === "shield") defSkill = "shield";
 
-await attacker.opposedTest(
+const result = await attacker.opposedTest(
   defender,
   attacker._mapSkillToAttribute(skill),
   skill,
   defender._mapSkillToAttribute(defSkill),
   defSkill
 );
+
+// =====================
+// OBRAŻENIA
+// =====================
+if (result?.winner === "A") {
+
+  const marginA = result.rollA?.margin ?? 0;
+  const marginB = result.rollB?.margin ?? 0;
+
+  const damage = Math.max(0, marginA - marginB);
+
+  if (damage > 0) {
+    await defender.applyDamage(damage);
+  }
+}
 
 // usuń message z wyborem obrony
 await message.delete();
