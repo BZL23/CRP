@@ -211,6 +211,7 @@ for (const btn of buttons) {
   btn.addEventListener("click", async ev => {
 
     const container = btn.closest(".crp-defense-choice");
+    const messageId = container.dataset.messageId;
 
     const attackerUuid = container.dataset.attacker;
     const defenderUuid = container.dataset.defender;
@@ -305,15 +306,78 @@ if (result?.winner === "A") {
 
   const damage = Math.max(0, marginA - marginB);
 
-  if (damage > 0) {
-    await defender.applyDamage(damage);
+if (damage > 0) {
+  await defender.applyDamage(damage);
+}
+
+// =====================
+// UPDATE WIADOMOŚCI PO ID
+// =====================
+if (result?.messageId) {
+
+  const msg = game.messages.get(result.messageId);
+
+  if (msg) {
+    const newContent = msg.content + `
+      <div class="crp-damage">
+        💥 Obrażenia: <b>${damage}</b>
+      </div>
+    `;
+
+    await msg.update({ content: newContent });
   }
 }
 
-// usuń message z wyborem obrony
-await message.delete();
+}
+
+const defenseLabel = {
+  parry: "Parowanie",
+  dodge: "Unik",
+  shield: "Tarcza"
+}[defenseType] ?? defenseType;
+
+// lokalna podmiana tylko u tego gracza
+for (const b of container.querySelectorAll("button")) {
+  b.disabled = true;
+}
+container.innerHTML = `
+  <div class="crp-defense-result">
+    🛡 Wybrałeś: <b>${defenseLabel}</b>
+  </div>
+`;
 
   });
 }
+
+});
+
+// =====================
+// SOCKET → GM UPDATE
+// =====================
+Hooks.once("ready", () => {
+
+  game.socket.on("system.crp", async (data) => {
+
+    if (!game.user.isGM) return;
+    if (data.type !== "defenseSelected") return;
+
+    const msg = game.messages.get(data.messageId);
+    if (!msg) return;
+
+    const defenseLabel = {
+      parry: "Parowanie",
+      dodge: "Unik",
+      shield: "Tarcza"
+    }[data.defenseType] ?? data.defenseType;
+
+    await msg.update({
+      content: `
+        <div class="crp-defense-result">
+          🛡 Wybrana obrona: <b>${defenseLabel}</b>
+        </div>
+      `
+    });
+
+  });
 
 });

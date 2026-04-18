@@ -381,23 +381,31 @@ const hasWeapon =
   isValidParryWeapon(rightItem) ||
   isValidParryWeapon(leftItem);
 
-await ChatMessage.create({
-  content: `
-    <div class="crp-defense-choice"
-      data-attacker="${this.document.uuid}"
-      data-defender="${targetActor.uuid}"
-      data-skill="${item.system.skill}">
+const msg = await ChatMessage.create({
+content: `
+  <div class="crp-defense-choice"
+    data-message-id=""
+    data-attacker="${this.document.uuid}"
+    data-defender="${targetActor.uuid}"
+    data-skill="${item.system.skill}">
 
-      <p>Wybierz obronę:</p>
+    <p>Wybierz obronę:</p>
 
-      <button data-defense="parry" ${!hasWeapon ? "disabled" : ""}>
-        Parowanie
-      </button>
+    <button data-defense="parry" ${!hasWeapon ? "disabled" : ""}>
+      Parowanie
+    </button>
 
-      <button data-defense="dodge">Unik</button>
-      <button data-defense="shield">Tarcza</button>
-    </div>
-  `
+    <button data-defense="dodge">Unik</button>
+    <button data-defense="shield">Tarcza</button>
+  </div>
+`
+});
+
+await msg.update({
+  content: msg.content.replace(
+    'data-message-id=""',
+    `data-message-id="${msg.id}"`
+  )
 });
 
   });

@@ -209,16 +209,17 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
             </div>
         `;
 
-        await ChatMessage.create({
-            speaker,
-            content
-        });
+const message = await ChatMessage.create({
+    speaker,
+    content
+});
 
-        return {
-            rollA,
-            rollB,
-            winner
-        };
+return {
+    rollA,
+    rollB,
+    winner,
+    messageId: message.id
+};
     }
 
 static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allowFate = true } = {}) {
