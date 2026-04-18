@@ -17,9 +17,9 @@ export class CRPActorData extends TypeDataModel {
         strength: new SchemaField({
           value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
-            athletics: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             twoHanded: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             endurance: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
+            shield: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             brawl: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             intimidate: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
@@ -28,10 +28,10 @@ export class CRPActorData extends TypeDataModel {
         agility: new SchemaField({
           value: new NumberField({ initial: 3, min: 0, max: 10 }),
           skills: new SchemaField({
+            athletics: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             oneHanded: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             lightWeapons: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             craft: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
-            shield: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             stealth: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         }),

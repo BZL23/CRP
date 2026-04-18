@@ -39,7 +39,7 @@ export class CRPActor extends Actor {
       attr.strength.skills.brawl.value,
       attr.agility.skills.oneHanded.value,
       attr.agility.skills.lightWeapons.value,
-      attr.agility.skills.shield.value,
+      attr.strength.skills.shield.value,
       attr.perception.skills.ranged.value
     ];
 
@@ -91,13 +91,13 @@ _mapSkillToAttribute(skillKey) {
     twoHanded: "strength",
     brawl: "strength",
     endurance: "strength",
-    athletics: "strength",
+    shield: "strength",
     intimidate: "strength",
 
     // AGI
     oneHanded: "agility",
     lightWeapons: "agility",
-    shield: "agility",
+    athletics: "agility",
     craft: "agility",
     stealth: "agility",
 
