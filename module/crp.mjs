@@ -6,8 +6,8 @@ import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet } from "./actor/sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
-import { CRPWeaponData } from "./item/item-data.mjs";
-import { CRPItemSheet } from "./item/sheet.mjs";
+import { CRPWeaponData, CRPArmorData } from "./item/item-data.mjs";
+import { CRPItemSheet, CRPWeaponSheet, CRPArmorSheet } from "./item/sheet.mjs";
 
 Hooks.once("init", () => {
   console.log("CRP | System init");
@@ -29,14 +29,21 @@ Hooks.once("init", () => {
 
     CONFIG.Item = CONFIG.Item || {};
 
-  CONFIG.Item.dataModels = {
-    weapon: CRPWeaponData
-  };
+CONFIG.Item.dataModels = {
+  weapon: CRPWeaponData,
+  armor: CRPArmorData
+};
 
-    foundry.documents.collections.Items.registerSheet("crp", CRPItemSheet, {
-    types: ["weapon"],
-    makeDefault: true
-  });
+
+foundry.documents.collections.Items.registerSheet("crp", CRPWeaponSheet, {
+  types: ["weapon"],
+  makeDefault: true
+});
+
+foundry.documents.collections.Items.registerSheet("crp", CRPArmorSheet, {
+  types: ["armor"],
+  makeDefault: true
+});
 
 });
 
