@@ -10,9 +10,12 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       resizable: true
     },
     position: {
-      width: 800,
+      width: 950,
       height: 800
     },
+
+    dragDrop: [{ dropSelector: ".crp-sheet" }]
+
   };
 
   static PARTS = {
@@ -29,8 +32,8 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     const config = CONFIG.CRP;
 
     const tokenImg =
-    this.document.prototypeToken?.texture?.src ||
-    this.document.img;
+  this.document.prototypeToken?.texture?.src ||
+  this.document.img;
 
     const attributesList = [];
 
@@ -42,82 +45,69 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
         label: String(config.attributes[key]), // 👈 ważne
         value: attrData?.value ?? 0,
         skills: Object.keys(attrData?.skills ?? {}).map(sk => {
-          const skillValue = attrData.skills[sk].value ?? 0;
-          const attrValue = attrData?.value ?? 0;
+  const skillValue = attrData.skills[sk].value ?? 0;
+  const attrValue = attrData?.value ?? 0;
 
-          return {
-            key: sk,
-            label: String(config.skills[sk]),
-            value: skillValue,
-            total: skillValue + attrValue
-          };
-        })
+  return {
+    key: sk,
+    label: String(config.skills[sk]),
+    value: skillValue,
+    total: skillValue + attrValue
+  };
+})
       });
     }
 
     const hp = system.derived.health;
 
-    hp.percent = hp.max > 0
-    ? Math.floor((hp.value / hp.max) * 100)
-    : 0;
+hp.percent = hp.max > 0
+  ? Math.floor((hp.value / hp.max) * 100)
+  : 0;
 
-const attackWeapon = this.document.items.get(system.attack?.weaponId);
-
-const equippedArmor = this.document.items.find(i =>
-  i.type === "armor" && i.system.equipped
-);
-
-return {
+    return {
   ...context,
   system,
   config,
   attributesList,
-  tokenImg,
-  attackWeapon,
-  equippedArmor,
-
-  actor: this.document,    
-  items: this.document.items  
+  tokenImg
 };
 
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
-    const TextEditorImpl =
-  foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
+_onRender(context, options) {
+  const scrollTop = this.element?.scrollTop;
 
-    const html = this.element;
+  super._onRender(context, options);
 
-    // ======================
-    //  ROLL
-    // ======================
-    html.querySelectorAll(".crp-skill").forEach(el => {
+  const html = this.element;
 
-      el.addEventListener("click", ev => {
-        if (ev.target.closest("input")) return;
+  if (scrollTop !== undefined) {
+    html.scrollTop = scrollTop;
+  }
 
-        const attr = el.dataset.attr;
-        const skill = el.dataset.skill;
+  // ======================
+  //  ROLL
+  // ======================
+  html.querySelectorAll(".crp-skill").forEach(el => {
+    el.addEventListener("click", ev => {
 
-        this.document.rollSkill(attr, skill);
-      });
+      if (ev.target.closest("input")) return;
 
-      });
+      const attr = el.dataset.attr;
+      const skill = el.dataset.skill;
 
-      // ======================
-      //  INPUTY
-      // ======================
-html.querySelectorAll("input[data-path], textarea[data-path]").forEach(input => {
+      this.document.rollSkill(attr, skill);
+    });
+  });
 
-  input.addEventListener("input", ev => {
+  // ======================
+  //  INPUTY
+  // ======================
+  html.querySelectorAll("input[data-path]").forEach(input => {
+    input.addEventListener("change", async ev => {
+      const path = ev.currentTarget.dataset.path;
+      let value = Number(ev.currentTarget.value);
 
-    const path = ev.currentTarget.dataset.path;
-
-    let value = ev.currentTarget.value;
-
-    if (ev.currentTarget.type === "number") {
-      value = Number(value);
       if (isNaN(value)) value = 0;
 
       if (path.startsWith("system.attributes")) {
@@ -125,292 +115,199 @@ html.querySelectorAll("input[data-path], textarea[data-path]").forEach(input => 
       } else {
         value = Math.max(0, value);
       }
-    }
 
-if (input._updateTimeout) {
-  clearTimeout(input._updateTimeout);
-}
-
-    input._updateTimeout = setTimeout(async () => {
       await this.document.update({
         [path]: value
       });
-    }, 200);
-
+    });
   });
 
-});
-
-    // ======================
-    //  NAZWA
-    // ======================
-    const nameEl = html.querySelector("[data-edit='name']");
-    if (nameEl) {
-      nameEl.addEventListener("blur", async ev => {
-        await this.document.update({
-          name: ev.currentTarget.innerText
-        });
-      });
-    }
-
-    // ======================
-    //  PORTRET
-    // ======================
-    html.querySelectorAll("[data-edit='img']").forEach(img => {
-      img.addEventListener("click", () => {
-        new foundry.applications.apps.FilePicker.implementation({
-          type: "image",
-          current: this.document.img,
-          callback: async (path) => {
-
-            const currentToken = this.document.prototypeToken?.texture?.src;
-            const currentPortrait = this.document.img;
-
-            const isDefaultToken =
-              !currentToken || currentToken === currentPortrait;
-
-            await this.document.update({
-              img: path,
-              ...(isDefaultToken && {
-                "prototypeToken.texture.src": path
-              })
-            });
-
-          }
-        }).render(true);
+  // ======================
+  //  NAZWA
+  // ======================
+  const nameEl = html.querySelector("[data-edit='name']");
+  if (nameEl) {
+    nameEl.addEventListener("blur", async ev => {
+      await this.document.update({
+        name: ev.currentTarget.innerText
       });
     });
-
-    // ======================
-    //  TOKEN
-    // ======================
-    html.querySelectorAll("[data-edit='token']").forEach(img => {
-      img.addEventListener("click", () => {
-        new foundry.applications.apps.FilePicker.implementation({
-          type: "image",
-          current: this.document.prototypeToken?.texture?.src || this.document.img,
-          callback: async (path) => {
-
-            await this.document.update({
-              "prototypeToken.texture.src": path
-            });
-
-          }
-        }).render(true);
-      });
-    });
-
-    html.querySelectorAll(".crp-attack-slot:not(.crp-armor-slot)").forEach(slot => {
-
-        //  hover efekt
-slot.addEventListener("dragenter", () => {
-  slot.classList.add("dragover");
-});
-
-slot.addEventListener("dragleave", ev => {
-  if (!slot.contains(ev.relatedTarget)) {
-    slot.classList.remove("dragover");
   }
-});
 
+  // ======================
+  //  PORTRET
+  // ======================
+  html.querySelectorAll("[data-edit='img']").forEach(img => {
+    img.addEventListener("click", () => {
+      new foundry.applications.apps.FilePicker.implementation({
+        type: "image",
+        current: this.document.img,
+        callback: async (path) => {
 
-  slot.addEventListener("dragover", ev => {
-    ev.preventDefault();
-  });
+          const currentToken = this.document.prototypeToken?.texture?.src;
+          const currentPortrait = this.document.img;
 
-  slot.addEventListener("drop", async ev => {
-    ev.preventDefault();
-    ev.stopPropagation();
+          const isDefaultToken =
+            !currentToken || currentToken === currentPortrait;
 
-    slot.classList.remove("dragover");
+          await this.document.update({
+            img: path,
+            ...(isDefaultToken && {
+              "prototypeToken.texture.src": path
+            })
+          });
 
-    const data = TextEditorImpl.getDragEventData(ev);
-
-    if (data.type !== "Item") return;
-
-    const item = await fromUuid(data.uuid);
-    if (!item || item.type !== "weapon") {
-      ui.notifications.warn("Tu możesz wrzucić tylko broń");
-      return;
-    }
-
-    // 👇 musi być item aktora
-    const actorItem =
-  this.document.items.get(item.id) ??
-  this.document.items.find(i => i.uuid === item.uuid);
-    if (!actorItem) {
-      ui.notifications.warn("Najpierw dodaj broń do ekwipunku");
-      return;
-    }
-
-    console.log("DROP DATA", data);
-console.log("ITEM", item);
-console.log("ITEM ID", item.id);
-console.log("ACTOR ITEMS", this.document.items);
-
-    await this.document.update({
-      "system.attack.weaponId": actorItem.id
+        }
+      }).render(true);
     });
+  });
 
+  // ======================
+  //  TOKEN
+  // ======================
+  html.querySelectorAll("[data-edit='token']").forEach(img => {
+    img.addEventListener("click", () => {
+      new foundry.applications.apps.FilePicker.implementation({
+        type: "image",
+        current: this.document.prototypeToken?.texture?.src || this.document.img,
+        callback: async (path) => {
+
+          await this.document.update({
+            "prototypeToken.texture.src": path
+          });
+
+        }
+      }).render(true);
     });
-
-    });
-
-
-    html.querySelectorAll(".crp-armor-slot").forEach(slot => {
-
-  slot.addEventListener("dragenter", () => {
-    slot.classList.add("dragover");
   });
 
-  slot.addEventListener("dragleave", ev => {
-    if (!slot.contains(ev.relatedTarget)) {
-      slot.classList.remove("dragover");
-    }
-  });
+  // ======================
+  //  EQUIP
+  // ======================
+  html.querySelectorAll(".crp-equip").forEach(el => {
+    el.addEventListener("change", async ev => {
 
-  slot.addEventListener("dragover", ev => {
-    ev.preventDefault();
-  });
+      const item = this.document.items.get(ev.target.dataset.itemId);
+      if (!item) return;
 
-  slot.addEventListener("drop", async ev => {
-    ev.preventDefault();
-    ev.stopPropagation();
-
-    slot.classList.remove("dragover");
-
-    const data = TextEditorImpl.getDragEventData(ev);
-    if (data.type !== "Item") return;
-
-    const item = await fromUuid(data.uuid);
-    if (!item || item.type !== "armor") {
-      ui.notifications.warn("Tu możesz wrzucić tylko zbroję");
-      return;
-    }
-
-    const actorItem =
-      this.document.items.get(item.id) ??
-      this.document.items.find(i => i.uuid === item.uuid);
-
-    if (!actorItem) {
-      ui.notifications.warn("Najpierw dodaj zbroję do ekwipunku");
-      return;
-    }
-
-    //  zdejmij inne
-    for (const i of this.document.items) {
-      if (i.type === "armor" && i.system.equipped) {
-        await i.update({ "system.equipped": false });
-      }
-    }
-
-    // 🔥 załóż nową
-    await actorItem.update({
-      "system.equipped": true
-    });
-
-  });
-
-});
-
-
-
-
-
-    // ======================
-    //  EQUIP
-    // ======================
-    html.querySelectorAll(".crp-equip").forEach(el => {
-      el.addEventListener("change", async ev => {
-
-        const item = this.document.items.get(ev.target.dataset.itemId);
-        if (!item) return;
-
-        await item.update({
-          "system.equipped": ev.target.checked
-        });
-
+      await item.update({
+        "system.equipped": ev.target.checked
       });
+
     });
+  });
 
-    //  USUWANIE BRONI
-    html.querySelectorAll(".crp-weapon-delete").forEach(btn => {
-      btn.addEventListener("click", async ev => {
+//  USUWANIE BRONI
 
-        ev.stopPropagation(); //  żeby nie triggerować kliknięcia equip
+html.querySelectorAll(".crp-item-delete").forEach(btn => {
+  btn.addEventListener("click", async ev => {
 
-        const itemId = ev.currentTarget.dataset.itemId;
-        const item = this.document.items.get(itemId);
+    ev.stopPropagation();
 
-        if (!item) return;
+    const itemId = ev.currentTarget.dataset.itemId;
+    const item = this.document.items.get(itemId);
+    if (!item) return;
 
-        // 👇 opcjonalne potwierdzenie
+    const eq = this.document.system.equipment;
 
-        const DialogImpl =
-  foundry.applications?.api?.DialogV2 ?? Dialog;
+for (const slot of Object.keys(eq)) {
+  if (eq[slot]?.id === itemId) {
+    await this.document.update({
+      [`system.equipment.${slot}`]: {
+        id: null,
+        name: null,
+        img: null
+      }
+    });
+  }
+}
 
-const confirmed = await DialogImpl.confirm({
-  window: { title: "Usuń broń" },
-  content: `<p>Czy na pewno chcesz usunąć <b>${item.name}</b>?</p>`
+await item.delete();
+
+  });
 });
 
+  // ======================
+  //  DRAG & DROP (FIX)
+  // ======================
+const root = this.element;
 
-        if (!confirmed) return;
-
-        await item.delete();
-
-    });
-    });
-
-      // ======================
-      //  DRAG & DROP (FIX)
-      // ======================
-      const root = this.element;
-
-// 🔥 bind tylko raz
-if (!this._dropBound) {
-  this._dropBound = true;
+// tylko DROP ma być jednokrotny
+if (!root.dataset.dropBound) {
+  root.dataset.dropBound = "true";
 
   root.addEventListener("dragover", ev => ev.preventDefault());
 
-root.addEventListener("drop", async ev => {
+  root.addEventListener("drop", async ev => {
+    ev.preventDefault();
 
-  // 🔥 ZATRZYMAJ jeśli to armor slot
-  if (ev.target.closest(".crp-armor-slot")) return;
+    if (this._dropping) return;
+    this._dropping = true;
 
-  // 🔥 ZATRZYMAJ jeśli to attack slot
-  if (ev.target.closest(".crp-attack-slot")) return;
+    try {
+      const TextEditorImpl =
+        foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
 
+      let data = TextEditorImpl.getDragEventData(ev);
 
-  ev.preventDefault();
+      if (!data || !data.type) {
+        try {
+          data = JSON.parse(ev.dataTransfer.getData("text/plain"));
+        } catch {
+          return;
+        }
+      }
 
-  const data = TextEditorImpl.getDragEventData(ev);
-  if (data.type !== "Item") return;
+      if (data.type !== "Item") return;
 
-  const item = await fromUuid(data.uuid);
-  if (!item) return;
+      const item = await fromUuid(data.uuid);
+      if (!item) return;
 
-  //  NOWE — blokuj weapon jeśli NIE drop na tło
-  if (ev.target.closest(".crp-equipment")) return;
+      let slotEl = ev.target;
 
-  const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
+      while (slotEl && !slotEl.classList?.contains("crp-eq-slot")) {
+        slotEl = slotEl.parentElement;
+      }
 
-  if (created.type === "weapon") {
-    await created.update({ "system.equipped": true });
-  }
+      if (slotEl) {
+        const slot = slotEl.dataset.slot;
 
-});
+        if (item.parent?.id !== this.document.id) {
+          ui.notifications.warn("Możesz używać tylko przedmiotów z ekwipunku!");
+          return;
+        }
+
+        await this.document.update({
+          [`system.equipment.${slot}`]: {
+            id: item.id,
+            name: item.name,
+            img: item.img
+          }
+        });
+
+        return;
+      }
+
+      if (item.parent?.id === this.document.id) return;
+
+      const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
+
+      if (created.type === "weapon") {
+        await created.update({ "system.equipped": true });
+      }
+
+    } finally {
+      this._dropping = false;
+    }
+  });
 }
 
 
-html.querySelectorAll(".crp-weapon-row").forEach(row => {
 
-  if (row.dataset.dragBound) return;
-  row.dataset.dragBound = "true";
+html.querySelectorAll(".crp-item-row").forEach(el => {
+  el.addEventListener("dragstart", ev => {
 
-  row.addEventListener("dragstart", ev => {
-
-    const itemId = row.dataset.itemId;
+    const itemId = el.dataset.itemId;
     const item = this.document.items.get(itemId);
     if (!item) return;
 
@@ -420,128 +317,113 @@ html.querySelectorAll(".crp-weapon-row").forEach(row => {
     }));
 
   });
-
 });
 
+html.querySelectorAll(".crp-eq-slot").forEach(el => {
+  el.addEventListener("click", async ev => {
 
+    // ❗ ignoruj klik w delete
+    if (ev.target.closest(".crp-slot-clear")) return;
 
-html.querySelectorAll(".crp-armor-row").forEach(row => {
+    // ❗ znajdź slot po DOM (nie po el)
+    let slotEl = ev.target;
+    while (slotEl && !slotEl.classList?.contains("crp-eq-slot")) {
+      slotEl = slotEl.parentElement;
+    }
 
-  if (row.dataset.dragBound) return;
-  row.dataset.dragBound = "true";
+    if (!slotEl) return;
 
-  row.addEventListener("dragstart", ev => {
+    const slot = slotEl.dataset.slot;
 
-    const itemId = row.dataset.itemId;
+    // tylko ręce
+    if (slot !== "rightHand" && slot !== "leftHand") return;
+
+    const eq = this.document.system.equipment[slot];
+const itemId = typeof eq === "string" ? eq : eq?.id;
+
+    if (!itemId) return;
+
     const item = this.document.items.get(itemId);
     if (!item) return;
 
-    ev.dataTransfer.setData("text/plain", JSON.stringify({
-      type: "Item",
-      uuid: item.uuid
-    }));
-
-  });
-
-});
-
-
-html.querySelectorAll(".crp-attack-card").forEach(card => {
-
-  if (card.dataset.clickBound) return;
-  card.dataset.clickBound = "true";
-
-  card.addEventListener("click", async ev => {
-
-    const itemId = card.dataset.itemId;
-    const item = this.document.items.get(itemId);
-    if (!item) return;
-
-    // 🔥 NOWE — blokuj jeśli to NIE broń
-    if (item.type !== "weapon") return;
-
-    // 🎯 TARGET
+    // target
     const targets = Array.from(game.user.targets);
-
-    if (targets.length !== 1) {
-      ui.notifications.warn("Wybierz dokładnie jeden cel.");
+    if (!targets.length) {
+      ui.notifications.warn("Brak celu");
       return;
     }
 
-    const target = targets[0];
-    const targetActor = target.actor;
+    const targetActor = targets[0].actor;
+    if (!targetActor) return;
 
-    await this._createDefensePrompt(item, targetActor);
+const equipment = targetActor.system.equipment;
 
-  });
+const isValidParryWeapon = (item) => {
+  if (!item) return false;
 
+  const skill = item.system.skill;
+
+  // ❌ broń strzelecka nie może parować
+  if (skill === "ranged") return false;
+
+  return true;
+};
+
+const rightItem = equipment.rightHand?.id
+  ? targetActor.items.get(equipment.rightHand.id)
+  : null;
+
+const leftItem = equipment.leftHand?.id
+  ? targetActor.items.get(equipment.leftHand.id)
+  : null;
+
+const hasWeapon =
+  isValidParryWeapon(rightItem) ||
+  isValidParryWeapon(leftItem);
+
+await ChatMessage.create({
+  content: `
+    <div class="crp-defense-choice"
+      data-attacker="${this.document.uuid}"
+      data-defender="${targetActor.uuid}"
+      data-skill="${item.system.skill}">
+
+      <p>Wybierz obronę:</p>
+
+      <button data-defense="parry" ${!hasWeapon ? "disabled" : ""}>
+        Parowanie
+      </button>
+
+      <button data-defense="dodge">Unik</button>
+      <button data-defense="shield">Tarcza</button>
+    </div>
+  `
 });
 
+  });
+});
 
-
-html.querySelectorAll(".crp-attack-remove").forEach(btn => {
-
+html.querySelectorAll(".crp-slot-clear").forEach(btn => {
   btn.addEventListener("click", async ev => {
+
     ev.stopPropagation();
 
-    const card = ev.currentTarget.closest(".crp-attack-card");
-    const itemId = card?.dataset.itemId;
+    const slot = ev.currentTarget.dataset.slot;
 
-    const item = this.document.items.get(itemId);
-    if (!item) return;
-
-    // 🔥 JEŚLI BROŃ
-    if (item.type === "weapon") {
-      await this.document.update({
-        "system.attack.weaponId": null
-      });
-      return;
-    }
-
-    // 🔥 JEŚLI ZBROJA
-    if (item.type === "armor") {
-      await item.update({
-        "system.equipped": false
-      });
-      return;
-    }
-
-  });
-
+await this.document.update({
+  [`system.equipment.${slot}`]: {
+  id: null,
+  name: null,
+  img: null
+}
 });
 
 
-
-  }
-
-
-async _createDefensePrompt(weapon, targetActor) {
-
-const content = await foundry.applications.handlebars.renderTemplate(
-  "systems/crp/templates/chat/defense-choice.hbs",
-  {
-    attackerId: this.document.id,
-    defenderId: targetActor.id,
-    weaponId: weapon.id,
-    defenderName: targetActor.name
-  }
-);
-
-  await ChatMessage.create({
-    user: game.user.id,
-    speaker: ChatMessage.getSpeaker({ actor: this.document }),
-    content,
-    flags: {
-      crp: {
-        type: "defensePrompt",
-        attackerId: this.document.id,
-        defenderId: targetActor.id,
-        weaponId: weapon.id
-      }
-    }
   });
+});
 
 }
+
 
 
 }

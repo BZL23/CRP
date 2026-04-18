@@ -3,9 +3,9 @@
   <div class="crp-item-header">
 
     <div class="crp-item-left">
-      <h1 contenteditable="true" data-edit="name">
-        {{item.name}}
-      </h1>
+      <h1>
+  <input type="text" data-path="name" value="{{item.name}}">
+</h1>
     </div>
 
     <div class="crp-item-img">
@@ -29,8 +29,7 @@
 
 <label>Umiejętność</label>
 
-
-  <select name="system.skill">
+<select data-path="system.skill">
 
   {{#each config.combatSkills as |key|}}
     <option value="{{key}}"

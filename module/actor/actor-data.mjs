@@ -100,10 +100,29 @@ export class CRPActorData extends TypeDataModel {
         unconscious: new BooleanField({ initial: false })
       }),
 
-      attack: new SchemaField({
-        weaponId: new StringField({ initial: null, nullable: true })
-      }),
+      equipment: new SchemaField({
+  rightHand: new SchemaField({
+    id: new StringField({ nullable: true }),
+    name: new StringField({ nullable: true }),
+    img: new StringField({ nullable: true })
+  }),
+
+  leftHand: new SchemaField({
+    id: new StringField({ nullable: true }),
+    name: new StringField({ nullable: true }),
+    img: new StringField({ nullable: true })
+  }),
+
+  armor: new SchemaField({
+    id: new StringField({ nullable: true }),
+    name: new StringField({ nullable: true }),
+    img: new StringField({ nullable: true })
+  })
+}),
 
     };
+
+
+    
   }
 }

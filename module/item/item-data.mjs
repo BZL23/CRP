@@ -35,20 +35,3 @@ export class CRPWeaponData extends TypeDataModel {
     };
   }
 }
-
-export class CRPArmorData extends TypeDataModel {
-  static defineSchema() {
-    return {
-
-      // mechanika pancerza
-      reduction: new NumberField({ initial: 0, min: 0 }),
-      weight: new NumberField({ initial: 0, min: 0 }),
-
-      // systemowe
-      equipped: new BooleanField({ initial: false }),
-
-      // fluff
-      description: new StringField({ initial: "" })
-    };
-  }
-}

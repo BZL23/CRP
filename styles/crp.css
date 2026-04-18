@@ -453,7 +453,6 @@ input:focus {
   border: 1px solid #ccc;
   background: #fff;
   cursor: pointer;
-  color: #4b3014;
 }
 
 .crp-weapon-row:hover {
@@ -494,35 +493,149 @@ input:focus {
   color: #e00;
 }
 
-.crp-attack-slot {
-  border: 2px dashed #999;
-  padding: 10px;
-  min-height: 80px;
-  color: #4b3014;
+/* Nagłówki sekcji */
+.crp-section-header {
+  margin-top: 10px;
+  padding: 5px;
+  border-bottom: 2px solid #444;
 }
 
-.crp-attack-card {
+/* Lista */
+.crp-item-list {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* Pojedynczy item */
+.crp-item-row {
+  display: flex;
   align-items: center;
-  background: #f5f2e9;
+  width: 100%;
+
   padding: 6px;
+  border: 1px solid #555;
+  border-radius: 4px;
+
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Ikona */
+.crp-item-img {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+}
+
+/* Nazwa */
+.crp-item-name {
+  flex: 1;
+  font-weight: bold;
+}
+
+/* Meta (np dmg) */
+.crp-item-meta {
+  margin-right: 10px;
+  color: #ccc;
+}
+
+/* Delete */
+.crp-item-delete {
+  background: none;
+  border: none;
+  color: red;
   cursor: pointer;
 }
 
-.crp-attack-info {
-  flex: 1;
+.crp-item-row:hover {
+  background: rgba(255,255,255,0.05);
 }
 
-.crp-attack-empty {
+
+.crp-inventory {
+  display: flex;
+  flex-direction: column; 
+  width: 100%;
+  gap: 10px;
+}
+
+.crp-inventory-section {
+  width: 100%;
+}
+
+/* 🔥 WYŁAMANIE Z GRIDU FOUNDRY */
+.crp-fullwidth {
+  width: 100%;
+  grid-column: 1 / -1;   /* jeśli grid */
+}
+
+/* jeśli rodzic to flex */
+.crp-fullwidth {
+  flex: 0 0 100%;
+}
+
+/* inventory */
+.crp-inventory {
+  width: 100%;
+}
+
+/* item list */
+.crp-item-list {
+  width: 100%;
+}
+
+/* pojedynczy item */
+.crp-item-row {
+  width: 100%;
+  display: flex;
+}
+
+/* GRID SLOTÓW */
+.crp-equipment {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 równe kolumny */
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* pojedynczy slot */
+.crp-eq-slot {
+  border: 1px solid #555;
+  padding: 6px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.2);
+  min-height: 60px;
+}
+
+/* nagłówek */
+.crp-eq-header {
+  font-weight: bold;
+  border-bottom: 1px solid #444;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+/* pusty slot */
+.crp-empty {
   text-align: center;
   color: #777;
 }
 
-.crp-attack-slot.dragover {
-  background: #f0ead6;
+/* 🔥 WYMUSZENIE PEŁNEJ SZEROKOŚCI */
+.crp-equipment {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.crp-armor-slot .crp-attack-card {
-  cursor: default;
+/* 🔥 WYŁAMANIE Z UKŁADU FOUNDRY */
+.crp-equipment {
+  grid-column: 1 / -1;
+}
+
+/* jeśli parent jest flex */
+.crp-equipment {
+  flex: 0 0 100%;
 }

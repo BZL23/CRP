@@ -6,13 +6,11 @@ import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet } from "./actor/sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
-import { CRPWeaponData, CRPArmorData } from "./item/item-data.mjs";
-import { CRPWeaponSheet, CRPArmorSheet } from "./item/sheet.mjs";
+import { CRPWeaponData } from "./item/item-data.mjs";
+import { CRPItemSheet } from "./item/sheet.mjs";
 
 Hooks.once("init", () => {
   console.log("CRP | System init");
-
-
 
   CONFIG.Actor.documentClass = CRPActor;
 
@@ -31,25 +29,16 @@ Hooks.once("init", () => {
 
     CONFIG.Item = CONFIG.Item || {};
 
+  CONFIG.Item.dataModels = {
+    weapon: CRPWeaponData
+  };
 
-CONFIG.Item.dataModels = {
-  weapon: CRPWeaponData,
-  armor: CRPArmorData
-};
-
-foundry.documents.collections.Items.registerSheet("crp", CRPWeaponSheet, {
-  types: ["weapon"],
-  makeDefault: true
-});
-
-foundry.documents.collections.Items.registerSheet("crp", CRPArmorSheet, {
-  types: ["armor"],
-  makeDefault: true
-});
-
+    foundry.documents.collections.Items.registerSheet("crp", CRPItemSheet, {
+    types: ["weapon"],
+    makeDefault: true
+  });
 
 });
-
 
 
 Hooks.on("createActor", async (actor) => {
@@ -211,146 +200,105 @@ Hooks.on("renderActorDirectory", (app, html) => {
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
 
-  // 👉 tylko nasze wiadomości
-  if (message.flags?.crp?.type !== "defensePrompt") return;
+  const buttons = html.querySelectorAll(".crp-defense-choice button");
+if (!buttons.length) return;
 
-  html.querySelectorAll(".defense-btn").forEach(btn => {
+for (const btn of buttons) {
 
-    // zabezpieczenie przed wielokrotnym bindem
-    if (btn.dataset.bound) return;
-    btn.dataset.bound = "true";
+  if (btn.dataset.bound) continue;
+  btn.dataset.bound = "true";
 
-    btn.addEventListener("click", async ev => {
+  btn.addEventListener("click", async ev => {
 
-      const container = ev.currentTarget.closest(".crp-defense-choice");
+    const container = btn.closest(".crp-defense-choice");
 
-      const attackerId = container.dataset.attacker;
-      const defenderId = container.dataset.defender;
-      const weaponId = container.dataset.weapon;
+    const attackerUuid = container.dataset.attacker;
+    const defenderUuid = container.dataset.defender;
+    const defenseType = btn.dataset.defense;
+    const skill = container.dataset.skill;
 
-      const defenseType = ev.currentTarget.dataset.type;
+    const attacker = await fromUuid(attackerUuid);
+    const defender = await fromUuid(defenderUuid);
 
-      const attacker = game.actors.get(attackerId);
-      const defender = game.actors.get(defenderId);
-      const weapon = attacker.items.get(weaponId);
+    if (!attacker || !defender) return;
 
-const isGM = game.user.isGM;
+    // 🔒 uprawnienia
+    const isGM = game.user.isGM;
+    const ownsDefender = defender.isOwner;
 
-// ✔ czy user kontroluje token tego aktora
-const controlsDefender = canvas.tokens.placeables
-  .filter(t => t.actor?.id === defenderId)
-  .some(t => t.isOwner);
-
-if (!isGM && !controlsDefender) {
-  ui.notifications.warn("Nie kontrolujesz tej postaci.");
-  return;
-}
-
-      //  blokada lokalna (UX)
-      html.querySelectorAll(".defense-btn").forEach(b => b.disabled = true);
-
-      //  MAPOWANIE
-      let defSkill, defAttr;
-
-      switch (defenseType) {
-        case "parry":
-          defSkill = weapon.system.skill;
-          defAttr = defender._mapSkillToAttribute?.(defSkill);
-          break;
-
-        case "dodge":
-          defSkill = "athletics";
-          defAttr = "strength";
-          break;
-
-        case "shield":
-          defSkill = "shield";
-          defAttr = defender._mapSkillToAttribute?.(defSkill);
-          break;
-      }
-
-      const atkSkill = weapon.system.skill;
-      const atkAttr = attacker._mapSkillToAttribute?.(atkSkill);
-
-      if (!atkAttr || !defAttr) {
-        ui.notifications.error("Błąd mapowania cech/skilli");
-        return;
-      }
-
-// 🔥 ZAWSZE wykonujemy test lokalnie
-await CRPRoll.opposed(
-  attacker, atkAttr, atkSkill,
-  defender, defAttr, defSkill,
-  {
-    messageId: message.id,
-    defenseType
-  }
-);
-
-
-    });
-
-  });
-
-});
-
-Hooks.once("ready", () => {
-
-  game.socket.on(`system.${game.system.id}`, async data => {
-
-    if (!game.user.isGM) return;
-
-    console.log("CRP SOCKET RECEIVED", data);
-
-    // 🔥 DODAJ TO:
-    if (data.type === "updateMessage") {
-      const msg = game.messages.get(data.messageId);
-      if (msg) await msg.update({ content: data.content });
+    if (!isGM && !ownsDefender) {
+      ui.notifications.warn("Nie kontrolujesz tej postaci");
       return;
     }
-    console.log("GM UPDATE MESSAGE", data);
 
-    if (data.type === "resolveDefense") {
+    let defSkill;
 
-const { attackerUuid, defenderUuid, weaponUuid, defenseType, messageId } = data;
+    if (defenseType === "parry") {
 
-const attacker = await fromUuid(attackerUuid);
-const defender = await fromUuid(defenderUuid);
+  const eq = defender.system.equipment;
 
-const weaponDoc = await fromUuid(weaponUuid);
-const weapon = attacker.items.get(weaponDoc.id) ?? weaponDoc;
+  const getWeaponSkill = (slot) => {
+    const id = eq[slot]?.id;
+    if (!id) return null;
 
-      let defSkill, defAttr;
+    const item = defender.items.get(id);
+    if (!item) return null;
 
-      switch (defenseType) {
-        case "parry":
-          defSkill = weapon.system.skill;
-          defAttr = defender._mapSkillToAttribute?.(defSkill);
-          break;
-        case "dodge":
-          defSkill = "athletics";
-          defAttr = "strength";
-          break;
-        case "shield":
-          defSkill = "shield";
-          defAttr = defender._mapSkillToAttribute?.(defSkill);
-          break;
-      }
+    return item.system.skill;
+  };
 
-      const atkSkill = weapon.system.skill;
-      const atkAttr = attacker._mapSkillToAttribute?.(atkSkill);
+  const getTotal = (skill) => {
+    if (!skill) return -999;
 
-      await CRPRoll.opposed(
-        attacker, atkAttr, atkSkill,
-        defender, defAttr, defSkill,
-        {
-          messageId,
-          defenseType
-        }
-      );
-    }
+    const attr = defender._mapSkillToAttribute(skill);
+    if (!attr) return -999;
+
+    const attrVal = defender.system.attributes[attr]?.value ?? 0;
+    const skillVal = defender.system.attributes[attr]?.skills?.[skill]?.value ?? 0;
+
+    return attrVal + skillVal;
+  };
+
+const getParrySkill = (slot) => {
+  const id = eq[slot]?.id;
+  if (!id) return null;
+
+  const item = defender.items.get(id);
+  if (!item) return null;
+
+  if (item.system.skill === "ranged") return null;
+
+  return item.system.skill;
+};
+
+const rightSkill = getParrySkill("rightHand");
+const leftSkill = getParrySkill("leftHand");
+
+  const rightTotal = getTotal(rightSkill);
+  const leftTotal = getTotal(leftSkill);
+
+  defSkill = rightTotal >= leftTotal ? rightSkill : leftSkill;
+
+  if (!defSkill) {
+    ui.notifications.warn("Brak broni do parowania");
+    return;
+  }
+}
+    if (defenseType === "dodge") defSkill = "athletics";
+    if (defenseType === "shield") defSkill = "shield";
+
+await attacker.opposedTest(
+  defender,
+  attacker._mapSkillToAttribute(skill),
+  skill,
+  defender._mapSkillToAttribute(defSkill),
+  defSkill
+);
+
+// usuń message z wyborem obrony
+await message.delete();
 
   });
+}
 
 });
-

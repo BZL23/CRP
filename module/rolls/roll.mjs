@@ -112,11 +112,10 @@ return result;
 
     }
 
-    static async opposed(actorA, attrA, skillA, actorB, attrB, skillB, options = {})
-    {
-
-      const { messageId = null, defenseType = null } = options;
-      
+    static async opposed(
+        actorA, attrA, skillA,
+        actorB, attrB, skillB
+    ) {
         const rollA = await this.skill(actorA, attrA, skillA, { chat: false });
         const rollB = await this.skill(actorB, attrB, skillB, { chat: false });
 
@@ -176,29 +175,13 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
         // wynik
         let resultText;
 
-let damage = 0;
-
-if (winner === "A") {
-    resultText = `👉 ${actorA.name} trafia`;
-
-    // 🔥 obrażenia = baza + margin
-    const weapon = actorA.getEquippedWeapon();
-    const baseDamage = weapon?.system.damage ?? 1;
-
-    const marginDiff = rollA.margin - rollB.margin;
-damage = Math.max(0, marginDiff);
-
-    resultText += `<br>💥 Obrażenia: ${damage}`;
-
-} else if (winner === "B") {
-    resultText = `👉 ${actorB.name} broni się`;
-} else {
-    resultText = "👉 REMIS";
-}
-
-if (winner === "A" && damage > 0) {
-  await this.applyDamage(actorB, damage);
-}
+        if (winner === "A") {
+            resultText = `👉 ${actorA.name} wygrywa`;
+        } else if (winner === "B") {
+            resultText = `👉 ${actorB.name} wygrywa`;
+        } else {
+            resultText = "👉 REMIS";
+        }
 
         // HTML
         const content = `
@@ -215,7 +198,6 @@ if (winner === "A" && damage > 0) {
                 </p>
                 <p>
                     <strong>${actorB.name}</strong><br>
-                    ${options?.defenseType ? `<p>Obrona: <b>${options.defenseType}</b></p>` : ""}
                     ${skillLabelB} (${attrLabelB})<br>
                     🎲 ${rollB.dice.length ? rollB.dice.join(", ") : "—"} = ${rollB.total}<br>
                     Cel: ${rollB.target}<br>
@@ -227,27 +209,10 @@ if (winner === "A" && damage > 0) {
             </div>
         `;
 
-
-const newMsg = setTimeout(async () => {
-  await ChatMessage.create({
-    user: game.user.id,
-    speaker,
-    content
-  });
-}, 0);
-
-if (options.messageId) {
-  const oldMsg = game.messages.get(options.messageId);
-  if (oldMsg) {
-
-    // 🔥 lokalne ukrycie (działa dla gracza)
-    const el = document.querySelector(`[data-message-id="${oldMsg.id}"]`);
-    if (el) el.style.display = "none";
-
-  }
-}
-
-return;
+        await ChatMessage.create({
+            speaker,
+            content
+        });
 
         return {
             rollA,
@@ -452,16 +417,4 @@ async rollAttack(skillKey) {
   };
 }
 
-static async applyDamage(actor, amount) {
-
-  const hp = actor.system.derived?.health?.value ?? 0;
-
-  const newHp = Math.max(0, hp - amount);
-
-  await actor.update({
-    "system.derived.health.value": newHp
-  });
-
-  console.log(`CRP DAMAGE: ${actor.name} -${amount} HP (${newHp})`);
-}
 }
