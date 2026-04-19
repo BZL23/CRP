@@ -403,10 +403,11 @@ input:focus {
 }
 
 /* HEADER */
+
 .crp-item-header {
   display: flex;
+  flex-direction: column; /* 🔥 klucz */
   gap: 10px;
-  align-items: flex-start;
 }
 
 /* LEWA STRONA (nazwa) */
@@ -540,16 +541,9 @@ input:focus {
   color: #ccc;
 }
 
-/* Delete */
-.crp-item-delete {
-  background: none;
-  border: none;
-  color: red;
-  cursor: pointer;
-}
-
 .crp-item-row:hover {
   background: rgba(255,255,255,0.05);
+  cursor: pointer;
 }
 
 
@@ -594,7 +588,7 @@ input:focus {
 /* GRID SLOTÓW */
 .crp-equipment {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 🔥 3 równe kolumny */
+  grid-template-columns: repeat(3, 1fr); /* 3 równe kolumny */
   gap: 10px;
   width: 100%;
   margin-bottom: 10px;
@@ -602,6 +596,7 @@ input:focus {
 
 /* pojedynczy slot */
 .crp-eq-slot {
+
   border: 1px solid #555;
   padding: 6px;
   border-radius: 4px;
@@ -638,4 +633,24 @@ input:focus {
 /* jeśli parent jest flex */
 .crp-equipment {
   flex: 0 0 100%;
+}
+
+.crp-item-img-large {
+  width: 350px;
+  height: 350px;
+  border: 1px solid #444;
+  background: #ddd;
+  overflow: hidden;
+  align-self: center;
+}
+
+.crp-item-img-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+}
+
+.crp-item-row .crp-slot-clear {
+  margin-left: auto;
 }
