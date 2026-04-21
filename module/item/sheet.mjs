@@ -142,10 +142,10 @@ export class CRPShieldSheet extends CRPItemSheet {
   };
 }
 
-export class CRPItemSheet extends CRPItemSheet {
+export class CRPStuffSheet extends CRPItemSheet {
   static PARTS = {
     body: {
-      template: "systems/crp/templates/item/item-sheet.hbs"
+      template: "systems/crp/templates/item/stuff-sheet.hbs"
     }
   };
 }

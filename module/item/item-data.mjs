@@ -56,7 +56,7 @@ export class CRPShieldData extends TypeDataModel {
   }
 }
 
-export class CRPItemData extends TypeDataModel {
+export class CRPStuffData extends TypeDataModel {
   static defineSchema() {
     return {
       protection: new NumberField({ initial: 0 }),
