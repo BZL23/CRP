@@ -173,7 +173,7 @@
           <div class="crp-item-row" draggable="true" data-item-id="{{item.id}}">
             <img src="{{item.img}}" class="crp-item-img">
             <div class="crp-item-name">{{item.name}}</div>
-              <button class="crp-slot-clear" data-item-id="{{item.id}}">
+              <button type="button" class="crp-item-delete" data-item-id="{{item.id}}">
     ✖
   </button>
           </div>
@@ -190,7 +190,7 @@
           <div class="crp-item-row" draggable="true" data-item-id="{{item.id}}">
             <img src="{{item.img}}" class="crp-item-img">
             <div class="crp-item-name">{{item.name}}</div>
-              <button class="crp-slot-clear" data-item-id="{{item.id}}">
+              <button type="button" class="crp-item-delete" data-item-id="{{item.id}}">
     ✖
   </button>
           </div>
@@ -199,15 +199,33 @@
     </div>
   </div>
 
+    <div class="crp-inventory-section">
+    <h2 class="crp-section-header">Tarcza</h2>
+    <div class="crp-item-list">
+      {{#each document.items as |item|}}
+        {{#if (eq item.type "shield")}}
+          <div class="crp-item-row" draggable="true" data-item-id="{{item.id}}">
+            <img src="{{item.img}}" class="crp-item-img">
+            <div class="crp-item-name">{{item.name}}</div>
+              <button type="button" class="crp-item-delete" data-item-id="{{item.id}}">
+    ✖
+  </button>
+          </div>
+        {{/if}}
+      {{/each}}
+    </div>
+  </div>
+
+
   <div class="crp-inventory-section">
     <h2 class="crp-section-header">Inne</h2>
     <div class="crp-item-list">
       {{#each document.items as |item|}}
-        {{#unless (or (eq item.type "weapon") (eq item.type "armor"))}}
+        {{#unless (or (eq item.type "weapon") (eq item.type "armor") (eq item.type "shield"))}}
           <div class="crp-item-row" draggable="true" data-item-id="{{item.id}}">
             <img src="{{item.img}}" class="crp-item-img">
             <div class="crp-item-name">{{item.name}}</div>
-              <button class="crp-slot-clear" data-item-id="{{item.id}}">
+              <button type="button" class="crp-item-delete" data-item-id="{{item.id}}">
     ✖
   </button>
           </div>

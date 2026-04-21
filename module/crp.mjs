@@ -27,14 +27,13 @@ Hooks.once("init", () => {
   makeDefault: true
   });
 
-    CONFIG.Item = CONFIG.Item || {};
+CONFIG.Item = CONFIG.Item || {};
+CONFIG.Item.dataModels = CONFIG.Item.dataModels || {};
 
-CONFIG.Item.dataModels = {
-  weapon: CRPWeaponData,
-  armor: CRPArmorData,
-  shield: CRPShieldData,
-  stuff: CRPStuffData 
-};
+CONFIG.Item.dataModels.weapon = CRPWeaponData;
+CONFIG.Item.dataModels.armor = CRPArmorData;
+CONFIG.Item.dataModels.shield = CRPShieldData;
+CONFIG.Item.dataModels.stuff = CRPStuffData;
 
 foundry.documents.collections.Items.registerSheet("crp", CRPWeaponSheet, {
   types: ["weapon"],

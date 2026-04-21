@@ -79,11 +79,18 @@ _onRender(context, options) {
 
   super._onRender(context, options);
 
-  const html = this.element;
+const html = this.element instanceof HTMLElement
+  ? this.element
+  : this.element?.[0];
 
-  if (scrollTop !== undefined) {
-    html.scrollTop = scrollTop;
-  }
+if (!html) {
+  console.error("CRP: HTML root NOT FOUND");
+  return;
+}
+
+if (scrollTop !== undefined && html) {
+  html.scrollTop = scrollTop;
+}
 
   // ======================
   //  ROLL
@@ -199,41 +206,55 @@ _onRender(context, options) {
 
 //  USUWANIE BRONI
 
-html.querySelectorAll(".crp-item-delete").forEach(btn => {
-  btn.addEventListener("click", async ev => {
+if (!this._deleteBound) {
+  this._deleteBound = true;
 
-    ev.stopPropagation();
+  html.addEventListener("click", async ev => {
 
-    const itemId = ev.currentTarget.dataset.itemId;
-    const item = this.document.items.get(itemId);
-    if (!item) return;
+  const btn = ev.target.closest(".crp-item-delete");
 
-    const eq = this.document.system.equipment;
+  if (!btn) return;
 
-for (const slot of Object.keys(eq)) {
-  if (eq[slot]?.id === itemId) {
-    await this.document.update({
-      [`system.equipment.${slot}`]: {
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const itemId = btn.dataset.itemId;
+
+  if (!itemId) return;
+
+  const item = this.document.items.get(itemId);
+
+  const eq = this.document.system.equipment;
+  const updates = {};
+  const slots = ["rightHand", "leftHand", "armor"];
+
+  for (const slot of slots) {
+    if (eq[slot]?.id === itemId) {
+      updates[`system.equipment.${slot}`] = {
         id: null,
         name: null,
         img: null
-      }
-    });
+      };
+    }
   }
-}
 
-await item.delete();
+  await this.document.deleteEmbeddedDocuments("Item", [itemId]);
 
-  });
+  if (Object.keys(updates).length) {
+    await this.document.update(updates);
+  }
+
 });
+
+}
 
   // ======================
   //  DRAG & DROP (FIX)
   // ======================
-const root = this.element;
+const root = this.element[0] ?? this.element;
 
 // tylko DROP ma być jednokrotny
-if (!root.dataset.dropBound) {
+if (!root.dataset?.dropBound) {
   root.dataset.dropBound = "true";
 
   root.addEventListener("dragover", ev => ev.preventDefault());
@@ -269,24 +290,35 @@ if (!root.dataset.dropBound) {
         slotEl = slotEl.parentElement;
       }
 
-      if (slotEl) {
-        const slot = slotEl.dataset.slot;
+if (slotEl) {
+  const slot = slotEl.dataset.slot;
 
-        if (item.parent?.id !== this.document.id) {
-          ui.notifications.warn("Możesz używać tylko przedmiotów z ekwipunku!");
-          return;
-        }
+  if (item.parent?.id !== this.document.id) {
+    ui.notifications.warn("Możesz używać tylko przedmiotów z ekwipunku!");
+    return;
+  }
 
-        await this.document.update({
-          [`system.equipment.${slot}`]: {
-            id: item.id,
-            name: item.name,
-            img: item.img
-          }
-        });
+  // 🔥 WALIDACJA SLOTU
+  const valid =
+    (slot === "armor" && item.type === "armor") ||
+    ((slot === "rightHand" || slot === "leftHand") &&
+      (item.type === "weapon" || item.type === "shield"));
 
-        return;
-      }
+  if (!valid) {
+    ui.notifications.warn("Nie można umieścić tego przedmiotu w tym slocie");
+    return;
+  }
+
+  await this.document.update({
+    [`system.equipment.${slot}`]: {
+      id: item.id,
+      name: item.name,
+      img: item.img
+    }
+  });
+
+  return;
+}
 
       if (item.parent?.id === this.document.id) return;
 
