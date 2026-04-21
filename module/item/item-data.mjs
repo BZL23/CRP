@@ -45,3 +45,23 @@ export class CRPArmorData extends TypeDataModel {
     };
   }
 }
+
+export class CRPShieldData extends TypeDataModel {
+  static defineSchema() {
+    return {
+      protection: new NumberField({ initial: 0 }),
+      weight: new NumberField({ initial: 0 }),
+      description: new StringField({ initial: "" })
+    };
+  }
+}
+
+export class CRPItemData extends TypeDataModel {
+  static defineSchema() {
+    return {
+      protection: new NumberField({ initial: 0 }),
+      weight: new NumberField({ initial: 0 }),
+      description: new StringField({ initial: "" })
+    };
+  }
+}

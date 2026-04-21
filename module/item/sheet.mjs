@@ -133,3 +133,19 @@ export class CRPArmorSheet extends CRPItemSheet {
     }
   };
 }
+
+export class CRPShieldSheet extends CRPItemSheet {
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/shield-sheet.hbs"
+    }
+  };
+}
+
+export class CRPItemSheet extends CRPItemSheet {
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/item-sheet.hbs"
+    }
+  };
+}
