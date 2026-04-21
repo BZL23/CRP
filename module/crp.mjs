@@ -321,8 +321,57 @@ if (result?.winner === "A") {
   const marginA = result.rollA?.margin ?? 0;
   const marginB = result.rollB?.margin ?? 0;
 
-  const damage = Math.max(0, marginA - marginB);
+const baseDamage = Math.max(0, marginA - marginB);
+let damage = baseDamage;
 
+// =====================
+// REDUKCJA OBRAŻEŃ
+// =====================
+const eq = defender.system.equipment;
+
+// --- ARMOR ---
+let armorProtection = 0;
+
+if (eq.armor?.id) {
+  const armorItem = defender.items.get(eq.armor.id);
+  armorProtection = armorItem?.system?.protection ?? 0;
+}
+
+// --- SHIELD ---
+let shieldProtection = 0;
+
+const rightShield = eq.rightHand?.id
+  ? defender.items.get(eq.rightHand.id)
+  : null;
+
+const leftShield = eq.leftHand?.id
+  ? defender.items.get(eq.leftHand.id)
+  : null;
+
+const getShieldProt = (item) =>
+  item?.type === "shield"
+    ? item.system?.protection ?? 0
+    : 0;
+
+const rightProt = getShieldProt(rightShield);
+const leftProt = getShieldProt(leftShield);
+
+// wybór jednej tarczy (większej)
+shieldProtection = Math.max(rightProt, leftProt);
+
+// --- FINAL ---
+const reduction = armorProtection + shieldProtection;
+
+damage = Math.max(0, damage - reduction);
+
+const reductionText = `
+  🛡 Redukcja: ${reduction}
+  (${armorProtection} pancerz${shieldProtection ? ` + ${shieldProtection} tarcza` : ""})
+`;
+
+// =====================
+// APPLY DAMAGE
+// =====================
 if (damage > 0) {
   await defender.applyDamage(damage);
 }
@@ -335,11 +384,13 @@ if (result?.messageId) {
   const msg = game.messages.get(result.messageId);
 
   if (msg) {
-    const newContent = msg.content + `
-      <div class="crp-damage">
-        💥 Obrażenia: <b>${damage}</b>
-      </div>
-    `;
+const newContent = msg.content + `
+  <div class="crp-damage">
+    💥 Obrażenia bazowe: <b>${baseDamage}</b><br>
+    ${reductionText}<br>
+    👉 Obrażenia końcowe: <b>${damage}</b>
+  </div>
+`;
 
     await msg.update({ content: newContent });
   }

@@ -299,10 +299,11 @@ if (slotEl) {
   }
 
   // 🔥 WALIDACJA SLOTU
-  const valid =
-    (slot === "armor" && item.type === "armor") ||
-    ((slot === "rightHand" || slot === "leftHand") &&
-      (item.type === "weapon" || item.type === "shield"));
+const isHand = slot === "rightHand" || slot === "leftHand";
+
+const valid =
+  (slot === "armor" && item.type === "armor") ||
+  (isHand && (item.type === "weapon" || item.type === "shield"));
 
   if (!valid) {
     ui.notifications.warn("Nie można umieścić tego przedmiotu w tym slocie");
