@@ -299,24 +299,42 @@ if (slotEl) {
   }
 
   // 🔥 WALIDACJA SLOTU
-const isHand = slot === "rightHand" || slot === "leftHand";
+  const isHand = slot === "rightHand" || slot === "leftHand";
 
-const valid =
-  (slot === "armor" && item.type === "armor") ||
-  (isHand && (item.type === "weapon" || item.type === "shield"));
+  const valid =
+    (slot === "armor" && item.type === "armor") ||
+    (isHand && (item.type === "weapon" || item.type === "shield"));
 
   if (!valid) {
     ui.notifications.warn("Nie można umieścić tego przedmiotu w tym slocie");
     return;
   }
 
-  await this.document.update({
-    [`system.equipment.${slot}`]: {
-      id: item.id,
-      name: item.name,
-      img: item.img
+  const eq = this.document.system.equipment;
+
+  const updates = {};
+
+  // 🔥 USUŃ Z DRUGIEGO SLOTU RĘKI
+  if (isHand) {
+    const otherSlot = slot === "rightHand" ? "leftHand" : "rightHand";
+
+    if (eq[otherSlot]?.id === item.id) {
+      updates[`system.equipment.${otherSlot}`] = {
+        id: null,
+        name: null,
+        img: null
+      };
     }
-  });
+  }
+
+  // 🔥 USTAW W NOWYM SLOCIE
+  updates[`system.equipment.${slot}`] = {
+    id: item.id,
+    name: item.name,
+    img: item.img
+  };
+
+  await this.document.update(updates);
 
   return;
 }
@@ -338,6 +356,10 @@ const valid =
 
 
 html.querySelectorAll(".crp-item-row").forEach(el => {
+
+  // ======================
+  // DRAG
+  // ======================
   el.addEventListener("dragstart", ev => {
 
     const itemId = el.dataset.itemId;
@@ -350,6 +372,24 @@ html.querySelectorAll(".crp-item-row").forEach(el => {
     }));
 
   });
+
+  // ======================
+  // CLICK → OTWÓRZ ITEM
+  // ======================
+  el.addEventListener("click", ev => {
+
+    // ❗ NIE otwieraj przy kliknięciu delete
+    if (ev.target.closest(".crp-item-delete")) return;
+
+    const itemId = el.dataset.itemId;
+    if (!itemId) return;
+
+    const item = this.document.items.get(itemId);
+    if (!item) return;
+
+    item.sheet.render(true);
+  });
+
 });
 
 html.querySelectorAll(".crp-eq-slot").forEach(el => {
