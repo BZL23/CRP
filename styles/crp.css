@@ -759,3 +759,23 @@ text-align: center;
 .crp-roll-willpower:hover {
   background: rgba(255,255,255,0.1);
 }
+
+.crp-roll-initiative {
+  margin-top: 4px;
+  width: 100%;
+
+  padding: 2px;
+
+  font-size: 11px;
+
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #666;
+  color: #ddd;
+
+  cursor: pointer;
+}
+
+.crp-roll-initiative:hover {
+  background: rgba(255,255,255,0.1);
+}
+

@@ -122,6 +122,19 @@ html.querySelectorAll(".crp-roll-willpower").forEach(btn => {
   });
 });
 
+// ======================
+//  ROLL INITIATIVE
+// ======================
+html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
+  btn.addEventListener("click", ev => {
+
+    ev.stopPropagation();
+
+    CRPRoll.initiative(this.document);
+
+  });
+});
+
   // ======================
   //  INPUTY
   // ======================

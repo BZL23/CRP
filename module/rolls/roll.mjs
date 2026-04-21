@@ -468,4 +468,52 @@ static async willpower(actor, { chat = true } = {}) {
   return result;
 }
 
+
+static async initiative(actor, { chat = true } = {}) {
+
+  const base = actor.system.derived.initiative ?? 0;
+
+  const roll = await new Roll("1d6").roll();
+  const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
+  const total = roll.total;
+
+  const final = base + total;
+
+  const result = {
+    base,
+    dice,
+    total,
+    final
+  };
+
+  if (chat) {
+
+    const content = `
+      <div class="crp-roll-card">
+        <div class="crp-roll-header">
+          <img src="${actor.img}" class="crp-roll-avatar">
+          <div>
+            <div class="crp-roll-actor">${actor.name}</div>
+            <div class="crp-roll-skill">Inicjatywa</div>
+          </div>
+        </div>
+
+        <div class="crp-roll-body">
+          <div>⚡ Bazowa inicjatywa: <b>${base}</b></div>
+          <div>🎲 K6: <b>${dice.join(", ")}</b></div>
+          <div>👉 Wynik: <b>${final}</b></div>
+        </div>
+      </div>
+    `;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content
+    });
+
+  }
+
+  return result;
+}
+
 }
