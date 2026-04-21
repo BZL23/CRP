@@ -11,16 +11,16 @@
   <div class="crp-header-main">
       <h1 class="crp-name" contenteditable="true" data-edit="name">{{document.name}}</h1>
 
-      <div class="crp-resources">
 
-        
-        <div class="crp-resource">
+<div class="crp-stats">
+
+  <div class="crp-stat">
           <label>Zdrowie</label>
 
 
 
           <div class="crp-health-values">
-            <input type="number"
+            <input type="number" 
                    data-path="system.derived.health.value"
                    value="{{system.derived.health.value}}">
             / {{system.derived.health.max}}
@@ -31,15 +31,44 @@
             </div>
           </div>
 
-        </div>
+  </div>
 
-    <div>Dola: {{system.resources.fate.value}}</div>
-    <div>Inicjatywa: {{system.derived.initiative}}</div>
-    <div>Siła woli: {{system.derived.willpower}}</div>
-    <div>Manewry: {{system.derived.maneuver}}</div>
+  <div class="crp-stat">
+    <label>Dola</label>
+    <div class="crp-stat-value">
+      {{system.resources.fate.value}}
+    </div>
+  </div>
+
+    <div class="crp-stat">
+    <label>Manewry</label>
+    <div class="crp-stat-value">
+      {{system.derived.maneuver}}
+    </div>
+  </div>
+
+  <div class="crp-stat">
+    <label>Inicjatywa</label>
+    <div class="crp-stat-value">
+      {{system.derived.initiative}}
+    </div>
+  </div>
+
+  <div class="crp-stat">
+    <label>Siła woli</label>
+    <div class="crp-stat-value">
+      {{system.derived.willpower}}
+    </div>
+      <button class="crp-roll-willpower">
+    Rzuć
+  </button>
+  </div>
 
 
-      </div>
+
+</div>
+
+
     </div>
   <!-- TOKEN -->
   <div class="crp-token">

@@ -1,3 +1,5 @@
+import { CRPRoll } from "../rolls/roll.mjs";
+
 const { DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
@@ -106,6 +108,19 @@ if (scrollTop !== undefined && html) {
       this.document.rollSkill(attr, skill);
     });
   });
+
+  // ======================
+//  ROLL WILLPOWER
+// ======================
+html.querySelectorAll(".crp-roll-willpower").forEach(btn => {
+  btn.addEventListener("click", ev => {
+
+    ev.stopPropagation();
+
+    CRPRoll.willpower(this.document);
+
+  });
+});
 
   // ======================
   //  INPUTY

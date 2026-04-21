@@ -131,9 +131,19 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       }
 
       //  reroll (bez nowej wiadomości)
-      const result = await CRPRoll.skill(actor, attrKey, skillKey, {
-        chat: false
-      });
+let result;
+
+if (skillKey === "willpower") {
+
+  result = await CRPRoll.willpower(actor, { chat: false });
+
+} else {
+
+  result = await CRPRoll.skill(actor, attrKey, skillKey, {
+    chat: false
+  });
+
+}
 
       if (!result) {
         button.disabled = false;

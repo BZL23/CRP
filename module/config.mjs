@@ -39,7 +39,9 @@ CRP.skills = Object.freeze({
   languages: "Języki obce",
   medicine: "Leczenie",
   politics: "Polityka",
-  knowledge: "Wiedza"
+  knowledge: "Wiedza",
+
+  willpower: "Siła woli",
 });
 
 CRP.combatSkills = [

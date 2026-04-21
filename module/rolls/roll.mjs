@@ -418,4 +418,54 @@ async rollAttack(skillKey) {
   };
 }
 
+static async willpower(actor, { chat = true } = {}) {
+
+  const attrCharacter = actor.system.attributes.character.value ?? 0;
+  const attrReason = actor.system.attributes.reason.value ?? 0;
+
+  const penalty = actor.system.derived.woundPenalty ?? 0;
+
+  const target = Math.max(2, attrCharacter + attrReason + penalty);
+
+  const roll = await new Roll("2d10").roll();
+  const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
+  const total = roll.total;
+
+  const margin = target - total;
+
+  const { critical, success } = this.resolveOutcome(dice, total, target);
+
+  const result = {
+    dice,
+    total,
+    target,
+    margin,
+    success,
+    critical,
+    eagles: dice.filter(d => d === 1).length,
+    shields: dice.filter(d => d === 10).length
+  };
+
+  if (chat) {
+
+    const content = this.renderRollHTML(
+      actor,
+      "character",      // tylko label
+      "willpower",      // pseudo-skill label
+      result,
+      {
+        usedFate: false,
+        allowFate: true
+      }
+    );
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content
+    });
+  }
+
+  return result;
+}
+
 }

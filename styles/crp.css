@@ -199,10 +199,6 @@ input:focus {
 .crp-health-fill.wounded { background: #f1c40f; }
 .crp-health-fill.critical { background: #e74c3c; }
 
-.crp-health-values {
-  font-size: 12px;
-}
-
 /* ===== FATE ===== */
 
 .crp-use-fate.used {
@@ -653,4 +649,113 @@ input:focus {
 
 .crp-item-row .crp-slot-clear {
   margin-left: auto;
+}
+
+/* ===== STATS BAR ===== */
+
+.crp-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+.crp-stat {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid #555;
+  border-radius: 4px;
+
+  padding: 4px;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: space-between;
+  align-items: center;
+
+  min-height: 60px;
+}
+
+.crp-stat-value {
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+}
+
+.crp-stat-value input {
+  width: 28px;     
+  min-width: 28px;
+  max-width: 28px;
+
+  text-align: center;
+  padding: 0;
+}
+
+.crp-stat-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 20px;
+}
+
+.crp-health-values {
+  font-size: 12px;
+
+  display: inline-flex;     
+  align-items: center;
+  justify-content: center;
+
+  gap: 4px;              
+  width: auto;         
+}
+
+
+.crp-stat:first-child .crp-stat-value {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.crp-stat:first-child .crp-health-values {
+  display: flex;
+  flex-direction: row; 
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.crp-health-values input {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+text-align: center;
+  flex: 0 0 auto;  
+}
+
+.crp-roll-willpower {
+  margin-top: 4px;
+  width: 100%;
+
+  padding: 2px;
+
+  font-size: 11px;
+
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #666;
+  color: #ddd;
+
+  cursor: pointer;
+}
+
+.crp-roll-willpower:hover {
+  background: rgba(255,255,255,0.1);
 }
