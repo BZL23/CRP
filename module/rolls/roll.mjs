@@ -469,7 +469,7 @@ static async willpower(actor, { chat = true } = {}) {
 }
 
 
-static async initiative(actor, { chat = true } = {}) {
+static async initiative(actor, { chat = true, combatant = null } = {}) {
 
   const base = actor.system.derived.initiative ?? 0;
 
@@ -485,6 +485,36 @@ static async initiative(actor, { chat = true } = {}) {
     total,
     final
   };
+
+  // ======================
+  // COMBAT INTEGRATION
+  // ======================
+
+const combat = game.combat;
+
+if (combat) {
+
+  if (combatant) {
+
+    await combat.setInitiative(combatant.id, final);
+
+  } else {
+
+    const fallback = combat.combatants.find(c => c.actor?.id === actor.id);
+
+    if (fallback) {
+      await combat.setInitiative(fallback.id, final);
+    } else {
+      ui.notifications.warn("Aktor nie jest w walce");
+    }
+
+  }
+
+}
+
+  // ======================
+  // CHAT
+  // ======================
 
   if (chat) {
 
@@ -515,5 +545,4 @@ static async initiative(actor, { chat = true } = {}) {
 
   return result;
 }
-
 }

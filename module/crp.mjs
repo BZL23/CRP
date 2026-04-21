@@ -55,6 +55,44 @@ foundry.documents.collections.Items.registerSheet("crp", CRPStuffSheet, {
   makeDefault: true
 });
 
+CONFIG.Combat = CONFIG.Combat || {};
+
+CONFIG.Combat.initiative = {
+  formula: "1d6",
+  decimals: 0
+};
+
+// ======================
+// OVERRIDE INITIATIVE ROLL
+// ======================
+
+CONFIG.Combat.initiative = {
+  formula: "1d6",
+  decimals: 0
+};
+
+const originalRollInitiative = Combat.prototype.rollInitiative;
+
+Combat.prototype.rollInitiative = async function(ids, options = {}) {
+
+  ids = typeof ids === "string" ? [ids] : ids;
+
+  for (const id of ids) {
+
+    const combatant = this.combatants.get(id);
+    if (!combatant) continue;
+
+    const actor = combatant.actor;
+    if (!actor) continue;
+
+    // NASZ SYSTEM
+    await CRPRoll.initiative(actor, { combatant });
+
+  }
+
+  return this;
+};
+
 });
 
 
