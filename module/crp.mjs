@@ -282,13 +282,15 @@ for (const btn of buttons) {
     const defenderUuid = container.dataset.defender;
     const defenseType = btn.dataset.defense;
     const skill = container.dataset.skill;
+const itemType = container.dataset.itemType;
+const range = container.dataset.range;
 
     const attacker = await fromUuid(attackerUuid);
     const defender = await fromUuid(defenderUuid);
 
     if (!attacker || !defender) return;
 
-    // 🔒 uprawnienia
+    //  uprawnienia
     const isGM = game.user.isGM;
     const ownsDefender = defender.isOwner;
 
@@ -300,6 +302,12 @@ for (const btn of buttons) {
     let defSkill;
 
     if (defenseType === "parry") {
+
+  // BLOKADA PAROWANIA VS RANGED
+  if (itemType === "weapon" && range === "ranged") {
+    ui.notifications.warn("Nie można parować ataku dystansowego");
+    return;
+  }
 
   const eq = defender.system.equipment;
 
@@ -332,7 +340,11 @@ const getParrySkill = (slot) => {
   const item = defender.items.get(id);
   if (!item) return null;
 
-  if (item.system.skill === "ranged") return null;
+  // tylko broń
+  if (item.type !== "weapon") return null;
+
+  // broń dystansowa nie paruje
+  if (item.system.range === "ranged") return null;
 
   return item.system.skill;
 };
@@ -351,7 +363,30 @@ const leftSkill = getParrySkill("leftHand");
   }
 }
     if (defenseType === "dodge") defSkill = "athletics";
-    if (defenseType === "shield") defSkill = "shield";
+    
+    if (defenseType === "shield") {
+
+  const eq = defender.system.equipment;
+
+  const right = eq.rightHand?.id
+    ? defender.items.get(eq.rightHand.id)
+    : null;
+
+  const left = eq.leftHand?.id
+    ? defender.items.get(eq.leftHand.id)
+    : null;
+
+  const hasShield =
+    right?.type === "shield" ||
+    left?.type === "shield";
+
+  if (!hasShield) {
+    ui.notifications.warn("Brak tarczy");
+    return;
+  }
+
+  defSkill = "shield";
+}
 
 const result = await attacker.opposedTest(
   defender,

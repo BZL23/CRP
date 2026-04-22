@@ -462,10 +462,10 @@ const equipment = targetActor.system.equipment;
 const isValidParryWeapon = (item) => {
   if (!item) return false;
 
-  const skill = item.system.skill;
+  if (item.type !== "weapon") return false;
 
-  // ❌ broń strzelecka nie może parować
-  if (skill === "ranged") return false;
+  // 🔥 KLUCZOWE
+  if (item.system.range === "ranged") return false;
 
   return true;
 };
@@ -478,9 +478,19 @@ const leftItem = equipment.leftHand?.id
   ? targetActor.items.get(equipment.leftHand.id)
   : null;
 
+const isRangedAttack = item.system.range === "ranged";
+
 const hasWeapon =
-  isValidParryWeapon(rightItem) ||
-  isValidParryWeapon(leftItem);
+  !isRangedAttack && (
+    isValidParryWeapon(rightItem) ||
+    isValidParryWeapon(leftItem)
+  );
+
+  const isShield = (item) => item?.type === "shield";
+
+const hasShield =
+  isShield(rightItem) ||
+  isShield(leftItem);
 
 const msg = await ChatMessage.create({
 content: `
@@ -488,16 +498,21 @@ content: `
     data-message-id=""
     data-attacker="${this.document.uuid}"
     data-defender="${targetActor.uuid}"
-    data-skill="${item.system.skill}">
+    data-skill="${item.system.skill}"
+data-item-type="${item.type}"
+data-range="${item.system.range}">
 
     <p>Wybierz obronę:</p>
 
-    <button data-defense="parry" ${!hasWeapon ? "disabled" : ""}>
-      Parowanie
-    </button>
+<button data-defense="parry" ${!hasWeapon ? "disabled" : ""}>
+  Parowanie
+</button>
 
-    <button data-defense="dodge">Unik</button>
-    <button data-defense="shield">Tarcza</button>
+<button data-defense="dodge">Unik</button>
+
+<button data-defense="shield" ${!hasShield ? "disabled" : ""}>
+  Tarcza
+</button>
   </div>
 `
 });
