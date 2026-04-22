@@ -405,7 +405,18 @@ if (result?.winner === "A") {
   const marginB = result.rollB?.margin ?? 0;
 
 const baseDamage = Math.max(0, marginA - marginB);
-let damage = baseDamage;
+
+// =====================
+// SYMBOLE – ATAK
+// =====================
+const attackEagles = result.rollA?.eagles ?? 0;
+const attackShields = result.rollA?.shields ?? 0;
+
+let damage = baseDamage
+  + attackEagles
+  - attackShields;
+
+damage = Math.max(0, damage);
 
 // =====================
 // REDUKCJA OBRAŻEŃ
@@ -442,15 +453,44 @@ const leftProt = getShieldProt(leftShield);
 // wybór jednej tarczy (większej)
 shieldProtection = Math.max(rightProt, leftProt);
 
-// --- FINAL ---
-const reduction = armorProtection + shieldProtection;
+// =====================
+// SYMBOLE – OBRONA
+// =====================
+const defenseEagles = result.rollB?.eagles ?? 0;
+const defenseShields = result.rollB?.shields ?? 0;
 
-damage = Math.max(0, damage - reduction);
+let reduction =
+  armorProtection +
+  shieldProtection +
+  defenseEagles -
+  defenseShields;
+
+reduction = Math.max(0, reduction);
+
+// najpierw odejmujemy
+damage = damage - reduction;
+
+// dopiero potem clamp
+damage = Math.max(0, damage);
 
 const reductionText = `
   🛡 Redukcja: ${reduction}
-  (${armorProtection} pancerz${shieldProtection ? ` + ${shieldProtection} tarcza` : ""})
+  (${armorProtection} pancerz
+   ${shieldProtection ? ` + ${shieldProtection} tarcza` : ""}
+   ${defenseEagles ? ` + ${defenseEagles} 🦅` : ""}
+   ${defenseShields ? ` - ${defenseShields} 🛡️` : ""}
+  )
 `;
+
+let attackModText = "";
+
+if (attackEagles !== 0 || attackShields !== 0) {
+  attackModText = `
+    ⚔ Modyfikator ataku:
+    ${attackEagles ? `+${attackEagles} 🦅 ` : ""}
+    ${attackShields ? `-${attackShields} 🛡️` : ""}
+  `;
+}
 
 // =====================
 // APPLY DAMAGE
@@ -471,6 +511,7 @@ const newContent = msg.content + `
   <div class="crp-damage">
     💥 Obrażenia bazowe: <b>${baseDamage}</b><br>
     ${reductionText}<br>
+    ${attackModText ? attackModText + "<br>" : ""}
     👉 Obrażenia końcowe: <b>${damage}</b>
   </div>
 `;
