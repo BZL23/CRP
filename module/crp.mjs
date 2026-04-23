@@ -4,10 +4,11 @@ import { CRPActor } from "./actor/actor.mjs";
 import { CRPActorData } from "./actor/actor-data.mjs";
 import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
-import { CRPActorSheet } from "./actor/sheet.mjs";
+import { CRPActorSheet } from "./actor/actor-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData } from "./item/item-data.mjs";
-import { CRPItemSheet, CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/sheet.mjs";
+import { CRPItemSheet, CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/item-sheet.mjs";
+import { CRPManeuverDialog } from "./maneuvers.mjs";
 
 Hooks.once("init", () => {
   console.log("CRP | System init");
@@ -224,13 +225,29 @@ Hooks.on("updateCombat", async (combat, changed) => {
 
   if (!combat.started || (changed.turn === undefined && changed.round === undefined)) return;
 
-  // RESET FLAG
-await Promise.all(
-  combat.combatants
+  // ======================
+// START RUNDY → MANEUVERS UI
+// ======================
+if (changed.round !== undefined) {
+
+  const actors = combat.combatants
     .map(c => c.actor)
-    .filter(Boolean)
-    .map(actor => actor.setFlag("crp", "processedTurn", false))
-);
+    .filter(a => a && (a.isOwner || game.user.isGM));
+
+  if (!actors.length) return;
+
+  new CRPManeuverDialog(actors).render(true);
+}
+
+  // RESET FLAG
+if (game.user.isGM) {
+  await Promise.all(
+    combat.combatants
+      .map(c => c.actor)
+      .filter(Boolean)
+      .map(actor => actor.setFlag("crp", "processedTurn", false))
+  );
+}
 
   // AKTUALNY COMBATANT
   const combatant = combat.combatant;

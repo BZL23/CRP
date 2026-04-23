@@ -779,3 +779,36 @@ text-align: center;
   background: rgba(255,255,255,0.1);
 }
 
+.crp-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+justify-content: flex-start;
+
+  margin-top: 10px;
+}
+
+.crp-footer .crp-close {
+  flex: 0 0 auto;
+}
+
+.crp-timer-box {
+  font-weight: bold;
+}
+
+.crp-separator {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid #666;
+}
+
+.crp-maneuver-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.crp-maneuver-list {
+  flex: 1;
+  overflow-y: auto;
+}
