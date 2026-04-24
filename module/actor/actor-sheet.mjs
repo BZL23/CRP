@@ -4,15 +4,25 @@ const { DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api
 
 export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
+  activeTab = "sheet";
+
+  get isEditable() {
+  return true;
+}
+
   static DEFAULT_OPTIONS = {
+      ...super.DEFAULT_OPTIONS,
+    editable: true,
+
     classes: ["crp", "sheet", "actor"],
     tag: "section",
+    editable: true,
     window: {
       title: "CRP Actor",
       resizable: true
     },
     position: {
-      width: 950,
+      width: 1000,
       height: 800
     },
 
@@ -27,7 +37,7 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   };
 
   //  JEDYNE źródło danych dla template
-  _preparePartContext(partId, context) {
+async _preparePartContext(partId, context) {
     if (partId !== "body") return context;
 
     const system = this.document.system;
@@ -50,6 +60,7 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
   const skillValue = attrData.skills[sk].value ?? 0;
   const attrValue = attrData?.value ?? 0;
 
+  
   return {
     key: sk,
     label: String(config.skills[sk]),
@@ -66,12 +77,13 @@ hp.percent = hp.max > 0
   ? Math.floor((hp.value / hp.max) * 100)
   : 0;
 
-    return {
+return {
   ...context,
   system,
   config,
   attributesList,
-  tokenImg
+  tokenImg,
+  activeTab: this.activeTab,
 };
 
   }
@@ -156,6 +168,7 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
       });
     });
   });
+
 
   // ======================
   //  NAZWA
@@ -464,7 +477,7 @@ const isValidParryWeapon = (item) => {
 
   if (item.type !== "weapon") return false;
 
-  // 🔥 KLUCZOWE
+  // KLUCZOWE
   if (item.system.range === "ranged") return false;
 
   return true;
@@ -593,9 +606,49 @@ if (prev2) {
 }
 }
 
+// ======================
+// TABS
+// ======================
+html.querySelectorAll(".crp-tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    this.activeTab = btn.dataset.tab;
+    this.render(false);
+  });
+});
 
+
+// ======================
+// BIO EDITOR (INLINE)
+// ======================
+const bio = html.querySelector("[data-bio]");
+const editBtn = html.querySelector(".crp-bio-edit");
+const saveBtn = html.querySelector(".crp-bio-save");
+
+if (bio && editBtn && saveBtn) {
+
+  editBtn.addEventListener("click", () => {
+    bio.contentEditable = "true";
+    bio.focus();
+
+    editBtn.style.display = "none";
+    saveBtn.style.display = "inline-block";
+  });
+
+  saveBtn.addEventListener("click", async () => {
+
+    bio.contentEditable = "false";
+
+    await this.document.update({
+      "system.bio.description": bio.innerHTML
+    });
+
+    saveBtn.style.display = "none";
+    editBtn.style.display = "inline-block";
+  });
 }
 
+
+}
 
 
 }

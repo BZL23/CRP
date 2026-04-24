@@ -842,10 +842,100 @@ justify-content: flex-start;
 }
 
 .crp-token-config:hover {
-  background: #c9593f; 
+ background: #c9593f;
+
 }
 
 /* ikonka */
 .crp-token-config:hover svg {
   stroke: #ffffff;
+}
+
+/* TABY */
+
+
+/* WRAPPER */
+.crp-tabs {
+  display: flex;
+  width: 100%;
+/*  border-bottom: 1px solid #444; */
+  margin-bottom: 10px;
+}
+
+/* TAB */
+.crp-tab-btn {
+  flex: 1;
+  text-align: center;
+
+  padding: 6px 0;
+  cursor: pointer;
+
+  background: #1a1a1a;
+  color: #999;
+
+  border: 1px solid #444;
+
+  /* zamiast globalnej linii */
+  border-bottom: 1px solid #444;
+
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+
+  transition: all 0.15s ease;
+   padding-bottom: 7px;
+}
+
+/* SPACING między tabami */
+.crp-tab-btn:not(:last-child) {
+  margin-right: 2px;
+}
+
+/* HOVER */
+.crp-tab-btn:hover {
+  background: #2a2a2a;
+  color: #ddd;
+}
+
+/* ACTIVE TAB */
+.crp-tab-btn.active {
+  color: #fff;
+
+  border-color: #666;
+
+  position: relative;
+  top: 0;
+  z-index: 2;
+
+  background: none;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0; 
+}
+
+
+.crp-tab-btn.active::before {
+  left: 0;
+}
+
+.crp-tab-btn.active::after {
+  right: 0;
+}
+
+/* WYŁĄCZENIE FOUNDRY HIGHLIGHT NA TABACH */
+
+.crp-tab-btn,
+.crp-tab-btn:focus,
+.crp-tab-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* dodatkowo dla active (Foundry override) */
+.crp-tab-btn.active {
+  box-shadow: none !important;
+}
+
+
+
+.crp-bio-editor .editor {
+  min-height: 200px;
 }

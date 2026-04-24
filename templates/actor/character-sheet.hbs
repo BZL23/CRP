@@ -78,6 +78,23 @@
 
 </header>
 
+<div class="crp-tabs">
+
+  <button class="crp-tab-btn {{#if (eq activeTab "sheet")}}active{{/if}}" data-tab="sheet">
+    Karta
+  </button>
+
+  <button class="crp-tab-btn {{#if (eq activeTab "equipment")}}active{{/if}}" data-tab="equipment">
+    Ekwipunek
+  </button>
+
+  <button class="crp-tab-btn {{#if (eq activeTab "bio")}}active{{/if}}" data-tab="bio">
+    Biografia
+  </button>
+
+</div>
+
+{{#if (eq activeTab "sheet")}}
   <section class="crp-attributes">
     {{#each attributesList}}
       <div class="crp-attr">
@@ -266,5 +283,28 @@
 
 </div>
   </section>
+{{/if}}
+
+{{#if (eq activeTab "equipment")}}
+  <div class="crp-tab-content">
+    <p>Ekwipunek (placeholder)</p>
+  </div>
+{{/if}}
+
+{{#if (eq activeTab "bio")}}
+  <div class="crp-tab-content">
+<div class="crp-bio">
+
+  <div class="crp-bio-content" data-bio contenteditable="false">
+    {{{system.bio.description}}}
+  </div>
+
+  <button class="crp-bio-edit">✏</button>
+  <button class="crp-bio-save" style="display:none;">💾</button>
+
+</div>
+  </div>
+{{/if}}
+
 
 </section>

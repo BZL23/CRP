@@ -120,6 +120,10 @@ export class CRPActorData extends TypeDataModel {
   })
 }),
 
+bio: new SchemaField({
+  description: new StringField({ initial: "" })
+}),
+
     };
 
 
