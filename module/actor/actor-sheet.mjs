@@ -549,6 +549,51 @@ await this.document.update({
   });
 });
 
+// ======================
+// TOKEN CONFIG BUTTON
+// ======================
+const header = this.element.querySelector(".window-header");
+
+if (header && !header.querySelector(".crp-token-config")) {
+
+  const btn = document.createElement("a");
+  btn.classList.add("crp-token-config");
+  //btn.innerHTML = "👤";
+  // btn.innerHTML = `<img src="systems/crp/assets/token.svg" width="16" height="16">`;
+
+btn.innerHTML = `
+<svg class="crp-token-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dcdcdc" stroke-width="2">
+  <circle cx="12" cy="8" r="4"/>
+  <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+</svg>
+`;
+
+  btn.title = "Ustawienia tokena";
+
+  btn.addEventListener("click", async (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+const tokenDoc = await this.document.getTokenDocument();
+
+new foundry.applications.sheets.TokenConfig({
+  document: tokenDoc
+}).render(true);
+
+  });
+
+  header.appendChild(btn);
+
+// 🔥 PRZESUŃ O 2 POZYCJE W LEWO (PEWNE)
+const prev1 = btn.previousElementSibling;
+const prev2 = prev1?.previousElementSibling;
+
+if (prev2) {
+  header.insertBefore(btn, prev2);
+}
+}
+
+
 }
 
 

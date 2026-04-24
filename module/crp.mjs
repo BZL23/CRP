@@ -119,6 +119,17 @@ Hooks.on("createActor", async (actor) => {
     "system.derived.health.value": max
   });
 
+  // TOKEN DEFAULT
+  await actor.update({
+    prototypeToken: {
+      displayName: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
+      displayBars: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
+      bar1: {
+        attribute: "derived.health"
+      }
+    }
+  });
+
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
