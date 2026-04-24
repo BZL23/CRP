@@ -480,11 +480,11 @@ const leftItem = equipment.leftHand?.id
 
 const isRangedAttack = item.system.range === "ranged";
 
-const hasWeapon =
-  !isRangedAttack && (
-    isValidParryWeapon(rightItem) ||
-    isValidParryWeapon(leftItem)
-  );
+const hasParryWeapon =
+  isValidParryWeapon(rightItem) ||
+  isValidParryWeapon(leftItem);
+
+const canParry = hasParryWeapon;
 
   const isShield = (item) => item?.type === "shield";
 
@@ -504,7 +504,10 @@ data-range="${item.system.range}">
 
     <p>Wybierz obronę:</p>
 
-<button data-defense="parry" ${!hasWeapon ? "disabled" : ""}>
+<button 
+  data-defense="parry"
+  ${!canParry ? "disabled" : ""}
+  data-blocked-by-range="${isRangedAttack ? "true" : "false"}">
   Parowanie
 </button>
 

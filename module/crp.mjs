@@ -13,6 +13,26 @@ import { CRPManeuverDialog } from "./maneuvers.mjs";
 Hooks.once("init", () => {
   console.log("CRP | System init");
 
+  // NAJPIERW MODELE ITEMÓW (PRZED WSZYSTKIM)
+  CONFIG.Item = CONFIG.Item || {};
+
+  CONFIG.Item.dataModels = {
+    weapon: CRPWeaponData,
+    armor: CRPArmorData,
+    shield: CRPShieldData,
+    stuff: CRPStuffData
+  };
+
+  CONFIG.Actor.documentClass = CRPActor;
+
+  CONFIG.Actor.dataModels = {
+    character: CRPActorData,
+    npc: CRPActorData,
+    creature: CRPActorData
+  };
+
+  CONFIG.CRP = CRP;
+
   CONFIG.Actor.documentClass = CRPActor;
 
   CONFIG.Actor.dataModels = {
@@ -27,14 +47,6 @@ Hooks.once("init", () => {
   types: ["character"],
   makeDefault: true
   });
-
-CONFIG.Item = CONFIG.Item || {};
-CONFIG.Item.dataModels = CONFIG.Item.dataModels || {};
-
-CONFIG.Item.dataModels.weapon = CRPWeaponData;
-CONFIG.Item.dataModels.armor = CRPArmorData;
-CONFIG.Item.dataModels.shield = CRPShieldData;
-CONFIG.Item.dataModels.stuff = CRPStuffData;
 
 foundry.documents.collections.Items.registerSheet("crp", CRPWeaponSheet, {
   types: ["weapon"],
@@ -283,6 +295,19 @@ Hooks.on("renderActorDirectory", (app, html) => {
 Hooks.on("renderChatMessageHTML", (message, html) => {
 
   const buttons = html.querySelectorAll(".crp-defense-choice button");
+
+  // BLOKADA PAROWANIA W UI (RUNTIME)
+for (const btn of buttons) {
+  if (btn.dataset.defense !== "parry") continue;
+
+  const container = btn.closest(".crp-defense-choice");
+const skill = container.dataset.skill;
+
+if (skill === "ranged") {
+  btn.disabled = true;
+}
+}
+
 if (!buttons.length) return;
 
 for (const btn of buttons) {
