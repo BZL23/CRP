@@ -295,12 +295,12 @@
   <div class="crp-tab-content">
 <div class="crp-bio">
 
-  <div class="crp-bio-content" data-bio contenteditable="false">
+  <prose-mirror
+    name="system.bio.description"
+    value="{{system.bio.description}}"
+    toggled>
     {{{system.bio.description}}}
-  </div>
-
-  <button class="crp-bio-edit">✏</button>
-  <button class="crp-bio-save" style="display:none;">💾</button>
+  </prose-mirror>
 
 </div>
   </div>

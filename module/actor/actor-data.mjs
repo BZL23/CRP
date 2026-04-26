@@ -5,7 +5,8 @@ const {
   SchemaField, 
   NumberField,
   StringField,
-  BooleanField
+  BooleanField,
+  HTMLField
 } = foundry.data.fields;
 
 export class CRPActorData extends TypeDataModel {
@@ -121,7 +122,7 @@ export class CRPActorData extends TypeDataModel {
 }),
 
 bio: new SchemaField({
-  description: new StringField({ initial: "" })
+  description: new HTMLField({ initial: "" })
 }),
 
     };

@@ -939,3 +939,51 @@ justify-content: flex-start;
 .crp-bio-editor .editor {
   min-height: 200px;
 }
+
+/* ====================== */
+/* BIO – WYGLĄD */
+/* ====================== */
+
+.crp-bio {
+  padding: 10px;
+}
+
+.crp-bio .editor {
+  min-height: 220px;
+}
+
+.crp-bio .editor-content,
+.crp-bio-content {
+  padding: 12px 16px;        
+  font-size: 18px;          
+  line-height: 1.6;         
+  
+  border: 1px solid #444;
+  border-radius: 6px;
+
+  min-height: 120px;
+
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.crp-bio .editor.active .editor-content {
+  outline: 1px solid #888;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.crp-bio .editor-content h1,
+.crp-bio .editor-content h2,
+.crp-bio-content h1,
+.crp-bio-content h2 {
+  margin-top: 10px;
+}
+
+.crp-bio .editor-content p,
+.crp-bio-content p {
+  margin: 6px 0;
+}
+
+.crp-bio .editor-content,
+.crp-bio-content {
+  font-family: Georgia, "Times New Roman", serif;
+}

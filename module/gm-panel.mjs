@@ -21,20 +21,6 @@ export class CRPGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   };
 
-
-  _prepareContext() {
-
-  const actors = game.actors.contents
-    .filter(a => a.type === "character" && a.hasPlayerOwner)
-    .map(a => ({
-      id: a.id,
-      name: a.name,
-      fate: a.system.resources.fate.value
-    }));
-
-  return { actors };
-}
-
 _onRender(context, options) {
   super._onRender(context, options);
 
@@ -133,35 +119,6 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
     ui.notifications.info("❤️ Wszyscy wyleczeni");
   });
 
-
-  html.querySelector("[data-action='give-fate-selected']")?.addEventListener("click", async () => {
-
-  const checkboxes = html.querySelectorAll(".crp-actor-row input:checked");
-
-  if (!checkboxes.length) {
-    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
-    return;
-  }
-
-  for (const cb of checkboxes) {
-
-    const actor = game.actors.get(cb.value);
-    if (!actor) continue;
-
-    const current = actor.system.resources.fate.value ?? 0;
-
-    await actor.update({
-      "system.resources.fate.value": current + 1
-    });
-
-  }
-
-  ui.notifications.info("✨ Dodano Dolę wybranym");
-
-  this.render(); // odśwież panel
-
-});
-
 }
 
 _prepareContext() {
@@ -173,8 +130,6 @@ _prepareContext() {
       name: a.name,
       fate: a.system.resources.fate.value
     }));
-
-  console.log("CRP ACTORS:", actors); // 👈 DEBUG
 
   return { actors };
 }

@@ -245,10 +245,9 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
     });
   });
 
-//  USUWANIE BRONI
-
-if (!this._deleteBound) {
-  this._deleteBound = true;
+//  USUWANIE PRZEDMIOTÓW
+if (!html.dataset.deleteBound) {
+  html.dataset.deleteBound = "true";
 
   html.addEventListener("click", async ev => {
 
@@ -286,7 +285,6 @@ if (!this._deleteBound) {
   }
 
 });
-
 }
 
   // ======================
@@ -618,34 +616,17 @@ html.querySelectorAll(".crp-tab-btn").forEach(btn => {
 
 
 // ======================
-// BIO EDITOR (INLINE)
+// BIO EDITOR
 // ======================
-const bio = html.querySelector("[data-bio]");
-const editBtn = html.querySelector(".crp-bio-edit");
-const saveBtn = html.querySelector(".crp-bio-save");
+const bioEditor = html.querySelector("[name='system.bio.description']");
 
-if (bio && editBtn && saveBtn) {
+bioEditor?.addEventListener("change", async ev => {
+  const editor = ev.currentTarget;
 
-  editBtn.addEventListener("click", () => {
-    bio.contentEditable = "true";
-    bio.focus();
-
-    editBtn.style.display = "none";
-    saveBtn.style.display = "inline-block";
+  await this.document.update({
+    [editor.name]: editor.value ?? ""
   });
-
-  saveBtn.addEventListener("click", async () => {
-
-    bio.contentEditable = "false";
-
-    await this.document.update({
-      "system.bio.description": bio.innerHTML
-    });
-
-    saveBtn.style.display = "none";
-    editBtn.style.display = "inline-block";
-  });
-}
+});
 
 
 }
