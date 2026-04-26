@@ -68,6 +68,22 @@ html.querySelectorAll("input[data-path], textarea[data-path], select[data-path]"
   });
 });
 
+html.querySelectorAll("[data-edit='name']").forEach(nameEl => {
+  nameEl.addEventListener("keydown", ev => {
+    if (ev.key !== "Enter") return;
+
+    ev.preventDefault();
+    ev.currentTarget.blur();
+  });
+
+  nameEl.addEventListener("blur", async ev => {
+    const name = ev.currentTarget.innerText.trim();
+    if (!name || name === this.document.name) return;
+
+    await this.document.update({ name });
+  });
+});
+
 html.querySelectorAll("[data-edit='img']").forEach(img => {
   img.addEventListener("click", () => {
 

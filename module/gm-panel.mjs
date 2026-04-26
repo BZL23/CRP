@@ -28,9 +28,11 @@ _onRender(context, options) {
 
   html.querySelectorAll(".crp-actor-row").forEach(row => {
   row.addEventListener("click", ev => {
-    if (ev.target.tagName === "INPUT") return;
+    ev.preventDefault();
 
     const checkbox = row.querySelector("input");
+    if (!checkbox) return;
+
     checkbox.checked = !checkbox.checked;
   });
 });

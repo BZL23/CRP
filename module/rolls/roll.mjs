@@ -47,7 +47,7 @@ static formatMargin(margin) {
             return null;
         }
 
-        const weapon = actor.getEquippedWeapon();
+        const weapon = actor.getEquippedWeapon(skillKey);
 
 let weaponBonus = 0;
 

@@ -108,8 +108,25 @@ _mapSkillToAttribute(skillKey) {
   return map[skillKey];
 }
 
-getEquippedWeapon() {
-  return this.items.find(i => i.type === "weapon" && i.system.equipped);
+getEquippedWeapon(skillKey = null) {
+  const equipment = this.system.equipment ?? {};
+  const handWeapons = ["rightHand", "leftHand"]
+    .map(slot => {
+      const id = equipment[slot]?.id;
+      return id ? this.items.get(id) : null;
+    })
+    .filter(item => item?.type === "weapon");
+
+  const equippedWeapons = this.items
+    .filter(item => item.type === "weapon" && item.system.equipped);
+
+  const candidates = [...handWeapons, ...equippedWeapons]
+    .filter((item, index, array) => array.findIndex(i => i.id === item.id) === index)
+    .filter(item => !skillKey || item.system.skill === skillKey);
+
+  return candidates.sort((a, b) =>
+    (b.system.accuracy ?? 0) - (a.system.accuracy ?? 0)
+  )[0] ?? null;
 }
 
 

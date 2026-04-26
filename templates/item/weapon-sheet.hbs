@@ -30,7 +30,7 @@
 <label>Umiejętność</label>
 
 
-  <select name="system.skill">
+  <select data-path="system.skill">
 
   {{#each config.combatSkills as |key|}}
     <option value="{{key}}"
@@ -49,8 +49,8 @@
 
     <label>Zasięg</label>
     <select data-path="system.range">
-      <option value="melee">Wręcz</option>
-      <option value="ranged">Dystans</option>
+      <option value="melee" {{#if (eq system.range "melee")}}selected{{/if}}>Wręcz</option>
+      <option value="ranged" {{#if (eq system.range "ranged")}}selected{{/if}}>Dystans</option>
     </select>
 
     <label>Celność</label>
