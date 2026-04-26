@@ -7,12 +7,10 @@ import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet } from "./actor/actor-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData } from "./item/item-data.mjs";
-import { CRPItemSheet, CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/item-sheet.mjs";
+import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/item-sheet.mjs";
 import { CRPManeuverDialog } from "./maneuvers.mjs";
 
 Hooks.once("init", () => {
-  console.log("CRP | System init");
-
   // NAJPIERW MODELE ITEMÓW (PRZED WSZYSTKIM)
   CONFIG.Item = CONFIG.Item || {};
 
@@ -22,16 +20,6 @@ Hooks.once("init", () => {
     shield: CRPShieldData,
     stuff: CRPStuffData
   };
-
-  CONFIG.Actor.documentClass = CRPActor;
-
-  CONFIG.Actor.dataModels = {
-    character: CRPActorData,
-    npc: CRPActorData,
-    creature: CRPActorData
-  };
-
-  CONFIG.CRP = CRP;
 
   CONFIG.Actor.documentClass = CRPActor;
 
@@ -70,11 +58,6 @@ foundry.documents.collections.Items.registerSheet("crp", CRPStuffSheet, {
 
 CONFIG.Combat = CONFIG.Combat || {};
 
-CONFIG.Combat.initiative = {
-  formula: "1d6",
-  decimals: 0
-};
-
 // ======================
 // OVERRIDE INITIATIVE ROLL
 // ======================
@@ -83,8 +66,6 @@ CONFIG.Combat.initiative = {
   formula: "1d6",
   decimals: 0
 };
-
-const originalRollInitiative = Combat.prototype.rollInitiative;
 
 Combat.prototype.rollInitiative = async function(ids, options = {}) {
 

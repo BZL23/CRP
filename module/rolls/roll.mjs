@@ -93,8 +93,6 @@ const result = {
   shields
 };
 
-console.log("CRP Roll:", result);
-
 if (chat) {
   const content = this.renderRollHTML(actor, attrKey, skillKey, result, {
     usedFate: false,

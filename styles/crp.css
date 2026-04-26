@@ -400,6 +400,21 @@ input:focus {
 
 /* HEADER */
 
+.crp.sheet.item {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+.crp.sheet.item .window-content {
+  overflow-y: auto;
+}
+
+.crp-item {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
 .crp-item-header {
   display: flex;
   flex-direction: column; /* 🔥 klucz */

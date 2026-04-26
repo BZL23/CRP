@@ -1,0 +1,19 @@
+{
+  "TYPES": {
+    "Actor": {
+      "character": "Postać",
+      "creature": "Bestia",
+      "npc": "NPC"
+    },
+    "Item": {
+      "armor": "Pancerz",
+      "effect": "Efekt",
+      "flaw": "Wada",
+      "origin": "Pochodzenie",
+      "shield": "Tarcza",
+      "stuff": "Przedmiot",
+      "trait": "Zaleta",
+      "weapon": "Broń"
+    }
+  }
+}
