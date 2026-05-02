@@ -191,11 +191,16 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
   html.querySelectorAll("input[data-path]").forEach(input => {
     input.addEventListener("change", async ev => {
       const path = ev.currentTarget.dataset.path;
-      let value = Number(ev.currentTarget.value);
+      const isCheckbox = ev.currentTarget.type === "checkbox";
+      let value = isCheckbox
+        ? ev.currentTarget.checked
+        : Number(ev.currentTarget.value);
 
-      if (isNaN(value)) value = 0;
+      if (!isCheckbox && isNaN(value)) value = 0;
 
-      if (path.startsWith("system.attributes")) {
+      if (isCheckbox) {
+        // checkboxy zapisują stan logiczny bez ograniczeń liczbowych
+      } else if (path.startsWith("system.attributes")) {
         value = Math.max(0, Math.min(10, value));
       } else {
         value = Math.max(0, value);
@@ -521,6 +526,16 @@ const itemId = typeof eq === "string" ? eq : eq?.id;
     const attackSkill = isUnarmedAttack ? "brawl" : item.system?.skill;
     const itemType = isUnarmedAttack ? "unarmed" : item.type;
     const itemRange = isUnarmedAttack ? "melee" : item.system?.range;
+    const attackerMounted = !!this.document.system.equipment.mounted;
+    const getSlotAttackModifier = () => {
+      if (isUnarmedAttack) return -3;
+      if (item.type !== "weapon") return 0;
+      if (itemRange === "ranged" || attackSkill === "ranged") return 2;
+      if (attackSkill === "lightWeapons") return -1;
+      if (Number(item.system?.hands) === 2 || attackSkill === "twoHanded") return 3;
+      return 1;
+    };
+    const attackModifier = getSlotAttackModifier();
 
     // target
     const targets = Array.from(game.user.targets);
@@ -533,6 +548,7 @@ const itemId = typeof eq === "string" ? eq : eq?.id;
     if (!targetActor) return;
 
 const equipment = targetActor.system.equipment;
+const defenderMounted = !!equipment.mounted;
 
 const isValidParryWeapon = (item) => {
   if (!item) return false;
@@ -571,6 +587,9 @@ const hasShield =
   isShield(rightItem) ||
   isShield(leftItem);
 
+const canDodge = !defenderMounted;
+const mountedAdvantage = attackerMounted && !defenderMounted ? 2 : 0;
+
 const msg = await ChatMessage.create({
 content: `
   <div class="crp-defense-choice"
@@ -579,7 +598,10 @@ content: `
     data-defender="${targetActor.uuid}"
     data-skill="${attackSkill}"
 data-item-type="${itemType}"
-data-range="${itemRange}">
+data-range="${itemRange}"
+data-attack-modifier="${attackModifier + mountedAdvantage}"
+data-attacker-mounted="${attackerMounted ? "true" : "false"}"
+data-defender-mounted="${defenderMounted ? "true" : "false"}">
 
     <p>Wybierz obronę:</p>
 
@@ -590,7 +612,7 @@ data-range="${itemRange}">
   Parowanie
 </button>
 
-<button data-defense="dodge">Unik</button>
+<button data-defense="dodge" ${!canDodge ? "disabled" : ""}>Unik</button>
 
 <button data-defense="shield" ${!hasShield ? "disabled" : ""}>
   Tarcza

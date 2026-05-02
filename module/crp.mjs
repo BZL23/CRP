@@ -288,13 +288,19 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
   const buttons = html.querySelectorAll(".crp-defense-choice button");
 
-  // BLOKADA PAROWANIA W UI (RUNTIME)
+// BLOKADA PAROWANIA W UI (RUNTIME)
 for (const btn of buttons) {
-  if (btn.dataset.defense !== "parry") continue;
-
   const container = btn.closest(".crp-defense-choice");
 const itemType = container.dataset.itemType;
 const range = container.dataset.range;
+const defenderMounted = container.dataset.defenderMounted === "true";
+
+if (btn.dataset.defense === "dodge" && defenderMounted) {
+  btn.disabled = true;
+  continue;
+}
+
+  if (btn.dataset.defense !== "parry") continue;
 
 if (itemType === "unarmed") {
   btn.disabled = false;
@@ -324,6 +330,9 @@ for (const btn of buttons) {
     const skill = container.dataset.skill;
 const itemType = container.dataset.itemType;
 const range = container.dataset.range;
+const attackModifier = Number(container.dataset.attackModifier) || 0;
+const attackerMounted = container.dataset.attackerMounted === "true";
+const defenderMounted = container.dataset.defenderMounted === "true";
 
     const attacker = await fromUuid(attackerUuid);
     const defender = await fromUuid(defenderUuid);
@@ -340,6 +349,17 @@ const range = container.dataset.range;
     }
 
     let defSkill;
+    const mountedDefenseModifier = defenderMounted && !attackerMounted ? 2 : 0;
+    let defenseModifier = mountedDefenseModifier;
+
+    const getCombatModifier = ({ item = null, skill = null, unarmed = false } = {}) => {
+      if (unarmed) return -3;
+      if (!item || item.type !== "weapon") return 0;
+      if (item.system.range === "ranged" || skill === "ranged") return 2;
+      if (skill === "lightWeapons") return -1;
+      if (Number(item.system.hands) === 2 || skill === "twoHanded") return 3;
+      return 1;
+    };
 
     if (defenseType === "parry") {
 
@@ -363,7 +383,7 @@ const range = container.dataset.range;
     return attrVal + skillVal;
   };
 
-const getParrySkill = (slot) => {
+const getParryCandidate = (slot) => {
   const id = eq[slot]?.id;
   if (!id) return null;
 
@@ -376,41 +396,58 @@ const getParrySkill = (slot) => {
   // broń dystansowa nie paruje
   if (item.system.range === "ranged") return null;
 
-  return item.system.skill;
+  return {
+    skill: item.system.skill,
+    modifier: getCombatModifier({ item, skill: item.system.skill })
+  };
 };
 
-const rightSkill = getParrySkill("rightHand");
-const leftSkill = getParrySkill("leftHand");
+const parryCandidates = [
+  getParryCandidate("rightHand"),
+  getParryCandidate("leftHand")
+].filter(Boolean);
 
   if (itemType === "unarmed") {
     const hasEmptyHand = !eq.rightHand?.id || !eq.leftHand?.id;
-    const skills = [rightSkill, leftSkill];
 
     if (hasEmptyHand) {
-      skills.push("brawl");
+      parryCandidates.push({
+        skill: "brawl",
+        modifier: getCombatModifier({ unarmed: true })
+      });
     }
 
-    defSkill = skills
-      .filter(Boolean)
-      .sort((a, b) => getTotal(b) - getTotal(a))[0];
+    const best = parryCandidates
+      .sort((a, b) => (getTotal(b.skill) + b.modifier) - (getTotal(a.skill) + a.modifier))[0];
+
+    defSkill = best?.skill;
+    defenseModifier = mountedDefenseModifier + (best?.modifier ?? 0);
 
     if (!defSkill) {
       ui.notifications.warn("Brak wolnej ręki lub broni do parowania");
       return;
     }
   } else {
-    const rightTotal = getTotal(rightSkill);
-    const leftTotal = getTotal(leftSkill);
+    const best = parryCandidates
+      .sort((a, b) => (getTotal(b.skill) + b.modifier) - (getTotal(a.skill) + a.modifier))[0];
 
-    defSkill = rightTotal >= leftTotal ? rightSkill : leftSkill;
-
-    if (!defSkill) {
+    if (!best) {
       ui.notifications.warn("Brak broni do parowania");
       return;
     }
+
+    defSkill = best.skill;
+    defenseModifier = mountedDefenseModifier + best.modifier;
   }
 }
-    if (defenseType === "dodge") defSkill = "athletics";
+    if (defenseType === "dodge") {
+      if (defenderMounted) {
+        ui.notifications.warn("Postać konno nie może robić uników");
+        return;
+      }
+
+      defSkill = "athletics";
+    }
     
     if (defenseType === "shield") {
 
@@ -441,7 +478,15 @@ const result = await attacker.opposedTest(
   attacker._mapSkillToAttribute(skill),
   skill,
   defender._mapSkillToAttribute(defSkill),
-  defSkill
+  defSkill,
+  {
+    actorAOptions: {
+      modifier: attackModifier
+    },
+    actorBOptions: {
+      modifier: defenseModifier
+    }
+  }
 );
 
 // =====================

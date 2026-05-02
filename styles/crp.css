@@ -599,7 +599,7 @@ input:focus {
 /* GRID SLOTÓW */
 .crp-equipment {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 równe kolumny */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
   margin-bottom: 10px;
@@ -633,7 +633,7 @@ input:focus {
 .crp-equipment {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 /* 🔥 WYŁAMANIE Z UKŁADU FOUNDRY */
@@ -644,6 +644,20 @@ input:focus {
 /* jeśli parent jest flex */
 .crp-equipment {
   flex: 0 0 100%;
+}
+
+.crp-mounted-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.crp-mounted-toggle input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
 }
 
 .crp-item-img-large {

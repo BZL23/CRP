@@ -22,8 +22,6 @@ export class CRPWeaponData extends TypeDataModel {
 
       range: new StringField({ initial: "melee" }), // melee / ranged
 
-      // MODYFIKATORY
-      accuracy: new NumberField({ initial: 0 }), // do trafienia
       initiative: new NumberField({ initial: 0 }),
 
       // TAGI SYSTEMOWE

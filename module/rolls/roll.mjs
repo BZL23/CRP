@@ -26,7 +26,7 @@ static formatMargin(margin) {
 }
 
 
-    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true } = {}) {
+    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0 } = {}) {
 
         if (!actor) {
             console.error("Brak aktora");
@@ -47,20 +47,11 @@ static formatMargin(margin) {
             return null;
         }
 
-        const weapon = actor.getEquippedWeapon(skillKey);
-
-let weaponBonus = 0;
-
-if (weapon && weapon.system.skill === skillKey) {
-  weaponBonus += weapon.system.accuracy ?? 0;
-}
-
-
         const penalty = actor.system.derived.woundPenalty ?? 0;
 
         const target = Math.max(
   2,
-  attr.value + skill.value + penalty + weaponBonus
+  attr.value + skill.value + penalty + modifier
 );
 
 
@@ -112,10 +103,11 @@ return result;
 
     static async opposed(
         actorA, attrA, skillA,
-        actorB, attrB, skillB
+        actorB, attrB, skillB,
+        { actorAOptions = {}, actorBOptions = {} } = {}
     ) {
-        const rollA = await this.skill(actorA, attrA, skillA, { chat: false });
-        const rollB = await this.skill(actorB, attrB, skillB, { chat: false });
+        const rollA = await this.skill(actorA, attrA, skillA, { chat: false, ...actorAOptions });
+        const rollB = await this.skill(actorB, attrB, skillB, { chat: false, ...actorBOptions });
 
         if (!rollA || !rollB) {
             console.error("Błąd testu przeciwstawnego");

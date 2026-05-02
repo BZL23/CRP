@@ -125,15 +125,16 @@ getEquippedWeapon(skillKey = null) {
     .filter(item => !skillKey || item.system.skill === skillKey);
 
   return candidates.sort((a, b) =>
-    (b.system.accuracy ?? 0) - (a.system.accuracy ?? 0)
+    (b.system.damage ?? 0) - (a.system.damage ?? 0)
   )[0] ?? null;
 }
 
 
-async opposedTest(targetActor, attrA, skillA, attrB, skillB) {
+async opposedTest(targetActor, attrA, skillA, attrB, skillB, options = {}) {
   return await CRPRoll.opposed(
     this, attrA, skillA,
-    targetActor, attrB, skillB
+    targetActor, attrB, skillB,
+    options
   );
 }
 

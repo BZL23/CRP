@@ -118,7 +118,9 @@ export class CRPActorData extends TypeDataModel {
     id: new StringField({ nullable: true }),
     name: new StringField({ nullable: true }),
     img: new StringField({ nullable: true })
-  })
+  }),
+
+  mounted: new BooleanField({ initial: false })
 }),
 
 bio: new SchemaField({
