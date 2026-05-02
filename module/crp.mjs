@@ -484,8 +484,10 @@ const getShieldProt = (item) =>
 const rightProt = getShieldProt(rightShield);
 const leftProt = getShieldProt(leftShield);
 
-// wybór jednej tarczy (większej)
-shieldProtection = Math.max(rightProt, leftProt);
+// tarcza redukuje obrażenia tylko przy obronie tarczą
+shieldProtection = defenseType === "shield"
+  ? Math.max(rightProt, leftProt)
+  : 0;
 
 // =====================
 // SYMBOLE – OBRONA

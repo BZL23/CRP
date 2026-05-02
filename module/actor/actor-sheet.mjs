@@ -352,12 +352,32 @@ if (slotEl) {
   const eq = this.document.system.equipment;
 
   const updates = {};
+  const isTwoHandedWeapon = (item) =>
+    item?.type === "weapon" && Number(item.system.hands) === 2;
+
+  // broń dwuręczna zawsze zajmuje obie ręce
+  if (isHand && isTwoHandedWeapon(item)) {
+    const slotData = {
+      id: item.id,
+      name: item.name,
+      img: item.img
+    };
+
+    updates["system.equipment.rightHand"] = slotData;
+    updates["system.equipment.leftHand"] = slotData;
+
+    await this.document.update(updates);
+
+    return;
+  }
 
   // 🔥 USUŃ Z DRUGIEGO SLOTU RĘKI
   if (isHand) {
     const otherSlot = slot === "rightHand" ? "leftHand" : "rightHand";
+    const otherItemId = eq[otherSlot]?.id;
+    const otherItem = otherItemId ? this.document.items.get(otherItemId) : null;
 
-    if (eq[otherSlot]?.id === item.id) {
+    if (otherItemId === item.id || isTwoHandedWeapon(otherItem)) {
       updates[`system.equipment.${otherSlot}`] = {
         id: null,
         name: null,
@@ -547,14 +567,27 @@ html.querySelectorAll(".crp-slot-clear").forEach(btn => {
     ev.stopPropagation();
 
     const slot = ev.currentTarget.dataset.slot;
+    const eq = this.document.system.equipment;
+    const itemId = eq[slot]?.id;
+    const item = itemId ? this.document.items.get(itemId) : null;
+    const updates = {};
 
-await this.document.update({
-  [`system.equipment.${slot}`]: {
-  id: null,
-  name: null,
-  img: null
-}
-});
+    const clearSlot = (slot) => {
+      updates[`system.equipment.${slot}`] = {
+        id: null,
+        name: null,
+        img: null
+      };
+    };
+
+    if (item?.type === "weapon" && Number(item.system.hands) === 2) {
+      clearSlot("rightHand");
+      clearSlot("leftHand");
+    } else {
+      clearSlot(slot);
+    }
+
+await this.document.update(updates);
 
 
   });
