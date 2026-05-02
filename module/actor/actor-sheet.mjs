@@ -516,11 +516,11 @@ html.querySelectorAll(".crp-eq-slot").forEach(el => {
 
     const eq = this.document.system.equipment[slot];
 const itemId = typeof eq === "string" ? eq : eq?.id;
-
-    if (!itemId) return;
-
-    const item = this.document.items.get(itemId);
-    if (!item) return;
+    const item = itemId ? this.document.items.get(itemId) : null;
+    const isUnarmedAttack = !item;
+    const attackSkill = isUnarmedAttack ? "brawl" : item.system?.skill;
+    const itemType = isUnarmedAttack ? "unarmed" : item.type;
+    const itemRange = isUnarmedAttack ? "melee" : item.system?.range;
 
     // target
     const targets = Array.from(game.user.targets);
@@ -553,13 +553,17 @@ const leftItem = equipment.leftHand?.id
   ? targetActor.items.get(equipment.leftHand.id)
   : null;
 
-const isRangedAttack = item.system.range === "ranged";
+const isRangedAttack = itemRange === "ranged";
 
 const hasParryWeapon =
   isValidParryWeapon(rightItem) ||
   isValidParryWeapon(leftItem);
 
-const canParry = hasParryWeapon;
+const hasEmptyHand =
+  !equipment.rightHand?.id ||
+  !equipment.leftHand?.id;
+
+const canParry = hasParryWeapon || (isUnarmedAttack && hasEmptyHand);
 
   const isShield = (item) => item?.type === "shield";
 
@@ -573,9 +577,9 @@ content: `
     data-message-id=""
     data-attacker="${this.document.uuid}"
     data-defender="${targetActor.uuid}"
-    data-skill="${item.system.skill}"
-data-item-type="${item.type}"
-data-range="${item.system.range}">
+    data-skill="${attackSkill}"
+data-item-type="${itemType}"
+data-range="${itemRange}">
 
     <p>Wybierz obronę:</p>
 

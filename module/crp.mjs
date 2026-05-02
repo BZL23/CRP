@@ -293,9 +293,15 @@ for (const btn of buttons) {
   if (btn.dataset.defense !== "parry") continue;
 
   const container = btn.closest(".crp-defense-choice");
-const skill = container.dataset.skill;
+const itemType = container.dataset.itemType;
+const range = container.dataset.range;
 
-if (skill === "ranged") {
+if (itemType === "unarmed") {
+  btn.disabled = false;
+  continue;
+}
+
+if (range === "ranged") {
   btn.disabled = true;
 }
 }
@@ -345,16 +351,6 @@ const range = container.dataset.range;
 
   const eq = defender.system.equipment;
 
-  const getWeaponSkill = (slot) => {
-    const id = eq[slot]?.id;
-    if (!id) return null;
-
-    const item = defender.items.get(id);
-    if (!item) return null;
-
-    return item.system.skill;
-  };
-
   const getTotal = (skill) => {
     if (!skill) return -999;
 
@@ -386,14 +382,32 @@ const getParrySkill = (slot) => {
 const rightSkill = getParrySkill("rightHand");
 const leftSkill = getParrySkill("leftHand");
 
-  const rightTotal = getTotal(rightSkill);
-  const leftTotal = getTotal(leftSkill);
+  if (itemType === "unarmed") {
+    const hasEmptyHand = !eq.rightHand?.id || !eq.leftHand?.id;
+    const skills = [rightSkill, leftSkill];
 
-  defSkill = rightTotal >= leftTotal ? rightSkill : leftSkill;
+    if (hasEmptyHand) {
+      skills.push("brawl");
+    }
 
-  if (!defSkill) {
-    ui.notifications.warn("Brak broni do parowania");
-    return;
+    defSkill = skills
+      .filter(Boolean)
+      .sort((a, b) => getTotal(b) - getTotal(a))[0];
+
+    if (!defSkill) {
+      ui.notifications.warn("Brak wolnej ręki lub broni do parowania");
+      return;
+    }
+  } else {
+    const rightTotal = getTotal(rightSkill);
+    const leftTotal = getTotal(leftSkill);
+
+    defSkill = rightTotal >= leftTotal ? rightSkill : leftSkill;
+
+    if (!defSkill) {
+      ui.notifications.warn("Brak broni do parowania");
+      return;
+    }
   }
 }
     if (defenseType === "dodge") defSkill = "athletics";
