@@ -10,6 +10,89 @@ import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData } from "./item
 import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/item-sheet.mjs";
 import { CRPManeuverDialog } from "./maneuvers.mjs";
 
+const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
+
+function removeMountedTokenUnderlay(token) {
+  if (!token?._crpMountUnderlay) return;
+
+  token._crpMountUnderlay.destroy({ children: true });
+  token._crpMountUnderlay = null;
+}
+
+async function refreshMountedTokenUnderlay(token) {
+
+  const mounted = !!token?.actor?.system?.equipment?.mounted;
+
+  if (!mounted) {
+    removeMountedTokenUnderlay(token);
+    return;
+  }
+
+  if (!canvas?.ready || !token?.mesh?.parent) return;
+
+  let sprite = token._crpMountUnderlay;
+
+  // jeśli sprite istnieje → NIE robimy async ani nie tworzymy nowego
+  if (!sprite || sprite.destroyed) {
+
+    const texture = await foundry.canvas.loadTexture(CRP_MOUNT_UNDERLAY);
+    if (!texture) return;
+
+    sprite = PIXI.Sprite.from(texture);
+    sprite.name = "crp-mounted-underlay";
+    sprite.eventMode = "none";
+    sprite.interactive = false;
+
+    token._crpMountUnderlay = sprite;
+
+    for (const child of token.mesh.parent.children) {
+    if (child.name === "crp-mounted-underlay" && child !== sprite) {
+      child.destroy();
+    }
+  }
+  }
+
+  const parent = token.mesh.parent;
+
+  // upewnij się że jest tylko jeden sprite
+if (!sprite.parent) {
+  const parent = token.mesh.parent;
+  const meshIndex = parent.getChildIndex(token.mesh);
+
+  parent.addChildAt(sprite, Math.max(0, meshIndex));
+}
+
+  // update pozycji – TERAZ bez laga
+  sprite.position.copyFrom(token.mesh.position);
+
+  const { width, height } = token.document.getSize();
+
+  sprite.anchor.set(0.5);
+  sprite.width = width * 1.45;
+  sprite.height = height * 1.45;
+
+  // lepiej brać z document (bez glitchy przy rotacji)
+  sprite.angle = token.document.rotation ?? 0;
+  sprite.alpha = token.document.alpha ?? 1;
+  sprite.visible = token.mesh.visible !== false;
+
+  // pilnuj kolejności warstw
+  const meshIndex = parent.getChildIndex(token.mesh);
+  const spriteIndex = parent.getChildIndex(sprite);
+
+  if (spriteIndex > meshIndex) {
+    parent.setChildIndex(sprite, Math.max(0, meshIndex));
+  }
+}
+
+function refreshMountedActorUnderlays(actor) {
+  const tokens = actor?.getActiveTokens?.(false) ?? [];
+
+  for (const token of tokens) {
+    refreshMountedTokenUnderlay(token);
+  }
+}
+
 Hooks.once("init", () => {
   // NAJPIERW MODELE ITEMÓW (PRZED WSZYSTKIM)
   CONFIG.Item = CONFIG.Item || {};
@@ -111,6 +194,34 @@ Hooks.on("createActor", async (actor) => {
     }
   });
 
+});
+
+Hooks.on("canvasReady", () => {
+  for (const token of canvas.tokens?.placeables ?? []) {
+    refreshMountedTokenUnderlay(token);
+  }
+});
+
+Hooks.on("drawToken", token => {
+  refreshMountedTokenUnderlay(token);
+});
+
+Hooks.on("refreshToken", token => {
+  refreshMountedTokenUnderlay(token);
+});
+
+Hooks.on("deleteToken", tokenDocument => {
+  removeMountedTokenUnderlay(tokenDocument?.object);
+});
+
+Hooks.on("updateActor", (actor, changed) => {
+  const mountedChanged =
+    foundry.utils.hasProperty(changed, "system.equipment.mounted") ||
+    Object.hasOwn(changed, "system.equipment.mounted");
+
+  if (!mountedChanged) return;
+
+  refreshMountedActorUnderlays(actor);
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
