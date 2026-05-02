@@ -36,6 +36,47 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
   };
 
+  _getRootElement() {
+    return this.element instanceof HTMLElement
+      ? this.element
+      : this.element?.[0];
+  }
+
+  _getScrollContainers(root = this._getRootElement()) {
+    const containers = [
+      root?.querySelector(".window-content"),
+      root?.querySelector(".crp-sheet"),
+      root
+    ].filter(el => el && typeof el.scrollTop === "number");
+
+    return [...new Set(containers)];
+  }
+
+  _getScrollTop() {
+    const containers = this._getScrollContainers();
+    const scrolled = containers.find(el => el.scrollTop > 0);
+
+    return scrolled?.scrollTop ?? containers[0]?.scrollTop ?? 0;
+  }
+
+  _rememberScrollPosition() {
+    this._pendingScrollTop = this._getScrollTop();
+  }
+
+  _restoreScrollPosition(scrollTop = this._pendingScrollTop) {
+    if (scrollTop === undefined) return;
+
+    const restore = () => {
+      for (const container of this._getScrollContainers()) {
+        container.scrollTop = scrollTop;
+      }
+    };
+
+    restore();
+    requestAnimationFrame(restore);
+    setTimeout(restore, 0);
+  }
+
   //  JEDYNE źródło danych dla template
 async _preparePartContext(partId, context) {
     if (partId !== "body") return context;
@@ -89,22 +130,19 @@ return {
   }
 
 _onRender(context, options) {
-  const scrollTop = this.element?.scrollTop;
+  const scrollTop = this._pendingScrollTop ?? this._getScrollTop();
 
   super._onRender(context, options);
 
-const html = this.element instanceof HTMLElement
-  ? this.element
-  : this.element?.[0];
+const html = this._getRootElement();
 
 if (!html) {
   console.error("CRP: HTML root NOT FOUND");
   return;
 }
 
-if (scrollTop !== undefined && html) {
-  html.scrollTop = scrollTop;
-}
+this._restoreScrollPosition(scrollTop);
+this._pendingScrollTop = undefined;
 
   // ======================
   //  ROLL
@@ -278,9 +316,11 @@ if (!html.dataset.deleteBound) {
     }
   }
 
+  this._rememberScrollPosition();
   await this.document.deleteEmbeddedDocuments("Item", [itemId]);
 
   if (Object.keys(updates).length) {
+    this._rememberScrollPosition();
     await this.document.update(updates);
   }
 
@@ -366,6 +406,7 @@ if (slotEl) {
     updates["system.equipment.rightHand"] = slotData;
     updates["system.equipment.leftHand"] = slotData;
 
+    this._rememberScrollPosition();
     await this.document.update(updates);
 
     return;
@@ -393,6 +434,7 @@ if (slotEl) {
     img: item.img
   };
 
+  this._rememberScrollPosition();
   await this.document.update(updates);
 
   return;
@@ -400,9 +442,11 @@ if (slotEl) {
 
       if (item.parent?.id === this.document.id) return;
 
+      this._rememberScrollPosition();
       const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
 
       if (created.type === "weapon") {
+        this._rememberScrollPosition();
         await created.update({ "system.equipped": true });
       }
 
@@ -587,6 +631,7 @@ html.querySelectorAll(".crp-slot-clear").forEach(btn => {
       clearSlot(slot);
     }
 
+this._rememberScrollPosition();
 await this.document.update(updates);
 
 
