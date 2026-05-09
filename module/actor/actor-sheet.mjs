@@ -178,7 +178,10 @@ return {
   initiative: {
     weaponModifierText: system.derived.initiativeWeaponModifier >= 0
       ? `+${system.derived.initiativeWeaponModifier}`
-      : `${system.derived.initiativeWeaponModifier}`
+      : `${system.derived.initiativeWeaponModifier}`,
+    armorModifierText: system.derived.initiativeArmorModifier >= 0
+      ? `+${system.derived.initiativeArmorModifier}`
+      : `${system.derived.initiativeArmorModifier}`
   },
   tokenImg,
   activeTab: this.activeTab,

@@ -17,9 +17,11 @@ export class CRPActor extends Actor {
       attr.perception.value;
 
     derived.initiativeWeaponModifier = this.getInitiativeWeaponModifier();
+    derived.initiativeArmorModifier = this.getInitiativeArmorModifier();
     derived.initiativeTotal =
       derived.initiative +
-      derived.initiativeWeaponModifier;
+      derived.initiativeWeaponModifier +
+      derived.initiativeArmorModifier;
 
     // Zdrowie
     const maxHealth =
@@ -132,6 +134,16 @@ getInitiativeWeaponModifier() {
   });
 
   return Math.min(...modifiers);
+}
+
+getInitiativeArmorModifier() {
+  const equipment = this.system.equipment ?? {};
+  const id = equipment.armor?.id;
+  const item = id ? this.items.get(id) : null;
+
+  return item?.type === "armor"
+    ? -(item.system.protection ?? 0)
+    : 0;
 }
 
 getEquippedWeapon(skillKey = null) {

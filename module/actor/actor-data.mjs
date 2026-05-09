@@ -75,6 +75,7 @@ export class CRPActorData extends TypeDataModel {
       derived: new SchemaField({
         initiative: new NumberField({ initial: 0 }),
         initiativeWeaponModifier: new NumberField({ initial: 0 }),
+        initiativeArmorModifier: new NumberField({ initial: 0 }),
         initiativeTotal: new NumberField({ initial: 0 }),
         willpower: new NumberField({ initial: 0 }),
 
