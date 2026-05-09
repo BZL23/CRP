@@ -11,6 +11,47 @@ import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./
 import { CRPManeuverDialog } from "./maneuvers.mjs";
 
 const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
+const CRP_INITIATIVE_TOTALS = new Map();
+
+function hasChangedPath(changed, path) {
+  return foundry.utils.hasProperty(changed, path) || Object.hasOwn(changed, path);
+}
+
+function hasInitiativeEquipmentChange(changed) {
+  return [
+    "system.equipment.rightHand",
+    "system.equipment.leftHand",
+    "system.equipment.armor"
+  ].some(path => hasChangedPath(changed, path));
+}
+
+function getInitiativeTotal(actor) {
+  return Number(actor?.system?.derived?.initiativeTotal ?? actor?.system?.derived?.initiative ?? 0);
+}
+
+async function refreshCombatInitiativeForActor(actor, previousBase = null) {
+  const combat = game.combat;
+  if (!combat || !actor) return;
+
+  const currentBase = getInitiativeTotal(actor);
+
+  for (const combatant of combat.combatants) {
+    if (combatant.actor?.id !== actor.id || combatant.initiative === null) continue;
+
+    const storedRoll = combatant.getFlag("crp", "initiativeRoll");
+    let initiative = null;
+
+    if (Number.isFinite(storedRoll)) {
+      initiative = currentBase + storedRoll;
+    } else if (Number.isFinite(previousBase)) {
+      initiative = combatant.initiative - previousBase + currentBase;
+    }
+
+    if (initiative === null || initiative === combatant.initiative) continue;
+
+    await combat.setInitiative(combatant.id, initiative);
+  }
+}
 
 function removeMountedTokenUnderlay(token) {
   if (!token?._crpMountUnderlay) return;
@@ -214,14 +255,24 @@ Hooks.on("deleteToken", tokenDocument => {
   removeMountedTokenUnderlay(tokenDocument?.object);
 });
 
-Hooks.on("updateActor", (actor, changed) => {
+Hooks.on("preUpdateActor", (actor, changed) => {
+  if (!hasInitiativeEquipmentChange(changed)) return;
+
+  CRP_INITIATIVE_TOTALS.set(actor.uuid, getInitiativeTotal(actor));
+});
+
+Hooks.on("updateActor", async (actor, changed) => {
   const mountedChanged =
-    foundry.utils.hasProperty(changed, "system.equipment.mounted") ||
-    Object.hasOwn(changed, "system.equipment.mounted");
+    hasChangedPath(changed, "system.equipment.mounted");
 
-  if (!mountedChanged) return;
+  if (mountedChanged) refreshMountedActorUnderlays(actor);
 
-  refreshMountedActorUnderlays(actor);
+  if (hasInitiativeEquipmentChange(changed)) {
+    const previousBase = CRP_INITIATIVE_TOTALS.get(actor.uuid) ?? null;
+    CRP_INITIATIVE_TOTALS.delete(actor.uuid);
+
+    await refreshCombatInitiativeForActor(actor, previousBase);
+  }
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {

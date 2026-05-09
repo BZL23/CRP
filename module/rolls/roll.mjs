@@ -349,6 +349,25 @@ if (!actor.system.state.bleeding) return;
   });
 }
 
+/* TEST TĘŻYZNY!
+
+static async fortitude(actor, { chat = true } = {}) {
+  const result = await this.skill(actor, "strength", "endurance", {
+    chat: false,
+    allowFate: false
+  });
+
+  if (chat && result) {
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: this.renderFortitudeHTML(actor, result)
+    });
+  }
+
+  return result;
+}
+  */
+
 static renderFortitudeHTML(actor, result) {
 
   const penalty = actor.system.derived.woundPenalty ?? 0;
@@ -486,6 +505,8 @@ if (combat) {
 
   if (combatant) {
 
+    await combatant.setFlag("crp", "initiativeRoll", total);
+    await combatant.setFlag("crp", "initiativeBase", base);
     await combat.setInitiative(combatant.id, final);
 
   } else {
@@ -493,6 +514,8 @@ if (combat) {
     const fallback = combat.combatants.find(c => c.actor?.id === actor.id);
 
     if (fallback) {
+      await fallback.setFlag("crp", "initiativeRoll", total);
+      await fallback.setFlag("crp", "initiativeBase", base);
       await combat.setInitiative(fallback.id, final);
     } else {
       ui.notifications.warn("Aktor nie jest w walce");

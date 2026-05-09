@@ -582,6 +582,12 @@ html.querySelectorAll(".crp-eq-slot").forEach(el => {
     const eq = this.document.system.equipment[slot];
 const itemId = typeof eq === "string" ? eq : eq?.id;
     const item = itemId ? this.document.items.get(itemId) : null;
+
+    if (item && item.type !== "weapon") {
+      ui.notifications.warn("Tarcza nie sluzy do ataku.");
+      return;
+    }
+
     const isUnarmedAttack = !item;
     const attackSkill = isUnarmedAttack ? "brawl" : item.system?.skill;
     const itemType = isUnarmedAttack ? "unarmed" : item.type;
