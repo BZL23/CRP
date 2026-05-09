@@ -16,6 +16,11 @@ export class CRPActor extends Actor {
       attr.agility.value +
       attr.perception.value;
 
+    derived.initiativeWeaponModifier = this.getInitiativeWeaponModifier();
+    derived.initiativeTotal =
+      derived.initiative +
+      derived.initiativeWeaponModifier;
+
     // Zdrowie
     const maxHealth =
       attr.strength.value +
@@ -106,6 +111,27 @@ _mapSkillToAttribute(skillKey) {
   };
 
   return map[skillKey];
+}
+
+getWeaponInitiativeModifier(item) {
+  if (!item || item.type !== "weapon") return 4;
+  if (item.system.range === "ranged" || item.system.skill === "ranged") return -3;
+  if (item.system.skill === "lightWeapons") return 2;
+  if (Number(item.system.hands) === 2 || item.system.skill === "twoHanded") return -2;
+  return 0;
+}
+
+getInitiativeWeaponModifier() {
+  const equipment = this.system.equipment ?? {};
+
+  const modifiers = ["rightHand", "leftHand"].map(slot => {
+    const id = equipment[slot]?.id;
+    const item = id ? this.items.get(id) : null;
+
+    return this.getWeaponInitiativeModifier(item);
+  });
+
+  return Math.min(...modifiers);
 }
 
 getEquippedWeapon(skillKey = null) {

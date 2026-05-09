@@ -74,6 +74,8 @@ export class CRPActorData extends TypeDataModel {
       // WSPÓŁCZYNNIKI POCHODNE
       derived: new SchemaField({
         initiative: new NumberField({ initial: 0 }),
+        initiativeWeaponModifier: new NumberField({ initial: 0 }),
+        initiativeTotal: new NumberField({ initial: 0 }),
         willpower: new NumberField({ initial: 0 }),
 
         health: new SchemaField({

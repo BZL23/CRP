@@ -808,6 +808,21 @@ text-align: center;
   background: rgba(255,255,255,0.1);
 }
 
+.crp-initiative-value {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.crp-initiative-mod {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65em;
+}
+
 .crp-footer {
   display: flex;
   align-items: center;
@@ -977,11 +992,17 @@ justify-content: flex-start;
   padding: 10px;
 }
 
-.crp-bio .editor {
-  min-height: 220px;
+.crp-bio-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
 }
 
-.crp-bio .editor-content,
+.crp-bio-edit {
+  width: 32px;
+  height: 32px;
+}
+
 .crp-bio-content {
   padding: 12px 16px;        
   font-size: 18px;          
@@ -991,28 +1012,32 @@ justify-content: flex-start;
   border-radius: 6px;
 
   min-height: 120px;
+  height: auto;
+  overflow: visible;
 
   background: rgba(0, 0, 0, 0.2);
 }
 
-.crp-bio .editor.active .editor-content {
-  outline: 1px solid #888;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.crp-bio .editor-content h1,
-.crp-bio .editor-content h2,
 .crp-bio-content h1,
 .crp-bio-content h2 {
   margin-top: 10px;
 }
 
-.crp-bio .editor-content p,
 .crp-bio-content p {
   margin: 6px 0;
 }
 
-.crp-bio .editor-content,
 .crp-bio-content {
   font-family: Georgia, "Times New Roman", serif;
 }
+
+.crp-bio-dialog prose-mirror {
+  min-height: 420px;
+}
+
+.crp-bio-dialog .editor-content {
+  min-height: 420px;
+  max-height: 70vh;
+  overflow: auto;
+}
+

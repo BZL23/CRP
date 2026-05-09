@@ -77,6 +77,58 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     setTimeout(restore, 0);
   }
 
+  async _openBioEditor() {
+    const current = this.document.system.bio?.description ?? "";
+    const value = foundry.utils.escapeHTML(current);
+
+    const content = `
+      <div class="crp-bio-dialog">
+        <prose-mirror
+          name="bio"
+          value="${value}">
+        </prose-mirror>
+      </div>
+    `;
+
+    const result = await foundry.applications.api.DialogV2.wait({
+      window: {
+        title: `Biografia: ${this.document.name}`,
+        icon: "fa-solid fa-feather"
+      },
+      position: {
+        width: 760
+      },
+      content,
+      buttons: [
+        {
+          action: "save",
+          label: "Zapisz",
+          icon: "fa-solid fa-save",
+          default: true,
+          callback: (_event, _button, dialog) =>
+            dialog.element.querySelector("prose-mirror[name='bio']")?.value ?? ""
+        },
+        {
+          action: "cancel",
+          label: "Anuluj",
+          icon: "fa-solid fa-times",
+          callback: () => null
+        }
+      ],
+      render: (_event, dialog) => {
+        dialog.element.querySelector("prose-mirror[name='bio']")?.focus();
+      }
+    });
+
+    if (result === null) return;
+
+    await this.document.update({
+      "system.bio.description": result
+    });
+
+    this.render(false);
+  }
+
   //  JEDYNE źródło danych dla template
 async _preparePartContext(partId, context) {
     if (partId !== "body") return context;
@@ -123,6 +175,11 @@ return {
   system,
   config,
   attributesList,
+  initiative: {
+    weaponModifierText: system.derived.initiativeWeaponModifier >= 0
+      ? `+${system.derived.initiativeWeaponModifier}`
+      : `${system.derived.initiativeWeaponModifier}`
+  },
   tokenImg,
   activeTab: this.activeTab,
 };
@@ -722,14 +779,11 @@ html.querySelectorAll(".crp-tab-btn").forEach(btn => {
 // ======================
 // BIO EDITOR
 // ======================
-const bioEditor = html.querySelector("[name='system.bio.description']");
+html.querySelector(".crp-bio-edit")?.addEventListener("click", ev => {
+  ev.preventDefault();
+  ev.stopPropagation();
 
-bioEditor?.addEventListener("change", async ev => {
-  const editor = ev.currentTarget;
-
-  await this.document.update({
-    [editor.name]: editor.value ?? ""
-  });
+  this._openBioEditor();
 });
 
 

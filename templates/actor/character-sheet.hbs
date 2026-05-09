@@ -49,8 +49,12 @@
 
   <div class="crp-stat">
     <label>Inicjatywa</label>
-    <div class="crp-stat-value">
-      {{system.derived.initiative}}
+    <div class="crp-stat-value crp-initiative-value">
+      <span>{{system.derived.initiative}}</span>
+      <span class="crp-initiative-mod">
+        {{initiative.weaponModifierText}}
+        <i class="fa-solid fa-sword" title="Modyfikator z broni"></i>
+      </span>
     </div>
     <button class="crp-roll-initiative">Rzuć</button>
   </div>
@@ -314,12 +318,15 @@
   <div class="crp-tab-content">
 <div class="crp-bio">
 
-  <prose-mirror
-    name="system.bio.description"
-    value="{{system.bio.description}}"
-    toggled>
+  <div class="crp-bio-header">
+    <button type="button" class="crp-bio-edit" title="Edytuj biografię">
+      <i class="fa-solid fa-edit"></i>
+    </button>
+  </div>
+
+  <div class="crp-bio-content">
     {{{system.bio.description}}}
-  </prose-mirror>
+  </div>
 
 </div>
   </div>

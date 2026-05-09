@@ -461,7 +461,7 @@ static async willpower(actor, { chat = true } = {}) {
 
 static async initiative(actor, { chat = true, combatant = null } = {}) {
 
-  const base = actor.system.derived.initiative ?? 0;
+  const base = actor.system.derived.initiativeTotal ?? actor.system.derived.initiative ?? 0;
 
   const roll = await new Roll("1d6").roll();
   const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
@@ -519,7 +519,7 @@ if (combat) {
         </div>
 
         <div class="crp-roll-body">
-          <div>⚡ Bazowa inicjatywa: <b>${base}</b></div>
+          <div>⚡ Inicjatywa: <b>${base}</b></div>
           <div>🎲 K6: <b>${dice.join(", ")}</b></div>
           <div>👉 Wynik: <b>${final}</b></div>
         </div>
