@@ -381,8 +381,10 @@ input:focus {
 }
 
 .crp-actor-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
   background: #fff;
   border: 1px solid #ccc;
   padding: 3px 6px;
@@ -394,6 +396,11 @@ input:focus {
 }
 
 .crp-fate {
+  font-weight: bold;
+  color: #4b3014;
+}
+
+.crp-xp {
   font-weight: bold;
   color: #4b3014;
 }
@@ -627,6 +634,30 @@ input:focus {
 .crp-empty {
   text-align: center;
   color: #777;
+}
+
+.crp-experience-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.18);
+}
+
+.crp-experience-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.crp-experience-row input {
+  width: 64px;
+  text-align: center;
 }
 
 /* 🔥 WYMUSZENIE PEŁNEJ SZEROKOŚCI */

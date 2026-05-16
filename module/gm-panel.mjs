@@ -65,6 +65,70 @@ html.querySelector("[data-action='give-fate-selected']")?.addEventListener("clic
   this.render(); // odśwież panel (ważne!)
 });
 
+html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click", async () => {
+
+  const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+  if (!selected.length) {
+    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+    return;
+  }
+
+  const content = `
+    <div class="form-group">
+      <label>Wartość PD</label>
+      <input type="number" name="xp" value="1" min="0" step="1">
+    </div>
+  `;
+
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: "Rozdaj PD" },
+    content,
+    buttons: [
+      {
+        action: "confirm",
+        label: "Rozdaj",
+        default: true,
+        callback: (_event, _button, dialog) =>
+          Number(dialog.element.querySelector("input[name='xp']")?.value)
+      },
+      {
+        action: "cancel",
+        label: "Anuluj",
+        callback: () => null
+      }
+    ]
+  });
+
+  if (result === null) return;
+
+  const xp = Number(result);
+
+  if (!Number.isFinite(xp) || xp < 0) {
+    ui.notifications.warn("Podaj poprawną wartość PD");
+    return;
+  }
+
+  for (const checkbox of selected) {
+
+    const actorId = checkbox.value;
+    const actor = game.actors.get(actorId);
+    if (!actor) continue;
+
+    const current = actor.system.resources.experience?.value ?? 0;
+
+    await actor.update({
+      "system.resources.experience.value": current + xp
+    });
+
+    actor.sheet?.render(false);
+  }
+
+  ui.notifications.info(`Dodano ${xp} PD wybranym`);
+
+  this.render();
+});
+
 html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () => {
 
   const checkboxes = html.querySelectorAll(".crp-actor-row input");
@@ -130,7 +194,8 @@ _prepareContext() {
     .map(a => ({
       id: a.id,
       name: a.name,
-      fate: a.system.resources.fate.value
+      fate: a.system.resources.fate.value,
+      experience: a.system.resources.experience?.value ?? 0
     }));
 
   return { actors };

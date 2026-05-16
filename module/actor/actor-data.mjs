@@ -91,6 +91,10 @@ export class CRPActorData extends TypeDataModel {
       resources: new SchemaField({
         fate: new SchemaField({
           value: new NumberField({ initial: 2, min: 0 })
+        }),
+        experience: new SchemaField({
+          value: new NumberField({ initial: 0, min: 0 }),
+          free: new NumberField({ initial: 0, min: 0 })
         })
       }),
 
