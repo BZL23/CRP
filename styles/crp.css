@@ -256,6 +256,29 @@ input:focus {
   font-size: 13px;
 }
 
+.crp-damage-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.crp-damage-choice {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.crp-damage-choice:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.crp-damage-status {
+  flex: 1 0 100%;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .crp-roll-dice,
 .crp-roll-target {
   margin-bottom: 4px;

@@ -78,6 +78,90 @@ async function flushPendingCombatInitiatives(combat) {
   }
 }
 
+function renderDamageControls({ messageId, defenderUuid, damage, hasFate, resolved = false, status = "" } = {}) {
+  const disabled = resolved || !hasFate ? "disabled" : "";
+  const note = status || (!hasFate ? "Brak Doli - obrażenia przyjęte automatycznie." : "Obrońca może przyjąć albo anulować obrażenia.");
+
+  return `
+<!-- CRP_DAMAGE_CONTROL_START -->
+  <div class="crp-damage-control"
+       data-message-id="${messageId}"
+       data-defender="${defenderUuid}"
+       data-damage="${damage}">
+    <button type="button"
+            class="crp-damage-choice"
+            data-action="accept"
+            data-message-id="${messageId}"
+            data-defender="${defenderUuid}"
+            data-damage="${damage}"
+            ${disabled}>
+      Przyjmij obrażenia
+    </button>
+    <button type="button"
+            class="crp-damage-choice"
+            data-action="cancel"
+            data-message-id="${messageId}"
+            data-defender="${defenderUuid}"
+            data-damage="${damage}"
+            ${disabled}>
+      Anuluj obrażenia
+    </button>
+    <div class="crp-damage-status">${note}</div>
+  </div>
+<!-- CRP_DAMAGE_CONTROL_END -->
+`;
+}
+
+async function resolvePendingDamage({ messageId, defenderUuid, damage, action } = {}) {
+  const msg = game.messages.get(messageId);
+  if (!msg || msg.getFlag("crp", "damageResolved")) return;
+
+  const defender = await fromUuid(defenderUuid);
+  if (!defender) return;
+
+  const amount = Math.max(0, Number(damage) || 0);
+  let status = "";
+
+  if (action === "cancel") {
+    const spent = await defender.spendFate(1);
+
+    if (spent) {
+      status = "Obrażenia anulowane kosztem 1 Doli.";
+    } else {
+      await defender.applyDamage(amount);
+      status = "Brak Doli - obrażenia przyjęte.";
+      action = "accept";
+    }
+  } else {
+    await defender.applyDamage(amount);
+    status = "Obrażenia przyjęte.";
+    action = "accept";
+  }
+
+  await msg.setFlag("crp", "damageResolved", {
+    action,
+    defenderUuid,
+    damage: amount
+  });
+
+  const replacement = renderDamageControls({
+    messageId,
+    defenderUuid,
+    damage: amount,
+    hasFate: false,
+    resolved: true,
+    status
+  });
+
+  const content = msg.content.replace(
+    /<!-- CRP_DAMAGE_CONTROL_START -->[\s\S]*?<!-- CRP_DAMAGE_CONTROL_END -->/,
+    replacement
+  );
+
+  await msg.update({ content });
+  defender.sheet?.render(false);
+}
+
 function removeMountedTokenUnderlay(token) {
   if (!token?._crpMountUnderlay) return;
 
@@ -407,6 +491,51 @@ button.disabled = true;
 
   }
 
+});
+
+Hooks.on("renderChatMessageHTML", (message, html) => {
+
+  const buttons = html.querySelectorAll(".crp-damage-choice");
+  if (!buttons.length) return;
+
+  for (const button of buttons) {
+    if (button.dataset.bound) continue;
+    button.dataset.bound = "true";
+
+    const defenderUuid = button.dataset.defender;
+    const defender = typeof fromUuidSync === "function" ? fromUuidSync(defenderUuid) : null;
+    const canResolve = game.user.isGM || !!defender?.isOwner;
+
+    if (!canResolve || message.getFlag("crp", "damageResolved")) {
+      button.disabled = true;
+    }
+
+    button.addEventListener("click", async ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      if (button.disabled) return;
+
+      const data = {
+        type: "damageChoice",
+        messageId: button.dataset.messageId,
+        defenderUuid,
+        damage: Number(button.dataset.damage) || 0,
+        action: button.dataset.action,
+        userId: game.user.id
+      };
+
+      for (const choice of html.querySelectorAll(".crp-damage-choice")) {
+        choice.disabled = true;
+      }
+
+      if (game.user.isGM) {
+        await resolvePendingDamage(data);
+      } else {
+        game.socket.emit("system.crp", data);
+      }
+    });
+  }
 });
 
 Handlebars.registerHelper("eq", (a, b) => a === b);
@@ -755,7 +884,11 @@ if (attackEagles !== 0 || attackShields !== 0) {
 // =====================
 // APPLY DAMAGE
 // =====================
-if (damage > 0) {
+const defenderFate = defender.system.resources.fate.value ?? 0;
+const needsDamageChoice = damage > 0 && defenderFate > 0;
+const autoDamage = damage > 0 && defenderFate < 1;
+
+if (autoDamage) {
   await defender.applyDamage(damage);
 }
 
@@ -767,16 +900,34 @@ if (result?.messageId) {
   const msg = game.messages.get(result.messageId);
 
   if (msg) {
+const damageControls = damage > 0
+  ? renderDamageControls({
+      messageId: result.messageId,
+      defenderUuid: defender.uuid,
+      damage,
+      hasFate: needsDamageChoice
+    })
+  : "";
+
 const newContent = msg.content + `
   <div class="crp-damage">
     💥 Obrażenia bazowe: <b>${baseDamage}</b><br>
     ${reductionText}<br>
     ${attackModText ? attackModText + "<br>" : ""}
     👉 Obrażenia końcowe: <b>${damage}</b>
+    ${damageControls}
   </div>
 `;
 
     await msg.update({ content: newContent });
+
+    if (autoDamage) {
+      await msg.setFlag("crp", "damageResolved", {
+        action: "auto",
+        defenderUuid: defender.uuid,
+        damage
+      });
+    }
   }
 }
 
@@ -811,6 +962,21 @@ Hooks.once("ready", () => {
   game.socket.on("system.crp", async (data) => {
 
     if (!game.user.isGM) return;
+
+    if (data.type === "damageChoice") {
+      const defender = await fromUuid(data.defenderUuid);
+      const user = game.users.get(data.userId);
+      const isAllowed =
+        !!defender &&
+        !!user &&
+        (user.isGM || defender.testUserPermission(user, "OWNER"));
+
+      if (!isAllowed) return;
+
+      await resolvePendingDamage(data);
+      return;
+    }
+
     if (data.type !== "defenseSelected") return;
 
     const msg = game.messages.get(data.messageId);
