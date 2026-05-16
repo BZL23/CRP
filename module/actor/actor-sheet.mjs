@@ -756,11 +756,9 @@ btn.innerHTML = `
     ev.preventDefault();
     ev.stopPropagation();
 
- const tokenDoc = await this.document.getTokenDocument();
-
-new foundry.applications.sheets.TokenConfig({
-  document: tokenDoc
-}).render(true); 
+new foundry.applications.sheets.PrototypeTokenConfig({
+  prototype: this.document.prototypeToken
+}).render({ force: true });
 
 
 
