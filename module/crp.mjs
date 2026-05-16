@@ -12,6 +12,7 @@ import { CRPManeuverDialog } from "./maneuvers.mjs";
 
 const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
 const CRP_INITIATIVE_TOTALS = new Map();
+const CRP_PENDING_INITIATIVE_UPDATES = new Map();
 
 function hasChangedPath(changed, path) {
   return foundry.utils.hasProperty(changed, path) || Object.hasOwn(changed, path);
@@ -50,6 +51,30 @@ async function refreshCombatInitiativeForActor(actor, previousBase = null) {
     if (initiative === null || initiative === combatant.initiative) continue;
 
     await combat.setInitiative(combatant.id, initiative);
+  }
+}
+
+function queueCombatInitiativeRefresh(actor, previousBase = null) {
+  const combat = game.combat;
+  if (!combat?.started || !actor) return;
+
+  if (!CRP_PENDING_INITIATIVE_UPDATES.has(actor.uuid)) {
+    CRP_PENDING_INITIATIVE_UPDATES.set(actor.uuid, previousBase);
+  }
+}
+
+async function flushPendingCombatInitiatives(combat) {
+  if (!game.user.isGM || !combat?.started || !CRP_PENDING_INITIATIVE_UPDATES.size) return;
+
+  const pending = Array.from(CRP_PENDING_INITIATIVE_UPDATES.entries());
+  CRP_PENDING_INITIATIVE_UPDATES.clear();
+
+  for (const [actorUuid, previousBase] of pending) {
+    let actor = combat.combatants.find(c => c.actor?.uuid === actorUuid)?.actor;
+    actor ??= await fromUuid(actorUuid);
+    if (!actor) continue;
+
+    await refreshCombatInitiativeForActor(actor, previousBase);
   }
 }
 
@@ -271,7 +296,7 @@ Hooks.on("updateActor", async (actor, changed) => {
     const previousBase = CRP_INITIATIVE_TOTALS.get(actor.uuid) ?? null;
     CRP_INITIATIVE_TOTALS.delete(actor.uuid);
 
-    await refreshCombatInitiativeForActor(actor, previousBase);
+    queueCombatInitiativeRefresh(actor, previousBase);
   }
 });
 
@@ -390,6 +415,10 @@ Handlebars.registerHelper("eq", (a, b) => a === b);
 Hooks.on("updateCombat", async (combat, changed) => {
 
   if (!combat.started || (changed.turn === undefined && changed.round === undefined)) return;
+
+  if (changed.round !== undefined) {
+    await flushPendingCombatInitiatives(combat);
+  }
 
   // ======================
 // START RUNDY → MANEUVERS UI

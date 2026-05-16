@@ -730,6 +730,7 @@ await this.document.update(updates);
   });
 });
 
+
 // ======================
 // TOKEN CONFIG BUTTON
 // ======================
@@ -755,17 +756,20 @@ btn.innerHTML = `
     ev.preventDefault();
     ev.stopPropagation();
 
-const tokenDoc = await this.document.getTokenDocument();
+ const tokenDoc = await this.document.getTokenDocument();
 
 new foundry.applications.sheets.TokenConfig({
   document: tokenDoc
-}).render(true);
+}).render(true); 
+
+
+
 
   });
 
   header.appendChild(btn);
 
-// 🔥 PRZESUŃ O 2 POZYCJE W LEWO (PEWNE)
+// PRZESUŃ O 2 POZYCJE W LEWO (PEWNE)
 const prev1 = btn.previousElementSibling;
 const prev2 = prev1?.previousElementSibling;
 
@@ -773,6 +777,7 @@ if (prev2) {
   header.insertBefore(btn, prev2);
 }
 }
+
 
 // ======================
 // TABS
