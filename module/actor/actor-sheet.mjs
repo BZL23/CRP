@@ -507,12 +507,44 @@ if (slotEl) {
 
       if (item.parent?.id === this.document.id) return;
 
+      const sourceActor = item.parent?.documentName === "Actor" ? item.parent : null;
+
+      if (sourceActor && sourceActor.id !== this.document.id && !sourceActor.isOwner && !game.user.isGM) {
+        ui.notifications.warn("Brak uprawnień do przeniesienia przedmiotu z aktora źródłowego.");
+        return;
+      }
+
       this._rememberScrollPosition();
-      const [created] = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
+      const itemData = item.toObject();
+      delete itemData._id;
+
+      const [created] = await this.document.createEmbeddedDocuments("Item", [itemData]);
 
       if (created.type === "weapon") {
         this._rememberScrollPosition();
         await created.update({ "system.equipped": true });
+      }
+
+      if (sourceActor && sourceActor.id !== this.document.id) {
+        const sourceUpdates = {};
+        const emptySlot = {
+          id: null,
+          name: null,
+          img: null
+        };
+
+        for (const slot of ["rightHand", "leftHand", "armor"]) {
+          if (sourceActor.system.equipment?.[slot]?.id === item.id) {
+            sourceUpdates[`system.equipment.${slot}`] = emptySlot;
+          }
+        }
+
+        if (Object.keys(sourceUpdates).length) {
+          await sourceActor.update(sourceUpdates);
+        }
+
+        await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+        sourceActor.sheet?.render(false);
       }
 
     } finally {
