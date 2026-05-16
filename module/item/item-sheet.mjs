@@ -31,11 +31,17 @@ static getDefaultOptions() {
 _preparePartContext(partId, context) {
   if (partId !== "body") return context;
 
+  const itemWeights = CONFIG.CRP.itemWeights ?? {};
+  const weight = Object.hasOwn(itemWeights, this.document.system.weight)
+    ? this.document.system.weight
+    : "Ś";
+
   return {
     ...context,
     system: this.document.system,
     item: this.document,
-    config: CONFIG.CRP
+    config: CONFIG.CRP,
+    itemWeight: weight
   };
 }
 

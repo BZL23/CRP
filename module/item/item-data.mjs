@@ -26,7 +26,7 @@ export class CRPWeaponData extends TypeDataModel {
       equipped: new BooleanField({ initial: false }),
 
       // FLUFF
-      weight: new NumberField({ initial: 0 }),
+      weight: new StringField({ initial: "Ś", choices: ["M", "Ś", "D", "W"] }),
       description: new StringField({ initial: "" }),
     };
   }
@@ -36,7 +36,7 @@ export class CRPArmorData extends TypeDataModel {
   static defineSchema() {
     return {
       protection: new NumberField({ initial: 0 }),
-      weight: new NumberField({ initial: 0 }),
+      weight: new StringField({ initial: "Ś", choices: ["M", "Ś", "D", "W"] }),
       description: new StringField({ initial: "" })
     };
   }
@@ -46,7 +46,7 @@ export class CRPShieldData extends TypeDataModel {
   static defineSchema() {
     return {
       protection: new NumberField({ initial: 0 }),
-      weight: new NumberField({ initial: 0 }),
+      weight: new StringField({ initial: "Ś", choices: ["M", "Ś", "D", "W"] }),
       description: new StringField({ initial: "" })
     };
   }
@@ -55,8 +55,7 @@ export class CRPShieldData extends TypeDataModel {
 export class CRPStuffData extends TypeDataModel {
   static defineSchema() {
     return {
-      protection: new NumberField({ initial: 0 }),
-      weight: new NumberField({ initial: 0 }),
+      weight: new StringField({ initial: "Ś", choices: ["M", "Ś", "D", "W"] }),
       description: new StringField({ initial: "" })
     };
   }

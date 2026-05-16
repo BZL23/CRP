@@ -27,11 +27,12 @@
   <!-- PARAMETRY -->
   <div class="crp-form">
 
-    <label>Redukcja pancerza</label>
-    <input type="number" data-path="system.protection" value="{{system.protection}}">
-
-    <label>Masa</label>
-    <input type="number" data-path="system.weight" value="{{system.weight}}">
+    <label>Waga</label>
+    <select data-path="system.weight">
+      {{#each config.itemWeights as |label key|}}
+        <option value="{{key}}" {{#if (eq key ../itemWeight)}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
 
   </div>
 

@@ -715,30 +715,6 @@ if (eq.armor?.id) {
   armorProtection = armorItem?.system?.protection ?? 0;
 }
 
-// --- SHIELD ---
-let shieldProtection = 0;
-
-const rightShield = eq.rightHand?.id
-  ? defender.items.get(eq.rightHand.id)
-  : null;
-
-const leftShield = eq.leftHand?.id
-  ? defender.items.get(eq.leftHand.id)
-  : null;
-
-const getShieldProt = (item) =>
-  item?.type === "shield"
-    ? item.system?.protection ?? 0
-    : 0;
-
-const rightProt = getShieldProt(rightShield);
-const leftProt = getShieldProt(leftShield);
-
-// tarcza redukuje obrażenia tylko przy obronie tarczą
-shieldProtection = defenseType === "shield"
-  ? Math.max(rightProt, leftProt)
-  : 0;
-
 // =====================
 // SYMBOLE – OBRONA
 // =====================
@@ -747,7 +723,6 @@ const defenseShields = result.rollB?.shields ?? 0;
 
 let reduction =
   armorProtection +
-  shieldProtection +
   defenseEagles -
   defenseShields;
 
@@ -762,7 +737,6 @@ damage = Math.max(0, damage);
 const reductionText = `
   🛡 Redukcja: ${reduction}
   (${armorProtection} pancerz
-   ${shieldProtection ? ` + ${shieldProtection} tarcza` : ""}
    ${defenseEagles ? ` + ${defenseEagles} 🦅` : ""}
    ${defenseShields ? ` - ${defenseShields} 🛡️` : ""}
   )

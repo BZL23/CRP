@@ -54,9 +54,11 @@
     </select>
 
     <label>Waga</label>
-    <input type="number"
-           data-path="system.weight"
-           value="{{system.weight}}">
+    <select data-path="system.weight">
+      {{#each config.itemWeights as |label key|}}
+        <option value="{{key}}" {{#if (eq key ../itemWeight)}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
 
 
   </div>

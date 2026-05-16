@@ -50,3 +50,10 @@ CRP.combatSkills = [
   "lightWeapons",
   "ranged"
 ];
+
+CRP.itemWeights = Object.freeze({
+  "M": "M",
+  "Ś": "Ś",
+  "D": "D",
+  "W": "W"
+});
