@@ -1,4 +1,5 @@
 import { CRPRoll } from "../rolls/roll.mjs";
+import { formatMoney, normalizeMoney, obolsToMoney } from "../currency.mjs";
 
 const { DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -175,6 +176,9 @@ return {
   system,
   config,
   attributesList,
+  formattedMoney: formatMoney(
+    obolsToMoney(system.money.total)
+  ),
   initiative: {
     weaponModifierText: system.derived.initiativeWeaponModifier >= 0
       ? `+${system.derived.initiativeWeaponModifier}`
@@ -248,29 +252,64 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
   // ======================
   //  INPUTY
   // ======================
-  html.querySelectorAll("input[data-path]").forEach(input => {
-    input.addEventListener("change", async ev => {
-      const path = ev.currentTarget.dataset.path;
-      const isCheckbox = ev.currentTarget.type === "checkbox";
-      let value = isCheckbox
-        ? ev.currentTarget.checked
-        : Number(ev.currentTarget.value);
+html.querySelectorAll("input[data-path]").forEach(input => {
 
-      if (!isCheckbox && isNaN(value)) value = 0;
+  input.addEventListener("change", async ev => {
 
-      if (isCheckbox) {
-        // checkboxy zapisują stan logiczny bez ograniczeń liczbowych
-      } else if (path.startsWith("system.attributes")) {
-        value = Math.max(0, Math.min(10, value));
-      } else {
-        value = Math.max(0, value);
-      }
+    const path = ev.currentTarget.dataset.path;
+
+    const isCheckbox =
+      ev.currentTarget.type === "checkbox";
+
+    let value = isCheckbox
+      ? ev.currentTarget.checked
+      : Number(ev.currentTarget.value);
+
+    if (!isCheckbox && isNaN(value)) {
+      value = 0;
+    }
+
+    if (isCheckbox) {
+
+      // checkbox bez ograniczeń
+
+    } else if (path.startsWith("system.attributes")) {
+
+      value = Math.max(0, Math.min(10, value));
+
+    } else {
+
+      value = Math.max(0, value);
+
+    }
+
+    // ======================
+    // NORMAL INPUT UPDATE
+    // ======================
+
+    await this.document.update({
+      [path]: value
+    });
+
+    // ======================
+    // MONEY NORMALIZATION
+    // ======================
+
+    if (path.startsWith("system.money")) {
+
+      const normalized = normalizeMoney(
+        this.document.system.money
+      );
 
       await this.document.update({
-        [path]: value
+        "system.money": normalized
       });
-    });
+
+    }
+
   });
+
+});
 
 
   // ======================
@@ -808,6 +847,58 @@ if (prev2) {
 }
 }
 
+// ======================
+// CLEAR MONEY
+// ======================
+html.querySelector(".crp-money-clear")?.addEventListener("click", async ev => {
+
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const confirmed = await foundry.applications.api.DialogV2.confirm({
+
+    window: {
+      title: "Opróżnić sakiewkę?"
+    },
+
+    content: `
+      <p>
+        Czy na pewno chcesz usunąć wszystkie monety tej postaci?
+      </p>
+    `,
+
+    yes: {
+      label: "Opróżnij",
+      icon: "fa-solid fa-coins"
+    },
+
+    no: {
+      label: "Anuluj",
+      icon: "fa-solid fa-times"
+    }
+
+  });
+
+  if (!confirmed) return;
+
+  const emptyMoney = normalizeMoney({
+    floren: 0,
+    grzywna: 0,
+    skojec: 0,
+    grosz: 0,
+    kwartnik: 0,
+    cwiercgrosz: 0,
+    denar: 0,
+    obol: 0
+  });
+
+  this._rememberScrollPosition();
+
+  await this.document.update({
+    "system.money": emptyMoney
+  });
+
+});
 
 // ======================
 // TABS

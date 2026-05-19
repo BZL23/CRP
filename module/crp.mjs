@@ -80,7 +80,7 @@ async function flushPendingCombatInitiatives(combat) {
 
 function renderDamageControls({ messageId, defenderUuid, damage, hasFate, resolved = false, status = "" } = {}) {
   const disabled = resolved || !hasFate ? "disabled" : "";
-  const note = status || (!hasFate ? "Brak Doli - obrażenia przyjęte automatycznie." : "Obrońca może przyjąć albo anulować obrażenia.");
+  const note = status || (!hasFate ? "Brak Doli - obrażenia przyjęte automatycznie." : "Obrońca może przyjąć albo anulować obrażenia wydając punkt Doli.");
 
   return `
 <!-- CRP_DAMAGE_CONTROL_START -->

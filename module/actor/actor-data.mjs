@@ -98,6 +98,67 @@ export class CRPActorData extends TypeDataModel {
         })
       }),
 
+      // WALUTA
+money: new SchemaField({
+
+  floren: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  grzywna: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  skojec: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  grosz: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  kwartnik: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  cwiercgrosz: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  denar: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  obol: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  }),
+
+  // Łączna wartość w obolach (cache/helper)
+  total: new NumberField({
+    initial: 0,
+    min: 0,
+    integer: true
+  })
+}),
+
+
+
       // STANY
       state: new SchemaField({
         life: new StringField({

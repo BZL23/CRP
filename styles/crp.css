@@ -17,17 +17,24 @@
   font-family: serif;
   padding: 10px;
   overflow-y: auto;
+
+      background:
+  url("../assets/parchment.png");
+  background-size: cover;
+  color: #4b3014;
 }
 
 .crp-name {
   font-family: "CRP-Header", serif;
   letter-spacing: 1px;
+  color: #4b3014;
 }
 
 /* ===== HEADER ===== */
 
 .crp-header {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: flex-start;
   margin-bottom: 10px;
@@ -42,10 +49,13 @@
 .crp-portrait {
   width: 120px;
   height: 120px;
-  border: 2px solid #444;
-  background: #ddd;
+  background:
+  url("../assets/parchment.png");
+  background-size: cover;
   overflow: hidden;
   flex-shrink: 0;
+  border: 5px double rgba(75, 48, 20, 0.8);
+  background: rgba(120, 100, 70, 0.05);
 }
 
 .crp-portrait img {
@@ -184,7 +194,7 @@ input:focus {
   width: 100%;
   height: 10px;
   background: #222;
-  border: 1px solid #555;
+  border: 1px solid rgba(75, 48, 20, 1);;
   border-radius: 3px;
   overflow: hidden;
   margin: 4px 0;
@@ -219,7 +229,6 @@ input:focus {
   background:
   url("../assets/parchment.png");
   background-size: cover;
-
   color: #222;
 }
 
@@ -317,6 +326,12 @@ input:focus {
   background: #ddd;
   overflow: hidden;
   flex-shrink: 0;
+
+  background:
+  url("../assets/parchment.png");
+  background-size: cover;
+  border: 5px double rgba(75, 48, 20, 0.8);
+  background: rgba(120, 100, 70, 0.05);
 }
 
 .crp-token img {
@@ -599,7 +614,7 @@ input:focus {
   width: 100%;
 }
 
-/* 🔥 WYŁAMANIE Z GRIDU FOUNDRY */
+/* WYŁAMANIE Z GRIDU FOUNDRY */
 .crp-fullwidth {
   width: 100%;
   grid-column: 1 / -1;   /* jeśli grid */
@@ -659,38 +674,14 @@ input:focus {
   color: #777;
 }
 
-.crp-experience-row {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: rgba(0,0,0,0.18);
-}
-
-.crp-experience-row label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: bold;
-}
-
-.crp-experience-row input {
-  width: 64px;
-  text-align: center;
-}
-
-/* 🔥 WYMUSZENIE PEŁNEJ SZEROKOŚCI */
+/* WYMUSZENIE PEŁNEJ SZEROKOŚCI */
 .crp-equipment {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-/* 🔥 WYŁAMANIE Z UKŁADU FOUNDRY */
+/* WYŁAMANIE Z UKŁADU FOUNDRY */
 .crp-equipment {
   grid-column: 1 / -1;
 }
@@ -737,6 +728,9 @@ input:focus {
 /* ===== STATS BAR ===== */
 
 .crp-stats {
+  font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
+  color: #4b3014;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
@@ -744,9 +738,18 @@ input:focus {
   width: 100%;
 }
 
+.crp-stats label{
+  display: inline-block;
+  min-width: 100%;
+  text-align: center;
+  font-weight: 800;
+  border-bottom: 1px solid rgba(75, 48, 20, 0.3);
+  margin-bottom: 5px;
+}
+
 .crp-stat {
-  background: rgba(0,0,0,0.25);
-  border: 1px solid #555;
+  background: rgba(0,0,0,0.2);
+  border: 3px double rgba(75, 48, 20, 1);
   border-radius: 4px;
 
   padding: 4px;
@@ -761,14 +764,12 @@ input:focus {
 }
 
 .crp-stat-value {
-  font-weight: bold;
+  font-weight: 800;
   font-size: 14px;
-  color: #fff;
-
+  color: rgba(75, 48, 20, 1);;
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 100%;
   height: 100%;
 }
@@ -790,12 +791,11 @@ input:focus {
 }
 
 .crp-health-values {
-  font-size: 12px;
-
+  font-size: 20px;
+  font-weight: 800;
   display: inline-flex;     
   align-items: center;
   justify-content: center;
-
   gap: 4px;              
   width: auto;         
 }
@@ -817,49 +817,47 @@ input:focus {
 }
 
 .crp-health-values input {
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 text-align: center;
   flex: 0 0 auto;  
-}
-
-.crp-roll-willpower {
-  margin-top: 4px;
-  width: 100%;
-
-  padding: 2px;
-
-  font-size: 11px;
-
-  background: rgba(0,0,0,0.4);
-  border: 1px solid #666;
-  color: #ddd;
-
-  cursor: pointer;
-}
-
-.crp-roll-willpower:hover {
-  background: rgba(255,255,255,0.1);
 }
 
 .crp-roll-initiative {
   margin-top: 4px;
   width: 100%;
-
   padding: 2px;
-
   font-size: 11px;
-
-  background: rgba(0,0,0,0.4);
-  border: 1px solid #666;
-  color: #ddd;
-
+  background: rgba(75,48,20,0.4);
+  border: 1px solid rgba(75,48,20,1);
+  color: rgba(75,48,20,1);
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
   cursor: pointer;
 }
 
 .crp-roll-initiative:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(75,48,20,0.8);
+  color: #e7d1b1;
+}
+
+.crp-exp {
+  margin-top: 4px;
+  width: 100%;
+  padding: 2px;
+  font-size: 11px;
+  background: rgba(75,48,20,0.4);
+  border: 1px solid rgba(75,48,20,1);
+  color: rgba(75,48,20,1);
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.crp-exp:hover {
+  background: rgba(75,48,20,0.8);
+  color: #e7d1b1;
 }
 
 .crp-initiative-value {
@@ -968,8 +966,8 @@ justify-content: flex-start;
   padding: 6px 0;
   cursor: pointer;
 
-  background: #1a1a1a;
-  color: #999;
+  background: rgba(0, 0, 0, 0.2);
+  color: rgba(75, 48, 20, 0.5);;
 
   border: 1px solid #444;
 
@@ -986,17 +984,18 @@ justify-content: flex-start;
 /* SPACING między tabami */
 .crp-tab-btn:not(:last-child) {
   margin-right: 2px;
+  color: rgba(75, 48, 20, 0.5);
 }
 
 /* HOVER */
 .crp-tab-btn:hover {
-  background: #2a2a2a;
+  background: rgba(53, 54, 55, 0.5);
   color: #ddd;
 }
 
 /* ACTIVE TAB */
 .crp-tab-btn.active {
-  color: #fff;
+  color: rgba(75, 48, 20);
 
   border-color: #666;
 
@@ -1095,3 +1094,85 @@ justify-content: flex-start;
   overflow: auto;
 }
 
+.crp-money-panel {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.08);
+
+
+
+}
+
+.crp-money-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px 12px;
+}
+
+.crp-money-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.crp-money-row label {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.crp-money-row input {
+  width: 50px;
+  text-align: center;
+}
+
+.crp-money-summary {
+  margin-top: 10px;
+  padding-top: 8px;
+  color: rgba(53, 54, 55, 0.918);
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.crp-section-title {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-size: 1.6em;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+
+.crp-money-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.crp-money-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 1.6em;
+}
+
+.crp-money-summary {
+  color: rgba(53, 54, 55, 0.918);
+  font-style: italic;
+  opacity: 0.9;
+  white-space: nowrap;
+  margin-top: -8px;
+}
+
+.crp-money-clear {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.crp-tab-content {
+  min-height: 450px;
+}
