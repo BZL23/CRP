@@ -88,11 +88,16 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
+  border-right: 1px solid rgba(75, 48, 20, 1);
+  border-bottom: 1px solid rgba(75, 48, 20, 1);
+  border-left: 1px solid rgba(75, 48, 20, 1);
+  padding: 13px 3px 3px 3px;
+  margin: -13px 0 0 0;
 }
 
 .crp-attr {
-  background: #f5f2e9;
-  border: 1px solid #999;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(75, 48, 20, 1);
   padding: 8px;
 }
 
@@ -103,13 +108,13 @@
   text-align: center;
   font-size: 14px;
   margin-bottom: 5px;
-  color: #4b3014;
+  color: rgba(75, 48, 20, 1);
 }
 
 .crp-attr-value {
   width: 100%;
   text-align: center;
-  font-size: 16px;
+  font-size: 20px;
   margin-bottom: 5px;
 }
 
@@ -134,16 +139,18 @@
   grid-template-columns: 1fr 30px 36px;
   align-items: center;
   gap: 6px;
-  
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 2px 4px;
+  font-weight: 800;
+  background:
+  url("../assets/parchment.png");
+  background-size: cover;
+  border: 1px solid rgba(75, 48, 20, 1);
+  padding: 2px 0 2px 4px;
   font-size: 12px;
   cursor: pointer;
 }
 
 .crp-skill:hover {
-  background: #f0ead6;
+  background: rgba(75, 48, 20, 0.4);
 }
 
 .crp-skill:active {
@@ -152,7 +159,7 @@
 
 .crp-skill-label {
   font-family: "CRP-Header", serif;
-  color: #4b3014;
+  color: rgba(75, 48, 20, 1);
   white-space: normal;
   overflow: hidden;
 }
@@ -163,22 +170,26 @@
   border: none;
   background: transparent;
   font-size: 12px;
+  color: rgba(75, 48, 20, 1);
 }
 
 .crp-skill-value:focus {
   outline: 1px solid #a63;
-  background: #fff8e6;  
-  color: #4b3014;
+  background: rgba(75, 48, 20, 0.4); 
+  color: rgba(75, 48, 20, 1);
 }
 
 .crp-skill-total {
-  width: 36px;
-  text-align: center;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
-  font-size: 12px;
-  color: #4b3014;
-  background: #eee;
-  border: 1px solid #999;
+  font-size: 16px;
+  color: rgba(75, 48, 20, 1);
+  background: rgba(75, 48, 20, 0.2);
+  border: 1px solid rgba(75, 48, 20, 1);
   border-radius: 3px;
 }
 
@@ -462,7 +473,7 @@ input:focus {
 
 .crp-item-header {
   display: flex;
-  flex-direction: column; /* 🔥 klucz */
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -552,9 +563,13 @@ input:focus {
 
 /* Nagłówki sekcji */
 .crp-section-header {
-  margin-top: 10px;
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
+  margin-top: 0;
   padding: 5px;
-  border-bottom: 2px solid #444;
+  border-bottom: 2px solid rgba(75, 48, 20, 0.4);
+  font-size: 1.2em;
+  color: rgba(75, 48, 20, 1);
 }
 
 /* Lista */
@@ -570,9 +585,10 @@ input:focus {
   display: flex;
   align-items: center;
   width: 100%;
-
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
   padding: 6px;
-  border: 1px solid #555;
+  border: 1px solid rgba(75, 48, 20, 0.8);
   border-radius: 4px;
 
   background: rgba(0, 0, 0, 0.2);
@@ -603,21 +619,19 @@ input:focus {
 }
 
 
-.crp-inventory {
-  display: flex;
-  flex-direction: column; 
-  width: 100%;
-  gap: 10px;
-}
 
 .crp-inventory-section {
   width: 100%;
+  margin-top:10px;
 }
 
 /* WYŁAMANIE Z GRIDU FOUNDRY */
 .crp-fullwidth {
   width: 100%;
   grid-column: 1 / -1;   /* jeśli grid */
+    display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 12px;
 }
 
 /* jeśli rodzic to flex */
@@ -625,9 +639,17 @@ input:focus {
   flex: 0 0 100%;
 }
 
-/* inventory */
-.crp-inventory {
+.crp-fullwidth-duo {
   width: 100%;
+  grid-column: 1 / -1;   /* jeśli grid */
+    display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 6px 12px;
+}
+
+/* jeśli rodzic to flex */
+.crp-fullwidth-duo {
+  flex: 0 0 100%;
 }
 
 /* item list */
@@ -639,6 +661,7 @@ input:focus {
 .crp-item-row {
   width: 100%;
   display: flex;
+  
 }
 
 /* GRID SLOTÓW */
@@ -647,13 +670,14 @@ input:focus {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
+  
 }
 
 /* pojedynczy slot */
 .crp-eq-slot {
 
-  border: 1px solid #555;
+  border: 1px solid rgba(75,48,20, 1);
   padding: 6px;
   border-radius: 4px;
   background: rgba(0,0,0,0.2);
@@ -663,15 +687,16 @@ input:focus {
 /* nagłówek */
 .crp-eq-header {
   font-weight: bold;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid rgba(75,48,20,0.8);
   margin-bottom: 4px;
   text-align: center;
+  font-family: "CRP-Header", serif;
 }
 
 /* pusty slot */
 .crp-empty {
   text-align: center;
-  color: #777;
+  color: rgba(75,48,20,0.6);
 }
 
 /* WYMUSZENIE PEŁNEJ SZEROKOŚCI */
@@ -954,7 +979,6 @@ justify-content: flex-start;
 .crp-tabs {
   display: flex;
   width: 100%;
-/*  border-bottom: 1px solid #444; */
   margin-bottom: 10px;
 }
 
@@ -962,17 +986,18 @@ justify-content: flex-start;
 .crp-tab-btn {
   flex: 1;
   text-align: center;
-
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
   padding: 6px 0;
   cursor: pointer;
 
   background: rgba(0, 0, 0, 0.2);
   color: rgba(75, 48, 20, 0.5);;
 
-  border: 1px solid #444;
+  border: 1px solid rgba(75, 48, 20, 1);
 
   /* zamiast globalnej linii */
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid rgba(75, 48, 20, 1);
 
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
@@ -989,15 +1014,15 @@ justify-content: flex-start;
 
 /* HOVER */
 .crp-tab-btn:hover {
-  background: rgba(53, 54, 55, 0.5);
-  color: #ddd;
+  background: rgba(0, 0, 0, 0.4);
+  color: #e7d1b1;;
 }
 
 /* ACTIVE TAB */
 .crp-tab-btn.active {
   color: rgba(75, 48, 20);
 
-  border-color: #666;
+  border-color: rgba(75, 48, 20, 1);
 
   position: relative;
   top: 0;
@@ -1175,4 +1200,42 @@ justify-content: flex-start;
 
 .crp-tab-content {
   min-height: 450px;
+  border-right: 1px solid rgba(75, 48, 20, 1);
+  border-bottom: 1px solid rgba(75, 48, 20, 1);
+  border-left: 1px solid rgba(75, 48, 20, 1);
+  padding: 13px 3px 3px 3px;
+  margin: -13px 0 0 0;
+}
+
+input[type="checkbox"] {
+  background: rgba(75, 48, 20, 1);
+}
+
+.crp-sheet input[type="checkbox"] {
+  appearance: none;
+
+  width: 16px;
+  height: 16px;
+
+  border: 0px solid #4b3014;
+  background: rgba(75, 48, 20, 1);
+
+  cursor: pointer;
+
+  position: relative;
+}
+
+.crp-sheet input[type="checkbox"]:checked::after {
+  content: "✓";
+
+  position: absolute;
+
+  top: -3px;
+  left: 0px;
+
+  background: #4b3014;
+  color: #f0e6d2;
+  font-size: 14px;
+  font-weight: bold;
+  padding-left:5px;
 }
