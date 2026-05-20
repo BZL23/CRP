@@ -33,7 +33,7 @@ CRP.skills = Object.freeze({
   animals: "Doglądanie zwierząt",
   carousing: "Hulanka",
   gossip: "Plotkowanie",
-  persuasion: "Przekonywanie",
+  willpower: "Siła woli", 
 
   literacy: "Czytanie i pisanie",
   languages: "Języki obce",
@@ -41,7 +41,7 @@ CRP.skills = Object.freeze({
   politics: "Polityka",
   knowledge: "Wiedza",
 
-  willpower: "Siła woli",
+  
 });
 
 CRP.combatSkills = [

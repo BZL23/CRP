@@ -55,7 +55,7 @@ export class CRPActorData extends TypeDataModel {
             animals: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             carousing: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
             gossip: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) }),
-            persuasion: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
+            willpower: new SchemaField({ value: new NumberField({ initial: 0, min: 0, max: 10 }) })
           })
         }),
 
@@ -77,7 +77,6 @@ export class CRPActorData extends TypeDataModel {
         initiativeWeaponModifier: new NumberField({ initial: 0 }),
         initiativeArmorModifier: new NumberField({ initial: 0 }),
         initiativeTotal: new NumberField({ initial: 0 }),
-        willpower: new NumberField({ initial: 0 }),
 
         health: new SchemaField({
           value: new NumberField({ initial: 1 }),

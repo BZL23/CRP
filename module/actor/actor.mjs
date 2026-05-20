@@ -35,11 +35,6 @@ export class CRPActor extends Actor {
       derived.health.value = maxHealth;
     }
 
-    // Siła woli
-    derived.willpower =
-      attr.character.value +
-      attr.reason.value;
-
     // PUNKTY MANEWRU
     const combatSkills = [
       attr.strength.skills.twoHanded.value,
@@ -53,8 +48,8 @@ export class CRPActor extends Actor {
     const bestCombatSkill = Math.max(...combatSkills);
 
     derived.maneuver =
-      bestCombatSkill +
-      attr.character.skills.charisma.value;
+      attr.perception.value +
+      attr.reason.value;
 
     const hp = derived.health.value;
     const max = derived.health.max;
