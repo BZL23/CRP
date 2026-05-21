@@ -1,3 +1,9 @@
+import {
+  formatMoney,
+  obolsToMoney,
+  normalizeMoney
+} from "../currency.mjs";
+
 const { DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class CRPItemSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
@@ -31,17 +37,25 @@ static getDefaultOptions() {
 _preparePartContext(partId, context) {
   if (partId !== "body") return context;
 
+  const system = this.document.system;
+
   const itemWeights = CONFIG.CRP.itemWeights ?? {};
-  const weight = Object.hasOwn(itemWeights, this.document.system.weight)
-    ? this.document.system.weight
+
+  const weight = Object.hasOwn(itemWeights, system.weight)
+    ? system.weight
     : "Ś";
 
   return {
     ...context,
-    system: this.document.system,
+    system,
     item: this.document,
     config: CONFIG.CRP,
-    itemWeight: weight
+    itemWeight: weight,
+
+    formattedPrice: formatMoney(
+      obolsToMoney(system.price.total)
+    )
+
   };
 }
 
@@ -66,9 +80,21 @@ html.querySelectorAll("input[data-path], textarea[data-path], select[data-path]"
     if (path === "name") {
       await this.document.update({ name: value });
     } else {
-      await this.document.update({
-        [path]: value
-      });
+await this.document.update({
+  [path]: value
+});
+
+if (path.startsWith("system.price")) {
+
+  const normalized = normalizeMoney(
+    this.document.system.price
+  );
+
+  await this.document.update({
+    "system.price": normalized
+  });
+
+}
     }
 
   });
@@ -108,7 +134,7 @@ html.querySelectorAll("[data-edit='img']").forEach(img => {
   });
 });
 
-// 🗡️ KLIK BRONI = EQUIP
+// KLIK BRONI = EQUIP
 html.querySelectorAll(".crp-weapon-row").forEach(row => {
 
   row.addEventListener("click", async ev => {
@@ -118,7 +144,7 @@ html.querySelectorAll(".crp-weapon-row").forEach(row => {
 
     if (!item) return;
 
-    // 🔥 zdejmij inne bronie
+    // zdejmij inne bronie
     for (const i of this.document.items) {
       if (i.type === "weapon" && i.id !== item.id && i.system.equipped) {
         await i.update({ "system.equipped": false });

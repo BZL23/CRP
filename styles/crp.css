@@ -85,6 +85,7 @@
 /* ===== ATTRIBUTES ===== */
 
 .crp-attributes {
+  min-height: 500px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
@@ -1199,7 +1200,7 @@ justify-content: flex-start;
 }
 
 .crp-tab-content {
-  min-height: 450px;
+  min-height: 500px;
   border-right: 1px solid rgba(75, 48, 20, 1);
   border-bottom: 1px solid rgba(75, 48, 20, 1);
   border-left: 1px solid rgba(75, 48, 20, 1);
@@ -1238,4 +1239,41 @@ input[type="checkbox"] {
   font-size: 14px;
   font-weight: bold;
   padding-left:5px;
+}
+
+.crp-price-section {
+  margin-top: 10px;
+}
+
+.crp-price-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 6px;
+
+  font-weight: bold;
+}
+
+.crp-price-summary {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.crp-price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 10px;
+}
+
+.crp-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.crp-price-row input {
+  width: 55px;
+  text-align: center;
 }
