@@ -2,6 +2,8 @@ import { CRPRoll } from "../rolls/roll.mjs";
 
 // module/actor/actor.mjs
 
+const ARMOR_PENALIZED_SKILLS = new Set(["athletics", "stealth", "survival"]);
+
 export class CRPActor extends Actor {
   prepareDerivedData() {
 
@@ -132,13 +134,27 @@ getInitiativeWeaponModifier() {
 }
 
 getInitiativeArmorModifier() {
-  const equipment = this.system.equipment ?? {};
-  const id = equipment.armor?.id;
-  const item = id ? this.items.get(id) : null;
+  const item = this.getEquippedArmor();
 
   return item?.type === "armor"
     ? -(item.system.protection ?? 0)
     : 0;
+}
+
+getEquippedArmor() {
+  const equipment = this.system.equipment ?? {};
+  const id = equipment.armor?.id;
+
+  return id ? this.items.get(id) : null;
+}
+
+getArmorSkillPenalty(skillKey) {
+  if (!ARMOR_PENALIZED_SKILLS.has(skillKey)) return 0;
+
+  const armor = this.getEquippedArmor();
+  if (armor?.type !== "armor") return 0;
+
+  return Math.max(0, Number(armor.system.protection) || 0);
 }
 
 getEquippedWeapon(skillKey = null) {

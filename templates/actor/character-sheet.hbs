@@ -120,9 +120,10 @@
   {{#each this.skills as |skill|}}
 
     
-    <div class="crp-skill"
+    <div class="crp-skill {{#if skill.armorPenalty}}armor-penalty{{/if}}"
      data-attr="{{../key}}"
      data-skill="{{skill.key}}" 
+     {{#if skill.armorPenalty}}data-armor-penalty="{{skill.armorPenalty}}"{{/if}}
      title="{{skill.label}}" >
 
   <span class="crp-skill-label">

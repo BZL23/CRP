@@ -48,10 +48,11 @@ static formatMargin(margin) {
         }
 
         const penalty = actor.system.derived.woundPenalty ?? 0;
+        const armorPenalty = actor.getArmorSkillPenalty?.(skillKey) ?? 0;
 
         const target = Math.max(
   2,
-  attr.value + skill.value + penalty + modifier
+  attr.value + skill.value + penalty + modifier - armorPenalty
 );
 
 
@@ -81,7 +82,8 @@ const result = {
   success,
   critical,
   eagles,
-  shields
+  shields,
+  armorPenalty
 };
 
 if (chat) {
@@ -117,6 +119,8 @@ return result;
 
         const penaltyA = actorA.system.derived.woundPenalty ?? 0;
         const penaltyB = actorB.system.derived.woundPenalty ?? 0;
+        const armorPenaltyA = rollA.armorPenalty ?? 0;
+        const armorPenaltyB = rollB.armorPenalty ?? 0;
 
 const marginTextA = rollA.critical
   ? null
@@ -184,6 +188,7 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
                     🎲 ${rollA.dice.length ? rollA.dice.join(", ") : "—"} = ${rollA.total}<br>
                     Cel: ${rollA.target}<br>
                     ${penaltyA !== 0 ? `⚠ Kara za rany: ${penaltyA}<br>` : ""}
+                    ${armorPenaltyA > 0 ? `⚠ Kara za pancerz: -${armorPenaltyA}<br>` : ""}
                     ${marginTextA !== null ? `Margin: ${marginTextA}<br>` : ""}
                 </p>
                 <p>
@@ -192,6 +197,7 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
                     🎲 ${rollB.dice.length ? rollB.dice.join(", ") : "—"} = ${rollB.total}<br>
                     Cel: ${rollB.target}<br>
                     ${penaltyB !== 0 ? `⚠ Kara za rany: ${penaltyB}<br>` : ""}
+                    ${armorPenaltyB > 0 ? `⚠ Kara za pancerz: -${armorPenaltyB}<br>` : ""}
                     ${marginTextB !== null ? `Margin: ${marginTextB}<br>` : ""}
                 </p>
                 <hr>
@@ -220,6 +226,7 @@ static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allo
   const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
 
   const penalty = actor.system.derived.woundPenalty ?? 0;
+  const armorPenalty = result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
 
   //  wynik tekstowy
   let resultText;
@@ -277,6 +284,7 @@ const fateButton = canUseFate ? `
         </div>
 
         ${penalty !== 0 ? `<div class="crp-roll-penalty">⚠ Kara za rany: ${penalty}</div>` : ""}
+        ${armorPenalty > 0 ? `<div class="crp-roll-penalty">⚠ Kara za pancerz: -${armorPenalty}</div>` : ""}
 
         <div class="crp-roll-result">${resultText}</div>
 

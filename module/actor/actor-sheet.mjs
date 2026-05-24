@@ -154,13 +154,15 @@ async _preparePartContext(partId, context) {
         skills: Object.keys(attrData?.skills ?? {}).map(sk => {
   const skillValue = attrData.skills[sk].value ?? 0;
   const attrValue = attrData?.value ?? 0;
+  const armorPenalty = this.document.getArmorSkillPenalty?.(sk) ?? 0;
 
   
   return {
     key: sk,
     label: String(config.skills[sk]),
     value: skillValue,
-    total: skillValue + attrValue
+    total: Math.max(0, skillValue + attrValue - armorPenalty),
+    armorPenalty
   };
 })
       });
