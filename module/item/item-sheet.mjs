@@ -16,7 +16,7 @@ export class CRPItemSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
       resizable: true
     },
     position: {
-      width: 400,
+      width: 450,
       height: "auto"
     }
   };
@@ -32,6 +32,48 @@ static PARTS = {
 static getDefaultOptions() {
   const options = super.getDefaultOptions();
   return options;
+}
+
+_getRootElement() {
+  return this.element instanceof HTMLElement
+    ? this.element
+    : this.element?.[0];
+}
+
+_getScrollContainers(root = this._getRootElement()) {
+  const containers = [
+    root?.closest?.(".window-content"),
+    root?.querySelector(".window-content"),
+    root?.querySelector(".crp-item"),
+    root
+  ].filter(el => el && typeof el.scrollTop === "number");
+
+  return [...new Set(containers)];
+}
+
+_getScrollTop() {
+  const containers = this._getScrollContainers();
+  const scrolled = containers.find(el => el.scrollTop > 0);
+
+  return scrolled?.scrollTop ?? containers[0]?.scrollTop ?? 0;
+}
+
+_rememberScrollPosition() {
+  this._pendingScrollTop = this._getScrollTop();
+}
+
+_restoreScrollPosition(scrollTop = this._pendingScrollTop) {
+  if (scrollTop === undefined) return;
+
+  const restore = () => {
+    for (const container of this._getScrollContainers()) {
+      container.scrollTop = scrollTop;
+    }
+  };
+
+  restore();
+  requestAnimationFrame(restore);
+  setTimeout(restore, 0);
 }
 
 _preparePartContext(partId, context) {
@@ -61,9 +103,15 @@ _preparePartContext(partId, context) {
 
 
   _onRender(context, options) {
+    const scrollTop = this._pendingScrollTop;
+
     super._onRender(context, options);
 
-    const html = this.element;
+    const html = this._getRootElement();
+    if (!html) return;
+
+    this._restoreScrollPosition(scrollTop);
+    this._pendingScrollTop = undefined;
 
 html.querySelectorAll("input[data-path], textarea[data-path], select[data-path]").forEach(input => {
   input.addEventListener("change", async ev => {
@@ -78,23 +126,27 @@ html.querySelectorAll("input[data-path], textarea[data-path], select[data-path]"
 
     // SPECJALNIE DLA NAME
     if (path === "name") {
+      this._rememberScrollPosition();
       await this.document.update({ name: value });
     } else {
-await this.document.update({
-  [path]: value
-});
-
 if (path.startsWith("system.price")) {
+  const key = path.replace("system.price.", "");
+  const price = foundry.utils.deepClone(this.document.system.price);
+  price[key] = value;
+  const normalized = normalizeMoney(price);
 
-  const normalized = normalizeMoney(
-    this.document.system.price
-  );
-
+  this._rememberScrollPosition();
   await this.document.update({
     "system.price": normalized
   });
 
+  return;
 }
+
+this._rememberScrollPosition();
+await this.document.update({
+  [path]: value
+});
     }
 
   });
@@ -112,6 +164,7 @@ html.querySelectorAll("[data-edit='name']").forEach(nameEl => {
     const name = ev.currentTarget.innerText.trim();
     if (!name || name === this.document.name) return;
 
+    this._rememberScrollPosition();
     await this.document.update({ name });
   });
 });
@@ -124,6 +177,7 @@ html.querySelectorAll("[data-edit='img']").forEach(img => {
       current: this.document.img,
       callback: async (path) => {
 
+        this._rememberScrollPosition();
         await this.document.update({
           img: path
         });
@@ -147,11 +201,13 @@ html.querySelectorAll(".crp-weapon-row").forEach(row => {
     // zdejmij inne bronie
     for (const i of this.document.items) {
       if (i.type === "weapon" && i.id !== item.id && i.system.equipped) {
+        this._rememberScrollPosition();
         await i.update({ "system.equipped": false });
       }
     }
 
     // toggle tej
+    this._rememberScrollPosition();
     await item.update({
       "system.equipped": !item.system.equipped
     });

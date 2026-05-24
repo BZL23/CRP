@@ -114,7 +114,7 @@ getWeaponInitiativeModifier(item) {
   if (!item || item.type !== "weapon") return 4;
   if (item.system.range === "ranged" || item.system.skill === "ranged") return -3;
   if (item.system.skill === "lightWeapons") return 2;
-  if (Number(item.system.hands) === 2 || item.system.skill === "twoHanded") return -2;
+  if (item.system.skill === "twoHanded") return -2;
   return 0;
 }
 

@@ -10,6 +10,11 @@ const {
 } = foundry.data.fields;
 
 export class CRPActorData extends TypeDataModel {
+  static migrateData(source) {
+    delete source.money?.floren;
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
 
@@ -99,12 +104,6 @@ export class CRPActorData extends TypeDataModel {
 
       // WALUTA
 money: new SchemaField({
-
-  floren: new NumberField({
-    initial: 0,
-    min: 0,
-    integer: true
-  }),
 
   grzywna: new NumberField({
     initial: 0,

@@ -6,6 +6,7 @@ import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet } from "./actor/actor-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
+import { CRPItem } from "./item/item.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData } from "./item/item-data.mjs";
 import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/item-sheet.mjs";
 import { CRPManeuverDialog } from "./maneuvers.mjs";
@@ -112,12 +113,11 @@ function renderDamageControls({ messageId, defenderUuid, damage, hasFate, resolv
 `;
 }
 
-async function resolvePendingDamage({ messageId, defenderUuid, damage, action } = {}) {
-  const msg = game.messages.get(messageId);
-  if (!msg || msg.getFlag("crp", "damageResolved")) return;
+async function applyPendingDamageChoice(defender, { messageId, damage, action } = {}) {
+  if (!defender) return null;
 
-  const defender = await fromUuid(defenderUuid);
-  if (!defender) return;
+  const resolvedDamage = foundry.utils.deepClone(defender.getFlag("crp", "resolvedDamage") ?? {});
+  if (messageId && resolvedDamage[messageId]) return null;
 
   const amount = Math.max(0, Number(damage) || 0);
   let status = "";
@@ -137,6 +137,27 @@ async function resolvePendingDamage({ messageId, defenderUuid, damage, action } 
     status = "Obrażenia przyjęte.";
     action = "accept";
   }
+
+  if (messageId) {
+    resolvedDamage[messageId] = {
+      action,
+      damage: amount,
+      status,
+      userId: game.user.id,
+      time: Date.now()
+    };
+
+    await defender.setFlag("crp", "resolvedDamage", resolvedDamage);
+  }
+
+  defender.sheet?.render(false);
+
+  return { action, amount, status };
+}
+
+async function updateDamageMessage({ messageId, defenderUuid, action, amount, status } = {}) {
+  const msg = game.messages.get(messageId);
+  if (!msg) return false;
 
   await msg.setFlag("crp", "damageResolved", {
     action,
@@ -159,7 +180,43 @@ async function resolvePendingDamage({ messageId, defenderUuid, damage, action } 
   );
 
   await msg.update({ content });
-  defender.sheet?.render(false);
+
+  return true;
+}
+
+async function resolvePendingDamage({ messageId, defenderUuid, damage, action } = {}) {
+  const defender = await fromUuid(defenderUuid);
+  const result = await applyPendingDamageChoice(defender, { messageId, damage, action });
+  if (!result) return false;
+
+  try {
+    await updateDamageMessage({
+      messageId,
+      defenderUuid,
+      action: result.action,
+      amount: result.amount,
+      status: result.status
+    });
+  } catch (err) {
+    console.warn("CRP | Nie udało się zaktualizować wiadomości obrażeń", err);
+  }
+
+  return result;
+}
+
+function canUserResolveDamage(defender, user) {
+  if (!defender || !user) return false;
+  if (user.isGM) return true;
+
+  const candidates = [
+    defender,
+    defender.baseActor,
+    defender.token?.baseActor,
+    defender.token?.actor,
+    game.actors.get(defender.id)
+  ].filter(Boolean);
+
+  return candidates.some(actor => actor.testUserPermission?.(user, "OWNER"));
 }
 
 function removeMountedTokenUnderlay(token) {
@@ -246,6 +303,7 @@ function refreshMountedActorUnderlays(actor) {
 Hooks.once("init", () => {
   // NAJPIERW MODELE ITEMÓW (PRZED WSZYSTKIM)
   CONFIG.Item = CONFIG.Item || {};
+  CONFIG.Item.documentClass = CRPItem;
 
   CONFIG.Item.dataModels = {
     weapon: CRPWeaponData,
@@ -336,6 +394,7 @@ Hooks.on("createActor", async (actor) => {
   // TOKEN DEFAULT
   await actor.update({
     prototypeToken: {
+      name: actor.name,
       displayName: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
       displayBars: CONST.TOKEN_DISPLAY_MODES.ALWAYS,
       bar1: {
@@ -371,6 +430,10 @@ Hooks.on("preUpdateActor", (actor, changed) => {
 });
 
 Hooks.on("updateActor", async (actor, changed) => {
+  if (typeof changed.name === "string" && actor.prototypeToken?.name !== actor.name) {
+    await actor.update({ "prototypeToken.name": actor.name });
+  }
+
   const mountedChanged =
     hasChangedPath(changed, "system.equipment.mounted");
 
@@ -382,6 +445,13 @@ Hooks.on("updateActor", async (actor, changed) => {
 
     queueCombatInitiativeRefresh(actor, previousBase);
   }
+});
+
+Hooks.on("preCreateToken", (token) => {
+  const actor = game.actors.get(token.actorId);
+  if (!actor || token.actorLink || token.name === actor.name) return;
+
+  token.updateSource({ name: actor.name });
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
@@ -498,7 +568,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
     const defenderUuid = button.dataset.defender;
     const defender = typeof fromUuidSync === "function" ? fromUuidSync(defenderUuid) : null;
-    const canResolve = game.user.isGM || !!defender?.isOwner;
+    const canResolve = canUserResolveDamage(defender, game.user);
 
     if (!canResolve || message.getFlag("crp", "damageResolved")) {
       button.disabled = true;
@@ -512,6 +582,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
       const data = {
         type: "damageChoice",
+        requestId: foundry.utils.randomID(),
         messageId: button.dataset.messageId,
         defenderUuid,
         damage: Number(button.dataset.damage) || 0,
@@ -519,14 +590,45 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
         userId: game.user.id
       };
 
+      const choices = Array.from(html.querySelectorAll(".crp-damage-choice"));
       for (const choice of html.querySelectorAll(".crp-damage-choice")) {
         choice.disabled = true;
       }
 
-      if (game.user.isGM) {
-        await resolvePendingDamage(data);
-      } else {
-        game.socket.emit("system.crp", data);
+      try {
+        const resolved = await resolvePendingDamage(data);
+
+        if (!resolved) {
+          for (const choice of choices) choice.disabled = false;
+          ui.notifications.warn("Te obrażenia zostały już rozliczone albo nie można znaleźć postaci.");
+          return;
+        }
+
+        const control = button.closest(".crp-damage-control");
+        if (control) {
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = renderDamageControls({
+            messageId: data.messageId,
+            defenderUuid,
+            damage: resolved.amount,
+            hasFate: false,
+            resolved: true,
+            status: resolved.status
+          }).trim();
+
+          control.replaceWith(wrapper.firstElementChild);
+        }
+
+        if (!game.user.isGM) {
+          game.socket.emit("system.crp", {
+            ...data,
+            type: "damageChoiceSync"
+          });
+        }
+      } catch (err) {
+        console.error("CRP | Błąd rozliczania obrażeń", err);
+        for (const choice of choices) choice.disabled = false;
+        ui.notifications.error("Nie udało się rozliczyć obrażeń.");
       }
     });
   }
@@ -671,7 +773,7 @@ const defenderMounted = container.dataset.defenderMounted === "true";
       if (!item || item.type !== "weapon") return 0;
       if (item.system.range === "ranged" || skill === "ranged") return 2;
       if (skill === "lightWeapons") return -1;
-      if (Number(item.system.hands) === 2 || skill === "twoHanded") return 3;
+      if (skill === "twoHanded") return 3;
       return 1;
     };
 
@@ -957,17 +1059,55 @@ Hooks.once("ready", () => {
 
     if (!game.user.isGM) return;
 
+    if (data.type === "damageChoiceSync") {
+      const defender = await fromUuid(data.defenderUuid);
+      const resolvedDamage = defender?.getFlag("crp", "resolvedDamage") ?? {};
+      const resolved = resolvedDamage[data.messageId];
+
+      if (resolved) {
+        try {
+          await updateDamageMessage({
+            messageId: data.messageId,
+            defenderUuid: data.defenderUuid,
+            action: resolved.action,
+            amount: resolved.damage,
+            status: resolved.status
+          });
+        } catch (err) {
+          console.warn("CRP | Nie udało się zsynchronizować wiadomości obrażeń", err);
+        }
+      }
+
+      return;
+    }
+
     if (data.type === "damageChoice") {
       const defender = await fromUuid(data.defenderUuid);
       const user = game.users.get(data.userId);
-      const isAllowed =
-        !!defender &&
-        !!user &&
-        (user.isGM || defender.testUserPermission(user, "OWNER"));
 
-      if (!isAllowed) return;
+      const respond = (ok, message = "") => {
+        game.socket.emit("system.crp", {
+          type: "damageChoiceResult",
+          requestId: data.requestId,
+          userId: data.userId,
+          ok,
+          message
+        });
+      };
 
-      await resolvePendingDamage(data);
+      if (!canUserResolveDamage(defender, user)) {
+        respond(false, "Brak uprawnień do rozliczenia obrażeń tej postaci.");
+        return;
+      }
+
+      try {
+        const resolved = await resolvePendingDamage(data);
+        respond(!!resolved, resolved ? "" : "Te obrażenia zostały już rozliczone albo wiadomość nie istnieje.");
+      } catch (err) {
+        console.error("CRP | Błąd rozliczania obrażeń przez socket", err);
+        respond(false, "Błąd rozliczania obrażeń po stronie MG.");
+      }
+
       return;
     }
 

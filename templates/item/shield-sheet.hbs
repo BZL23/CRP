@@ -30,7 +30,7 @@
     <label>Redukcja pancerza</label>
     <input type="number" data-path="system.protection" value="{{system.protection}}">
 
-    <label>Waga</label>
+    <label>Rozmiar</label>
     <select data-path="system.weight">
       {{#each config.itemWeights as |label key|}}
         <option value="{{key}}" {{#if (eq key ../itemWeight)}}selected{{/if}}>{{label}}</option>
@@ -61,15 +61,6 @@
   </div>
 
   <div class="crp-price-grid">
-
-    <div class="crp-price-row">
-      <label>Floreny</label>
-      <input
-        type="number"
-        min="0"
-        value="{{system.price.floren}}"
-        data-path="system.price.floren">
-    </div>
 
     <div class="crp-price-row">
       <label>Grzywny</label>
@@ -107,6 +98,15 @@
         data-path="system.price.kwartnik">
     </div>
 
+    <div class="crp-price-row">
+      <label>Ćwierćgrosze</label>
+      <input
+        type="number"
+        min="0"
+        value="{{system.price.cwiercgrosz}}"
+        data-path="system.price.cwiercgrosz">
+    </div>
+    
     <div class="crp-price-row">
       <label>Denary</label>
       <input

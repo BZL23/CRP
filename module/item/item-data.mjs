@@ -6,12 +6,6 @@ function commonItemSchema() {
 
     price: new SchemaField({
 
-      floren: new NumberField({
-        initial: 0,
-        min: 0,
-        integer: true
-      }),
-
       grzywna: new NumberField({
         initial: 0,
         min: 0,
@@ -31,6 +25,12 @@ function commonItemSchema() {
       }),
 
       kwartnik: new NumberField({
+        initial: 0,
+        min: 0,
+        integer: true
+      }),
+
+      cwiercgrosz: new NumberField({
         initial: 0,
         min: 0,
         integer: true
@@ -81,6 +81,12 @@ function commonItemSchema() {
 
 }
 
+function migrateCommonItemData(source) {
+  delete source.price?.floren;
+  delete source.hands;
+  return source;
+}
+
 const { TypeDataModel } = foundry.abstract;
 const {
   SchemaField,
@@ -90,6 +96,11 @@ const {
 } = foundry.data.fields;
 
 export class CRPWeaponData extends TypeDataModel {
+  static migrateData(source) {
+    migrateCommonItemData(source);
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
 
@@ -101,8 +112,6 @@ export class CRPWeaponData extends TypeDataModel {
       skill: new StringField({ initial: "oneHanded" }), 
       // KLUCZ: musi matchować config.skills
 
-      hands: new NumberField({ initial: 1 }), // 1 / 2
-
       range: new StringField({ initial: "melee" }), // melee / ranged
 
       // TAGI SYSTEMOWE
@@ -113,6 +122,11 @@ export class CRPWeaponData extends TypeDataModel {
 }
 
 export class CRPArmorData extends TypeDataModel {
+  static migrateData(source) {
+    migrateCommonItemData(source);
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
       ...commonItemSchema(),
@@ -123,6 +137,11 @@ export class CRPArmorData extends TypeDataModel {
 }
 
 export class CRPShieldData extends TypeDataModel {
+  static migrateData(source) {
+    migrateCommonItemData(source);
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
       ...commonItemSchema(),
@@ -133,6 +152,11 @@ export class CRPShieldData extends TypeDataModel {
 }
 
 export class CRPStuffData extends TypeDataModel {
+  static migrateData(source) {
+    migrateCommonItemData(source);
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
       ...commonItemSchema(),

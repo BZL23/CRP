@@ -1,5 +1,4 @@
 export const CRPCurrency = {
-  floren: 960,
   grzywna: 1536,
   skojec: 64,
   grosz: 32,
@@ -11,7 +10,6 @@ export const CRPCurrency = {
 
 export function moneyToObols(money = {}) {
   return (
-    (money.floren ?? 0) * CRPCurrency.floren +
     (money.grzywna ?? 0) * CRPCurrency.grzywna +
     (money.skojec ?? 0) * CRPCurrency.skojec +
     (money.grosz ?? 0) * CRPCurrency.grosz +
@@ -27,7 +25,6 @@ export function obolsToMoney(value = 0) {
   value = Math.max(0, Math.floor(value));
 
   const money = {
-    floren: 0,
     grzywna: 0,
     skojec: 0,
     grosz: 0,
@@ -38,17 +35,8 @@ export function obolsToMoney(value = 0) {
     total: value
   };
 
-  // ======================
-  // FLORANY NIE SĄ ROZMIENIANE
-  // ======================
-
-  money.floren = Math.floor(value / CRPCurrency.floren);
-
-  value -= money.floren * CRPCurrency.floren;
-
-  // ======================
-  // RESZTA NORMALNIE
-  // ======================
+  money.grzywna = Math.floor(value / CRPCurrency.grzywna);
+  value %= CRPCurrency.grzywna;
 
   money.skojec = Math.floor(value / CRPCurrency.skojec);
   value %= CRPCurrency.skojec;
@@ -74,7 +62,6 @@ export function normalizeMoney(money = {}) {
 
   const normalized = {
 
-    floren: Math.max(0, Number(money.floren) || 0),
     grzywna: Math.max(0, Number(money.grzywna) || 0),
     skojec: Math.max(0, Number(money.skojec) || 0),
     grosz: Math.max(0, Number(money.grosz) || 0),
@@ -126,7 +113,7 @@ export function addMoney(money = {}, added = {}) {
 export function formatMoney(money = {}, options = {}) {
 
   const {
-    empty = "Brak monet",
+    empty = "—",
     short = true
   } = options;
 
@@ -134,7 +121,6 @@ export function formatMoney(money = {}, options = {}) {
 
   const labels = short
     ? {
-        floren: "fl.",
         grzywna: "grz.",
         skojec: "sk.",
         grosz: "gr.",
@@ -144,7 +130,6 @@ export function formatMoney(money = {}, options = {}) {
         obol: "ob."
       }
     : {
-        floren: "florenów",
         grzywna: "grzywien",
         skojec: "skojców",
         grosz: "groszy",

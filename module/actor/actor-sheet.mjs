@@ -45,6 +45,7 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
   _getScrollContainers(root = this._getRootElement()) {
     const containers = [
+      root?.closest?.(".window-content"),
       root?.querySelector(".window-content"),
       root?.querySelector(".crp-sheet"),
       root
@@ -284,28 +285,31 @@ html.querySelectorAll("input[data-path]").forEach(input => {
     }
 
     // ======================
-    // NORMAL INPUT UPDATE
-    // ======================
-
-    await this.document.update({
-      [path]: value
-    });
-
-    // ======================
     // MONEY NORMALIZATION
     // ======================
 
     if (path.startsWith("system.money")) {
+      const key = path.replace("system.money.", "");
+      const money = foundry.utils.deepClone(this.document.system.money);
+      money[key] = value;
+      const normalized = normalizeMoney(money);
 
-      const normalized = normalizeMoney(
-        this.document.system.money
-      );
-
+      this._rememberScrollPosition();
       await this.document.update({
         "system.money": normalized
       });
 
+      return;
     }
+
+    // ======================
+    // NORMAL INPUT UPDATE
+    // ======================
+
+    this._rememberScrollPosition();
+    await this.document.update({
+      [path]: value
+    });
 
   });
 
@@ -497,9 +501,9 @@ if (slotEl) {
 
   const updates = {};
   const isTwoHandedWeapon = (item) =>
-    item?.type === "weapon" && Number(item.system.hands) === 2;
+    item?.type === "weapon" && ["twoHanded", "ranged"].includes(item.system.skill);
 
-  // broń dwuręczna zawsze zajmuje obie ręce
+  // Broń dwuręczna i strzelecka zawsze zajmuje obie ręce.
   if (isHand && isTwoHandedWeapon(item)) {
     const slotData = {
       id: item.id,
@@ -669,7 +673,7 @@ const itemId = typeof eq === "string" ? eq : eq?.id;
       if (item.type !== "weapon") return 0;
       if (itemRange === "ranged" || attackSkill === "ranged") return 2;
       if (attackSkill === "lightWeapons") return -1;
-      if (Number(item.system?.hands) === 2 || attackSkill === "twoHanded") return 3;
+      if (attackSkill === "twoHanded") return 3;
       return 1;
     };
     const attackModifier = getSlotAttackModifier();
@@ -787,7 +791,7 @@ html.querySelectorAll(".crp-slot-clear").forEach(btn => {
       };
     };
 
-    if (item?.type === "weapon" && Number(item.system.hands) === 2) {
+    if (item?.type === "weapon" && ["twoHanded", "ranged"].includes(item.system.skill)) {
       clearSlot("rightHand");
       clearSlot("leftHand");
     } else {
@@ -882,7 +886,6 @@ html.querySelector(".crp-money-clear")?.addEventListener("click", async ev => {
   if (!confirmed) return;
 
   const emptyMoney = normalizeMoney({
-    floren: 0,
     grzywna: 0,
     skojec: 0,
     grosz: 0,

@@ -1123,12 +1123,10 @@ justify-content: flex-start;
 .crp-money-panel {
   margin-top: 12px;
   padding: 10px;
-  border: 1px solid #555;
   border-radius: 6px;
-  background: rgba(0,0,0,0.08);
-
-
-
+  background: rgba(0,0,0,0.2);
+  font-family: "CRP-Header", serif;
+  border: 1px solid rgba(75, 48, 20, 1);
 }
 
 .crp-money-grid {
@@ -1138,10 +1136,12 @@ justify-content: flex-start;
 }
 
 .crp-money-row {
+  font-weight:800;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  margin: 0 8px;
 }
 
 .crp-money-row label {
@@ -1155,8 +1155,7 @@ justify-content: flex-start;
 }
 
 .crp-money-summary {
-  margin-top: 10px;
-  padding-top: 8px;
+  padding-top: 12px;
   color: rgba(53, 54, 55, 0.918);
   font-style: italic;
   opacity: 0.9;
@@ -1197,6 +1196,19 @@ justify-content: flex-start;
 .crp-money-clear {
   width: auto;
   flex-shrink: 0;
+  font-family: "CRP-Header", serif;
+  font-size: 11px;
+  background: rgba(75,48,20,0.4);
+  border: 1px solid rgba(75,48,20,1);
+  color: rgba(75,48,20,1);
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.crp-money-clear:hover {
+  background: rgba(75,48,20,0.8);
+  color: #e7d1b1;
 }
 
 .crp-tab-content {
