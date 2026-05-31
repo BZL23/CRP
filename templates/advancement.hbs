@@ -1,0 +1,92 @@
+<div class="crp-adv-panel">
+
+  <h2 class="crp-panel-title">Rozwój postaci</h2>
+  
+<div class="crp-stat-adv">
+
+  <div class="crp-stat-header">
+    <img src="systems/crp/assets/manifest.webp" class="crp-adv-img">
+
+    <label>Dostępne PD: <span>{{system.resources.experience.free}}
+    / {{system.resources.experience.value}}</span></label>
+  </div>
+
+</div>
+
+<div class="crp-fate-adv">
+  <h3 class="crp-attr-adv-header">
+    <span>Dola: {{fate.value}} / {{fate.max}}</span>
+    <button class="crp-adv"
+            data-advancement-type="fate"
+            {{#if fate.disabled}}disabled{{/if}}>
+      Rozwiń za {{fate.cost}} PD
+    </button>
+  </h3>
+</div>
+
+  
+
+
+      {{#each attributesList}}
+      <div class="crp-attr-adv">
+
+        <h3 class="crp-attr-adv-header">
+          <span>{{this.label}}: {{this.value}}</span>
+          <button class="crp-adv"
+                  data-advancement-type="attribute"
+                  data-attr="{{this.key}}"
+                  {{#if this.disabled}}disabled{{/if}}>
+            Rozwiń za {{this.cost}} PD
+          </button>
+        </h3>
+        
+
+
+<div class="crp-skills">
+  {{#each this.skills as |skill|}}
+
+    
+    <div class="crp-skill"
+     data-attr="{{../key}}"
+     data-skill="{{skill.key}}" 
+     title="{{skill.label}}" >
+
+  <span class="crp-skill-label">
+    {{skill.label}}: {{skill.value}}
+  </span>
+
+<button class="crp-adv"
+        data-advancement-type="skill"
+        data-attr="{{../key}}"
+        data-skill="{{skill.key}}"
+        {{#if skill.disabled}}disabled{{/if}}>
+  Rozwiń za {{skill.cost}} PD
+</button>
+
+  <div class="crp-skill-total">
+    {{skill.total}}
+  </div>
+
+</div>
+
+  {{/each}}
+</div>
+
+      </div>
+    {{/each}}
+
+<div class="crp-adv-log">
+  <h3>Historia rozwoju</h3>
+  <div class="crp-adv-log-entries">
+    {{#each advancementLog}}
+      <div class="crp-adv-log-entry">
+        <span class="crp-adv-log-date">{{this.date}}</span>
+        <span>{{this.text}}</span>
+      </div>
+    {{else}}
+      <div class="crp-adv-log-empty">Brak wpisów.</div>
+    {{/each}}
+  </div>
+</div>
+
+</div>

@@ -6,7 +6,8 @@ const {
   NumberField,
   StringField,
   BooleanField,
-  HTMLField
+  HTMLField,
+  ArrayField
 } = foundry.data.fields;
 
 export class CRPActorData extends TypeDataModel {
@@ -94,11 +95,16 @@ export class CRPActorData extends TypeDataModel {
       // ZASOBY
       resources: new SchemaField({
         fate: new SchemaField({
-          value: new NumberField({ initial: 2, min: 0 })
+          value: new NumberField({ initial: 2, min: 0 }),
+          max: new NumberField({ initial: 2, min: 2 })
         }),
         experience: new SchemaField({
           value: new NumberField({ initial: 0, min: 0 }),
-          free: new NumberField({ initial: 0, min: 0 })
+          free: new NumberField({ initial: 0, min: 0 }),
+          log: new ArrayField(new SchemaField({
+            date: new StringField(),
+            text: new StringField()
+          }), { initial: [] })
         })
       }),
 

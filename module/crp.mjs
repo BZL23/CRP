@@ -4,7 +4,7 @@ import { CRPActor } from "./actor/actor.mjs";
 import { CRPActorData } from "./actor/actor-data.mjs";
 import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
-import { CRPActorSheet } from "./actor/actor-sheet.mjs";
+import { CRPActorSheet, CRPAdvancementWindow } from "./actor/actor-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPItem } from "./item/item.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData } from "./item/item-data.mjs";
@@ -300,7 +300,29 @@ function refreshMountedActorUnderlays(actor) {
   }
 }
 
+function refreshCharacterSheetLocks(locked) {
+  for (const sheet of document.querySelectorAll(".crp-sheet")) {
+    sheet.querySelectorAll(
+      ".crp-attr-value, .crp-skill-value, .crp-pd-value"
+    ).forEach(input => {
+      input.disabled = locked;
+    });
+  }
+
+  for (const actor of game.actors?.contents ?? []) {
+    actor.sheet?.render(false);
+  }
+}
+
 Hooks.once("init", () => {
+  game.settings.register("crp", "characterSheetsLocked", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+    onChange: refreshCharacterSheetLocks
+  });
+
   // NAJPIERW MODELE ITEMÓW (PRZED WSZYSTKIM)
   CONFIG.Item = CONFIG.Item || {};
   CONFIG.Item.documentClass = CRPItem;
@@ -403,6 +425,20 @@ Hooks.on("createActor", async (actor) => {
     }
   });
 
+});
+
+Hooks.on("updateActor", (actor, changed) => {
+  const hasExperienceChange = [
+    "system.resources.experience",
+    "system.resources.experience.value",
+    "system.resources.experience.free",
+    "system.resources.experience.log"
+  ].some(path => hasChangedPath(changed, path));
+
+  if (!hasExperienceChange) return;
+
+  actor.sheet?.render(false);
+  CRPAdvancementWindow.refreshForActor(actor);
 });
 
 Hooks.on("canvasReady", () => {

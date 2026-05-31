@@ -53,9 +53,10 @@ html.querySelector("[data-action='give-fate-selected']")?.addEventListener("clic
     if (!actor) continue;
 
     const current = actor.system.resources.fate.value ?? 0;
+    const max = actor.system.resources.fate.max ?? 2;
 
     await actor.update({
-      "system.resources.fate.value": current + 1
+      "system.resources.fate.value": Math.min(current + 1, max)
     });
 
   }
@@ -79,6 +80,10 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
       <label>Wartość PD</label>
       <input type="number" name="xp" value="1" min="0" step="1">
     </div>
+    <div class="form-group">
+      <label>Tytuł sesji</label>
+      <input type="text" name="sessionTitle" placeholder="Opcjonalnie">
+    </div>
   `;
 
   const result = await foundry.applications.api.DialogV2.wait({
@@ -89,8 +94,10 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
         action: "confirm",
         label: "Rozdaj",
         default: true,
-        callback: (_event, _button, dialog) =>
-          Number(dialog.element.querySelector("input[name='xp']")?.value)
+        callback: (_event, _button, dialog) => ({
+          xp: Number(dialog.element.querySelector("input[name='xp']")?.value),
+          sessionTitle: dialog.element.querySelector("input[name='sessionTitle']")?.value.trim() ?? ""
+        })
       },
       {
         action: "cancel",
@@ -102,7 +109,15 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
 
   if (result === null) return;
 
-  const xp = Number(result);
+  const xp = Number(result.xp);
+  const sessionTitle = result.sessionTitle;
+  const sessionLabel = sessionTitle
+    ? `za sesję ${sessionTitle}`
+    : `za sesję z ${new Date().toLocaleDateString("pl-PL", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    })}`;
 
   if (!Number.isFinite(xp) || xp < 0) {
     ui.notifications.warn("Podaj poprawną wartość PD");
@@ -116,12 +131,18 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
     if (!actor) continue;
 
     const current = actor.system.resources.experience?.value ?? 0;
+    const free = actor.system.resources.experience?.free ?? 0;
+    const log = [...(actor.system.resources.experience?.log ?? []), {
+      date: new Date().toLocaleString("pl-PL"),
+      text: `Przyznano ${xp} PD ${sessionLabel}.`
+    }];
 
     await actor.update({
-      "system.resources.experience.value": current + xp
+      "system.resources.experience.value": current + xp,
+      "system.resources.experience.free": free + xp,
+      "system.resources.experience.log": log
     });
 
-    actor.sheet?.render(false);
   }
 
   ui.notifications.info(`Dodano ${xp} PD wybranym`);
@@ -144,11 +165,11 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
       if (actor.type !== "character" || !actor.hasPlayerOwner) continue;
 
       await actor.update({
-        "system.resources.fate.value": 2
+        "system.resources.fate.value": actor.system.resources.fate.max ?? 2
       });
     }
 
-    ui.notifications.info("✨ Dola ustawiona na 2");
+    ui.notifications.info("✨ Dola przywrócona do limitu");
 
     this.render(); // odśwież panel
     
@@ -160,9 +181,10 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
       if (actor.type !== "character" || !actor.hasPlayerOwner) continue;
 
       const current = actor.system.resources.fate.value ?? 0;
+      const max = actor.system.resources.fate.max ?? 2;
 
       await actor.update({
-        "system.resources.fate.value": current + 1
+        "system.resources.fate.value": Math.min(current + 1, max)
       });
     }
 
@@ -185,6 +207,44 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
     ui.notifications.info("❤️ Wszyscy wyleczeni");
   });
 
+  html.querySelector("[data-action='toggle-sheet-lock']")?.addEventListener("click", async () => {
+    const locked = game.settings.get("crp", "characterSheetsLocked");
+
+    await game.settings.set("crp", "characterSheetsLocked", !locked);
+
+    ui.notifications.info(locked ? "Karty postaci odblokowane" : "Karty postaci zablokowane");
+    this.render();
+  });
+
+  html.querySelector("[data-action='clear-advancement-logs']")?.addEventListener("click", async () => {
+    const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+    if (!selected.length) {
+      ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+      return;
+    }
+
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: "Wyczyść logi rozwoju" },
+      content: "<p>Czy na pewno chcesz usunąć logi rozwoju zaznaczonych postaci?</p>",
+      yes: { label: "Wyczyść" },
+      no: { label: "Anuluj" }
+    });
+
+    if (!confirmed) return;
+
+    for (const checkbox of selected) {
+      const actor = game.actors.get(checkbox.value);
+      if (!actor) continue;
+
+      await actor.update({
+        "system.resources.experience.log": []
+      });
+    }
+
+    ui.notifications.info("Wyczyszczono logi rozwoju zaznaczonych postaci");
+  });
+
 }
 
 _prepareContext() {
@@ -195,10 +255,14 @@ _prepareContext() {
       id: a.id,
       name: a.name,
       fate: a.system.resources.fate.value,
+      fateMax: a.system.resources.fate.max ?? 2,
       experience: a.system.resources.experience?.value ?? 0
     }));
 
-  return { actors };
+  return {
+    actors,
+    characterSheetsLocked: game.settings.get("crp", "characterSheetsLocked")
+  };
 }
 
 
