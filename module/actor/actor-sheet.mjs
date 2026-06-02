@@ -39,7 +39,11 @@ export class CRPAdvancementWindow extends HandlebarsApplicationMixin(Application
   }
 
   static refreshForActor(actor) {
-    CRPAdvancementWindow.openWindows.get(actor.id)?.render({ force: true });
+    const window = CRPAdvancementWindow.openWindows.get(actor.id);
+    if (!window) return;
+
+    window._rememberScrollPosition();
+    window.render({ force: true });
   }
 
   async close(options = {}) {

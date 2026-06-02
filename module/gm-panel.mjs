@@ -95,7 +95,7 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
         label: "Rozdaj",
         default: true,
         callback: (_event, _button, dialog) => ({
-          xp: Number(dialog.element.querySelector("input[name='xp']")?.value),
+          xp: dialog.element.querySelector("input[name='xp']")?.value ?? "",
           sessionTitle: dialog.element.querySelector("input[name='sessionTitle']")?.value.trim() ?? ""
         })
       },
@@ -109,7 +109,8 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
 
   if (result === null) return;
 
-  const xp = Number(result.xp);
+  const xpInput = String(result.xp).trim();
+  const xp = Number(xpInput);
   const sessionTitle = result.sessionTitle;
   const sessionLabel = sessionTitle
     ? `za sesję ${sessionTitle}`
@@ -119,8 +120,8 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
       year: "numeric"
     })}`;
 
-  if (!Number.isFinite(xp) || xp < 0) {
-    ui.notifications.warn("Podaj poprawną wartość PD");
+  if (!xpInput || !Number.isFinite(xp) || !Number.isInteger(xp) || xp < 0) {
+    ui.notifications.warn("Podaj poprawną, całkowitą wartość PD");
     return;
   }
 
@@ -243,6 +244,70 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
     }
 
     ui.notifications.info("Wyczyszczono logi rozwoju zaznaczonych postaci");
+  });
+
+  html.querySelector("[data-action='add-advancement-log']")?.addEventListener("click", async () => {
+    const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+    if (!selected.length) {
+      ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+      return;
+    }
+
+    let text;
+
+    try {
+      text = await foundry.applications.api.DialogV2.wait({
+        window: { title: "Dodaj wpis do logu rozwoju" },
+        content: `
+          <div class="form-group">
+            <label>Treść wpisu</label>
+            <input type="text" name="text">
+          </div>
+        `,
+        buttons: [
+          {
+            action: "confirm",
+            label: "Dodaj",
+            default: true,
+            callback: (_event, _button, dialog) =>
+              dialog.element.querySelector("input[name='text']")?.value.trim() ?? ""
+          },
+          {
+            action: "cancel",
+            label: "Anuluj",
+            callback: () => null
+          }
+        ]
+      });
+    } catch (error) {
+      console.error("CRP: Nie udało się otworzyć dialogu wpisu logu", error);
+      ui.notifications.error("Nie udało się otworzyć okna wpisu logu");
+      return;
+    }
+
+    if (text === null) return;
+
+    if (!text) {
+      ui.notifications.warn("Wpisz treść komunikatu");
+      return;
+    }
+
+    for (const checkbox of selected) {
+      const actor = game.actors.get(checkbox.value);
+      if (!actor) continue;
+
+      const log = [...(actor.system.resources.experience?.log ?? []), {
+        date: new Date().toLocaleString("pl-PL"),
+        text
+      }];
+
+      await actor.update({
+        "system.resources.experience.log": log
+      });
+    }
+
+    ui.notifications.info("Dodano wpis do logu rozwoju zaznaczonych postaci");
   });
 
 }
