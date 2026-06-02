@@ -231,6 +231,9 @@ static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allo
 
   const penalty = actor.system.derived.woundPenalty ?? 0;
   const armorPenalty = result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
+  const modifierText = result.displayModifier === null
+    ? ""
+    : ` (modyfikator: ${result.displayModifier >= 0 ? "+" : ""}${result.displayModifier})`;
 
   //  wynik tekstowy
   let resultText;
@@ -258,6 +261,7 @@ const fateButton = canUseFate ? `
           data-actor-uuid="${actor.uuid}"
           data-attr="${attrKey}"
           data-skill="${skillKey}"
+          data-modifier="${result.displayModifier ?? 0}"
           ${usedFate ? "disabled" : ""}>
     ${usedFate ? "✔ Dola użyta" : "✨ Użyj Doli"}
   </button>
@@ -284,7 +288,7 @@ const fateButton = canUseFate ? `
         </div>
 
         <div class="crp-roll-target">
-          🎯 Cel: ${result.target}
+          🎯 Cel: ${result.target}${modifierText}
         </div>
 
         ${penalty !== 0 ? `<div class="crp-roll-penalty">⚠ Kara za rany: ${penalty}</div>` : ""}

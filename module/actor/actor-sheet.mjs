@@ -51,6 +51,49 @@ async function getAttackModifier() {
   });
 }
 
+async function getSkillModifier() {
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/crp/templates/skills.hbs"
+  );
+
+  return foundry.applications.api.DialogV2.wait({
+    window: { title: "Test umiejętności" },
+    content,
+    buttons: [
+      {
+        action: "confirm",
+        label: "Rzuć",
+        default: true,
+        callback: (_event, _button, dialog) => {
+          const value = Number(dialog.element.querySelector("input[name='skillModifier']")?.value ?? 0);
+          return {
+            confirmed: true,
+            modifier: Math.max(-4, Math.min(4, Number.isFinite(value) ? value : 0))
+          };
+        }
+      },
+      {
+        action: "cancel",
+        label: "Anuluj",
+        callback: () => ({ confirmed: false })
+      }
+    ],
+    render: (_event, dialog) => {
+      const input = dialog.element.querySelector("input[name='skillModifier']");
+      const output = dialog.element.querySelector(".crp-skills-modifier-value");
+      if (!input || !output) return;
+
+      const refreshOutput = () => {
+        const value = Number(input.value) || 0;
+        output.value = value >= 0 ? `+${value}` : String(value);
+      };
+
+      input.addEventListener("input", refreshOutput);
+      refreshOutput();
+    }
+  });
+}
+
 export class CRPAdvancementWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   static openWindows = new Map();
 
@@ -458,14 +501,20 @@ this._pendingScrollTop = undefined;
   //  ROLL
   // ======================
   html.querySelectorAll(".crp-skill").forEach(el => {
-    el.addEventListener("click", ev => {
+    el.addEventListener("click", async ev => {
 
       if (ev.target.closest("input")) return;
 
       const attr = el.dataset.attr;
       const skill = el.dataset.skill;
+      const choice = await getSkillModifier().catch(() => null);
 
-      this.document.rollSkill(attr, skill);
+      if (!choice?.confirmed) return;
+
+      CRPRoll.skill(this.document, attr, skill, {
+        modifier: choice.modifier,
+        displayModifier: choice.modifier
+      });
     });
   });
 

@@ -514,6 +514,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       const actorUuid = button.dataset.actorUuid;
       const attrKey = button.dataset.attr;
       const skillKey = button.dataset.skill;
+      const modifier = Number(button.dataset.modifier) || 0;
 
       if (!actorUuid) {
         ui.notifications.error("Brak UUID aktora");
@@ -553,7 +554,9 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 let result;
 
   result = await CRPRoll.skill(actor, attrKey, skillKey, {
-    chat: false
+    chat: false,
+    modifier,
+    displayModifier: modifier
   });
 
 
