@@ -9,7 +9,6 @@ import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPItem } from "./item/item.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData } from "./item/item-data.mjs";
 import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet } from "./item/item-sheet.mjs";
-import { CRPManeuverDialog } from "./maneuvers.mjs";
 
 const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
 const CRP_INITIATIVE_TOTALS = new Map();
@@ -681,20 +680,6 @@ Hooks.on("updateCombat", async (combat, changed) => {
     await flushPendingCombatInitiatives(combat);
   }
 
-  // ======================
-// START RUNDY → MANEUVERS UI
-// ======================
-if (changed.round !== undefined) {
-
-  const actors = combat.combatants
-    .map(c => c.actor)
-    .filter(a => a && (a.isOwner || game.user.isGM));
-
-  if (!actors.length) return;
-
-  new CRPManeuverDialog(actors).render(true);
-}
-
   // RESET FLAG
 if (game.user.isGM) {
   await Promise.all(
@@ -783,6 +768,7 @@ for (const btn of buttons) {
 const itemType = container.dataset.itemType;
 const range = container.dataset.range;
 const attackModifier = Number(container.dataset.attackModifier) || 0;
+const selectedAttackModifier = Number(container.dataset.selectedAttackModifier) || 0;
 const attackerMounted = container.dataset.attackerMounted === "true";
 const defenderMounted = container.dataset.defenderMounted === "true";
 
@@ -933,7 +919,8 @@ const result = await attacker.opposedTest(
   defSkill,
   {
     actorAOptions: {
-      modifier: attackModifier
+      modifier: attackModifier,
+      displayModifier: selectedAttackModifier
     },
     actorBOptions: {
       modifier: defenseModifier

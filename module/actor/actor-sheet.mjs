@@ -8,6 +8,49 @@ function getSkillAdvancementCost(skillValue, attrValue) {
   return skillValue + 1 > attrValue ? baseCost * 2 : baseCost;
 }
 
+async function getAttackModifier() {
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/crp/templates/attack.hbs"
+  );
+
+  return foundry.applications.api.DialogV2.wait({
+    window: { title: "Atak" },
+    content,
+    buttons: [
+      {
+        action: "confirm",
+        label: "Atakuj",
+        default: true,
+        callback: (_event, _button, dialog) => {
+          const value = Number(dialog.element.querySelector("input[name='attackModifier']")?.value ?? 0);
+          return {
+            confirmed: true,
+            modifier: Math.max(-4, Math.min(4, Number.isFinite(value) ? value : 0))
+          };
+        }
+      },
+      {
+        action: "cancel",
+        label: "Anuluj",
+        callback: () => ({ confirmed: false })
+      }
+    ],
+    render: (_event, dialog) => {
+      const input = dialog.element.querySelector("input[name='attackModifier']");
+      const output = dialog.element.querySelector(".crp-attack-modifier-value");
+      if (!input || !output) return;
+
+      const refreshOutput = () => {
+        const value = Number(input.value) || 0;
+        output.value = value >= 0 ? `+${value}` : String(value);
+      };
+
+      input.addEventListener("input", refreshOutput);
+      refreshOutput();
+    }
+  });
+}
+
 export class CRPAdvancementWindow extends HandlebarsApplicationMixin(ApplicationV2) {
   static openWindows = new Map();
 
@@ -930,8 +973,13 @@ const hasShield =
   isShield(rightItem) ||
   isShield(leftItem);
 
-const canDodge = !defenderMounted;
+    const canDodge = !defenderMounted;
 const mountedAdvantage = attackerMounted && !defenderMounted ? 2 : 0;
+const attackChoice = await getAttackModifier().catch(() => null);
+
+if (!attackChoice?.confirmed) return;
+
+const selectedAttackModifier = attackChoice.modifier;
 
 const msg = await ChatMessage.create({
 content: `
@@ -942,7 +990,8 @@ content: `
     data-skill="${attackSkill}"
 data-item-type="${itemType}"
 data-range="${itemRange}"
-data-attack-modifier="${attackModifier + mountedAdvantage}"
+data-attack-modifier="${attackModifier + mountedAdvantage + selectedAttackModifier}"
+data-selected-attack-modifier="${selectedAttackModifier}"
 data-attacker-mounted="${attackerMounted ? "true" : "false"}"
 data-defender-mounted="${defenderMounted ? "true" : "false"}">
 

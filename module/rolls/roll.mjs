@@ -26,7 +26,7 @@ static formatMargin(margin) {
 }
 
 
-    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0 } = {}) {
+    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0, displayModifier = null } = {}) {
 
         if (!actor) {
             console.error("Brak aktora");
@@ -83,7 +83,8 @@ const result = {
   critical,
   eagles,
   shields,
-  armorPenalty
+  armorPenalty,
+  displayModifier
 };
 
 if (chat) {
@@ -121,6 +122,9 @@ return result;
         const penaltyB = actorB.system.derived.woundPenalty ?? 0;
         const armorPenaltyA = rollA.armorPenalty ?? 0;
         const armorPenaltyB = rollB.armorPenalty ?? 0;
+        const attackModifierText = rollA.displayModifier === null
+          ? ""
+          : ` (modyfikator: ${rollA.displayModifier >= 0 ? "+" : ""}${rollA.displayModifier})`;
 
 const marginTextA = rollA.critical
   ? null
@@ -186,7 +190,7 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
                     <strong>${actorA.name}</strong><br>
                     ${skillLabelA} (${attrLabelA})<br>
                     🎲 ${rollA.dice.length ? rollA.dice.join(", ") : "—"} = ${rollA.total}<br>
-                    Cel: ${rollA.target}<br>
+                    Cel: ${rollA.target}${attackModifierText}<br>
                     ${penaltyA !== 0 ? `⚠ Kara za rany: ${penaltyA}<br>` : ""}
                     ${armorPenaltyA > 0 ? `⚠ Kara za pancerz: -${armorPenaltyA}<br>` : ""}
                     ${marginTextA !== null ? `Margin: ${marginTextA}<br>` : ""}
