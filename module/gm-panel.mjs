@@ -10,7 +10,7 @@ export class CRPGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: true
     },
     position: {
-      width: 400,
+      width: 600,
       height: "auto"
     }
   };
@@ -151,6 +151,30 @@ html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click"
   this.render();
 });
 
+html.querySelector("[data-action='give-maneuver-selected']")?.addEventListener("click", async () => {
+  const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+  if (!selected.length) {
+    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+    return;
+  }
+
+  for (const checkbox of selected) {
+    const actor = game.actors.get(checkbox.value);
+    if (!actor) continue;
+
+    const current = actor.system.derived.maneuver?.value ?? 0;
+    const max = actor.system.derived.maneuver?.max ?? 0;
+
+    await actor.update({
+      "system.derived.maneuver.value": Math.min(current + 1, max)
+    });
+  }
+
+  ui.notifications.info("Dodano +1 punkt manewru zaznaczonym");
+  this.render();
+});
+
 html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () => {
 
   const checkboxes = html.querySelectorAll(".crp-actor-row input");
@@ -174,6 +198,19 @@ html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () =
 
     this.render(); // odśwież panel
     
+  });
+
+  html.querySelector("[data-action='reset-maneuvers']")?.addEventListener("click", async () => {
+    for (const actor of game.actors.contents) {
+      if (actor.type !== "character" || !actor.hasPlayerOwner) continue;
+
+      await actor.update({
+        "system.derived.maneuver.value": actor.system.derived.maneuver?.max ?? 0
+      });
+    }
+
+    ui.notifications.info("Punkty manewru przywrócone do limitu");
+    this.render();
   });
 
   // ➕ +1 DOLA
@@ -319,9 +356,12 @@ _prepareContext() {
     .map(a => ({
       id: a.id,
       name: a.name,
+      maneuver: a.system.derived.maneuver?.value ?? 0,
+      maneuverMax: a.system.derived.maneuver?.max ?? 0,
       fate: a.system.resources.fate.value,
       fateMax: a.system.resources.fate.max ?? 2,
-      experience: a.system.resources.experience?.value ?? 0
+      experience: a.system.resources.experience?.value ?? 0,
+      experienceFree: a.system.resources.experience?.free ?? 0
     }));
 
   return {

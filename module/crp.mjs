@@ -433,11 +433,19 @@ Hooks.on("updateActor", (actor, changed) => {
     "system.resources.experience.free",
     "system.resources.experience.log"
   ].some(path => hasChangedPath(changed, path));
+  const hasManeuverChange = [
+    "system.derived.maneuver",
+    "system.derived.maneuver.value",
+    "system.derived.maneuver.max"
+  ].some(path => hasChangedPath(changed, path));
 
-  if (!hasExperienceChange) return;
+  if (!hasExperienceChange && !hasManeuverChange) return;
 
   actor.sheet?.render(false);
-  CRPAdvancementWindow.refreshForActor(actor);
+
+  if (hasExperienceChange) {
+    CRPAdvancementWindow.refreshForActor(actor);
+  }
 });
 
 Hooks.on("canvasReady", () => {

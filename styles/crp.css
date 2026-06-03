@@ -382,8 +382,13 @@ input:focus {
 
 .crp-gm-panel {
   padding: 10px;
-  background: #f5f2e9;
-  font-family: serif;
+    font-family: "CRP-Header", serif;
+  color: #4b3014;
+
+    background:
+  url("../assets/parchment.png");
+  background-size: cover;
+  border: 5px double rgba(75, 48, 20, 1);
 }
 
 /* TYTUŁ */
@@ -392,26 +397,30 @@ input:focus {
   font-family: "CRP-Header", serif;
   letter-spacing: 2px;
   margin-bottom: 10px;
+  font-family: "CRP-Header", serif;
+  color: #4b3014;
 }
 
 /* SEKCJE */
 .crp-panel-section {
   margin-bottom: 12px;
   padding: 6px;
-  border: 1px solid #999;
-  background: #ece6d8;
+  border: 5px double rgba(75, 48, 20, 0.8);
+
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .crp-panel-section h3 {
   margin: 0 0 6px 0;
   font-size: 14px;
+  font-family: "CRP-Header", serif;
   color: #4b3014;
 }
 
 /* GRID */
 .crp-panel-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
 }
 
@@ -424,6 +433,8 @@ input:focus {
   cursor: pointer;
   font-size: 12px;
   transition: all 0.15s;
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
 }
 
 .crp-panel-grid button:hover {
@@ -443,17 +454,24 @@ input:focus {
 
 .crp-actor-row {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
   gap: 8px;
-  background: #fff;
-  border: 1px solid #ccc;
+    background:
+  url("../assets/parchment.png");
+  background-size: cover;
+  border: 5px double rgba(75, 48, 20, 1);
   padding: 3px 6px;
   cursor: pointer;
 }
 
 .crp-actor-row:hover {
   background: #f0ead6;
+}
+
+.crp-maneuver {
+  font-weight: bold;
+  color: #4b3014;
 }
 
 .crp-fate {
