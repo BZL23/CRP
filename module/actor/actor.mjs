@@ -49,9 +49,15 @@ export class CRPActor extends Actor {
 
     const bestCombatSkill = Math.max(...combatSkills);
 
-    derived.maneuver =
+    const maxManeuver =
       attr.perception.value +
       attr.reason.value;
+
+    derived.maneuver.max = maxManeuver;
+
+    if (derived.maneuver.value > maxManeuver || derived.maneuver.value === 0) {
+      derived.maneuver.value = maxManeuver;
+    }
 
     const hp = derived.health.value;
     const max = derived.health.max;

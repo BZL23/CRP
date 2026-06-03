@@ -1,5 +1,5 @@
 <div class="crp-attack-dialog">
-  <label for="crp-attack-modifier">Modyfikator ataku</label>
+  <label for="crp-attack-modifier">Modyfikator ataku: <output for="crp-attack-modifier" class="crp-attack-modifier-value">+0</output></label>
   <div class="crp-attack-modifier-row">
     <span>-4</span>
     <input id="crp-attack-modifier"
@@ -10,6 +10,9 @@
            step="1"
            value="0">
     <span>+4</span>
-    <output for="crp-attack-modifier" class="crp-attack-modifier-value">+0</output>
+    
   </div>
+<label for="crp-attack-modifier">Dostępne Punkty Manewru: {{maneuver.value}} / {{maneuver.max}}</label>
+
+
 </div>

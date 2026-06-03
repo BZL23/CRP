@@ -13,6 +13,15 @@ const {
 export class CRPActorData extends TypeDataModel {
   static migrateData(source) {
     delete source.money?.floren;
+
+    if (typeof source.derived?.maneuver === "number") {
+      const maneuver = source.derived.maneuver;
+      source.derived.maneuver = {
+        value: maneuver,
+        max: maneuver
+      };
+    }
+
     return super.migrateData(source);
   }
 
@@ -89,7 +98,10 @@ export class CRPActorData extends TypeDataModel {
           max: new NumberField({ initial: 1, min: 1 })
         }),
 
-        maneuver: new NumberField({ initial: 0 })
+        maneuver: new SchemaField({
+          value: new NumberField({ initial: 0, min: 0 }),
+          max: new NumberField({ initial: 0, min: 0 })
+        })
       }),
 
       // ZASOBY

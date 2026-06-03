@@ -8,9 +8,12 @@ function getSkillAdvancementCost(skillValue, attrValue) {
   return skillValue + 1 > attrValue ? baseCost * 2 : baseCost;
 }
 
-async function getAttackModifier() {
+async function getAttackModifier(actor) {
   const content = await foundry.applications.handlebars.renderTemplate(
-    "systems/crp/templates/attack.hbs"
+    "systems/crp/templates/attack.hbs",
+    {
+      maneuver: actor.system.derived.maneuver
+    }
   );
 
   return foundry.applications.api.DialogV2.wait({
@@ -1024,7 +1027,7 @@ const hasShield =
 
     const canDodge = !defenderMounted;
 const mountedAdvantage = attackerMounted && !defenderMounted ? 2 : 0;
-const attackChoice = await getAttackModifier().catch(() => null);
+const attackChoice = await getAttackModifier(this.document).catch(() => null);
 
 if (!attackChoice?.confirmed) return;
 
