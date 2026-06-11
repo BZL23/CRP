@@ -23,15 +23,25 @@
       <button data-action="give-fate-selected">
         +1 Doli
       </button>
-
+      <button data-action="spend-fate-selected">
+        <s>-1 Doli</s>
+      </button>
       <button data-action="give-xp-selected">
         Rozdaj PD
       </button>
-            <button data-action="add-advancement-log">
-        Dodaj wpis do logu
-      </button>
+
             <button data-action="give-maneuver-selected">
         +1 Manewr
+      </button>
+                  <button data-action="spend-maneuver-selected">
+        <s>-1 Manewr</s>
+      </button>
+
+                  <button data-action="add-advancement-log">
+        Dodaj wpis do logu
+      </button>
+            <button data-action="clear-advancement-logs">
+        Wyczyść logi
       </button>
     </div>
   </div>
@@ -64,9 +74,7 @@
         {{#if characterSheetsLocked}}Odblokuj karty{{else}}Zablokuj karty{{/if}}
       </button>
 
-      <button data-action="clear-advancement-logs">
-        Wyczyść logi
-      </button>
+
 
 
     </div>

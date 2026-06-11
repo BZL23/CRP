@@ -228,6 +228,7 @@ function removeMountedTokenUnderlay(token) {
 async function refreshMountedTokenUnderlay(token) {
 
   const mounted = !!token?.actor?.system?.equipment?.mounted;
+  const spriteName = `crp-mounted-underlay-${token.document.id}`;
 
   if (!mounted) {
     removeMountedTokenUnderlay(token);
@@ -245,18 +246,21 @@ async function refreshMountedTokenUnderlay(token) {
     if (!texture) return;
 
     sprite = PIXI.Sprite.from(texture);
-    sprite.name = "crp-mounted-underlay";
+    sprite.name = spriteName;
     sprite.eventMode = "none";
     sprite.interactive = false;
 
     token._crpMountUnderlay = sprite;
 
     for (const child of token.mesh.parent.children) {
-    if (child.name === "crp-mounted-underlay" && child !== sprite) {
+    if (child.name === spriteName && child !== sprite) {
       child.destroy();
     }
   }
   }
+
+  // Zachowaj unikalną nazwę także dla sprite'ów utworzonych przed aktualizacją.
+  sprite.name = spriteName;
 
   const parent = token.mesh.parent;
 
@@ -743,11 +747,6 @@ const itemType = container.dataset.itemType;
 const range = container.dataset.range;
 const defenderMounted = container.dataset.defenderMounted === "true";
 
-if (btn.dataset.defense === "dodge" && defenderMounted) {
-  btn.disabled = true;
-  continue;
-}
-
   if (btn.dataset.defense !== "parry") continue;
 
 if (itemType === "unarmed") {
@@ -890,12 +889,8 @@ const parryCandidates = [
   }
 }
     if (defenseType === "dodge") {
-      if (defenderMounted) {
-        ui.notifications.warn("Postać konno nie może robić uników");
-        return;
-      }
-
       defSkill = "athletics";
+      defenseModifier = defenderMounted ? -2 : mountedDefenseModifier;
     }
     
     if (defenseType === "shield") {
@@ -934,7 +929,8 @@ const result = await attacker.opposedTest(
       displayModifier: selectedAttackModifier
     },
     actorBOptions: {
-      modifier: defenseModifier
+      modifier: defenseModifier,
+      displayModifier: defenseType === "dodge" && defenderMounted ? -2 : null
     }
   }
 );

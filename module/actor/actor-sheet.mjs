@@ -1025,7 +1025,6 @@ const hasShield =
   isShield(rightItem) ||
   isShield(leftItem);
 
-    const canDodge = !defenderMounted;
 const mountedAdvantage = attackerMounted && !defenderMounted ? 2 : 0;
 const attackChoice = await getAttackModifier(this.document).catch(() => null);
 
@@ -1056,7 +1055,7 @@ data-defender-mounted="${defenderMounted ? "true" : "false"}">
   Parowanie
 </button>
 
-<button data-defense="dodge" ${!canDodge ? "disabled" : ""}>Unik</button>
+<button data-defense="dodge">Unik${defenderMounted ? " (-2)" : ""}</button>
 
 <button data-defense="shield" ${!hasShield ? "disabled" : ""}>
   Tarcza

@@ -125,6 +125,9 @@ return result;
         const attackModifierText = rollA.displayModifier === null
           ? ""
           : ` (modyfikator: ${rollA.displayModifier >= 0 ? "+" : ""}${rollA.displayModifier})`;
+        const defenseModifierText = rollB.displayModifier === null
+          ? ""
+          : ` (modyfikator: ${rollB.displayModifier >= 0 ? "+" : ""}${rollB.displayModifier})`;
 
 const marginTextA = rollA.critical
   ? null
@@ -199,7 +202,7 @@ if (rollA.critical === "criticalSuccess" && rollB.critical === "criticalSuccess"
                     <strong>${actorB.name}</strong><br>
                     ${skillLabelB} (${attrLabelB})<br>
                     🎲 ${rollB.dice.length ? rollB.dice.join(", ") : "—"} = ${rollB.total}<br>
-                    Cel: ${rollB.target}<br>
+                    Cel: ${rollB.target}${defenseModifierText}<br>
                     ${penaltyB !== 0 ? `⚠ Kara za rany: ${penaltyB}<br>` : ""}
                     ${armorPenaltyB > 0 ? `⚠ Kara za pancerz: -${armorPenaltyB}<br>` : ""}
                     ${marginTextB !== null ? `Margin: ${marginTextB}<br>` : ""}
