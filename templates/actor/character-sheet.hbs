@@ -468,9 +468,11 @@
             <strong>{{system.bio.origin.name}}</strong>
             <span>Kliknij, aby otworzyć</span>
           </div>
-          <button type="button"
-                  class="crp-origin-clear"
-                  title="Usuń Pochodzenie">✖</button>
+          {{#unless characterSheetsLocked}}
+            <button type="button"
+                    class="crp-origin-clear"
+                    title="Usuń Pochodzenie">✖</button>
+          {{/unless}}
         {{else}}
           <div class="crp-bio-identity-empty">
             Przeciągnij tutaj Item typu Pochodzenie
@@ -511,9 +513,11 @@
               <strong>{{languages.native.name}}</strong>
               <span>Alfabet: {{lookup languages.alphabets languages.native.system.alphabet}}</span>
             </div>
-            <button type="button"
-                    class="crp-item-delete"
-                    data-item-id="{{languages.native.id}}">✖</button>
+            {{#unless characterSheetsLocked}}
+              <button type="button"
+                      class="crp-item-delete"
+                      data-item-id="{{languages.native.id}}">✖</button>
+            {{/unless}}
           </div>
         {{else}}
           <div class="crp-language-empty">Przeciągnij tutaj język ojczysty</div>
@@ -534,9 +538,11 @@
               <strong>{{language.name}}</strong>
               <span>Alfabet: {{lookup ../languages.alphabets language.system.alphabet}}</span>
             </div>
-            <button type="button"
-                    class="crp-item-delete"
-                    data-item-id="{{language.id}}">✖</button>
+            {{#unless ../characterSheetsLocked}}
+              <button type="button"
+                      class="crp-item-delete"
+                      data-item-id="{{language.id}}">✖</button>
+            {{/unless}}
           </div>
         {{/each}}
 
@@ -562,9 +568,11 @@
                data-item-id="{{trait.id}}">
             <img src="{{trait.img}}" class="crp-item-img">
             <div class="crp-item-name">{{trait.name}}</div>
-            <button type="button"
-                    class="crp-item-delete"
-                    data-item-id="{{trait.id}}">✖</button>
+            {{#unless ../characterSheetsLocked}}
+              <button type="button"
+                      class="crp-item-delete"
+                      data-item-id="{{trait.id}}">✖</button>
+            {{/unless}}
           </div>
         {{/each}}
 
@@ -584,9 +592,11 @@
                data-item-id="{{trait.id}}">
             <img src="{{trait.img}}" class="crp-item-img">
             <div class="crp-item-name">{{trait.name}}</div>
-            <button type="button"
-                    class="crp-item-delete"
-                    data-item-id="{{trait.id}}">✖</button>
+            {{#unless ../characterSheetsLocked}}
+              <button type="button"
+                      class="crp-item-delete"
+                      data-item-id="{{trait.id}}">✖</button>
+            {{/unless}}
           </div>
         {{/each}}
 

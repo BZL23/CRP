@@ -987,6 +987,14 @@ if (!html.dataset.deleteBound) {
   ev.preventDefault();
   ev.stopPropagation();
 
+  if (
+    btn.closest(".crp-bio") &&
+    game.settings.get("crp", "characterSheetsLocked")
+  ) {
+    ui.notifications.warn("Karta postaci jest zablokowana.");
+    return;
+  }
+
   const itemId = btn.dataset.itemId;
 
   if (!itemId) return;
@@ -1576,6 +1584,11 @@ html.querySelector(".crp-origin-drop")?.addEventListener("click", ev => {
 html.querySelector(".crp-origin-clear")?.addEventListener("click", async ev => {
   ev.preventDefault();
   ev.stopPropagation();
+
+  if (game.settings.get("crp", "characterSheetsLocked")) {
+    ui.notifications.warn("Karta postaci jest zablokowana.");
+    return;
+  }
 
   const originId = this.document.system.bio?.origin?.id;
 
