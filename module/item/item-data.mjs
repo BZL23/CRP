@@ -164,3 +164,27 @@ export class CRPStuffData extends TypeDataModel {
     };
   }
 }
+
+export class CRPLanguageData extends TypeDataModel {
+  static migrateData(source) {
+    if (!source.role) source.role = "unassigned";
+    if (!["latin", "cyrillic", "arabic", "none"].includes(source.alphabet)) {
+      source.alphabet = "none";
+    }
+    return super.migrateData(source);
+  }
+
+  static defineSchema() {
+    return {
+      alphabet: new StringField({
+        initial: "none",
+        choices: ["latin", "cyrillic", "arabic", "none"]
+      }),
+      description: new StringField({ initial: "" }),
+      role: new StringField({
+        initial: "unassigned",
+        choices: ["unassigned", "native", "foreign"]
+      })
+    };
+  }
+}

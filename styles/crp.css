@@ -1174,6 +1174,62 @@ justify-content: flex-start;
   padding: 10px;
 }
 
+.crp-languages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.crp-language-section {
+  padding: 10px;
+  border: 1px solid rgba(75, 48, 20, 0.85);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.crp-language-section h2 {
+  margin: 0 0 8px;
+}
+
+.crp-language-drop {
+  min-height: 74px;
+  padding: 6px;
+  border: 1px dashed rgba(75, 48, 20, 0.9);
+  border-radius: 4px;
+}
+
+.crp-language-foreign {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.crp-language-row {
+  width: 100%;
+}
+
+.crp-language-details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.crp-language-details span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.crp-language-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+}
+
 .crp-bio-header {
   display: flex;
   justify-content: flex-end;
@@ -1221,6 +1277,12 @@ justify-content: flex-start;
   min-height: 420px;
   max-height: 70vh;
   overflow: auto;
+}
+
+@media (max-width: 720px) {
+  .crp-languages {
+    grid-template-columns: 1fr;
+  }
 }
 
 .crp-money-panel {

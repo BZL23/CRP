@@ -253,3 +253,27 @@ export class CRPStuffSheet extends CRPItemSheet {
     }
   };
 }
+
+export class CRPLanguageSheet extends CRPItemSheet {
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/language-sheet.hbs"
+    }
+  };
+
+  _preparePartContext(partId, context) {
+    if (partId !== "body") return context;
+
+    return {
+      ...context,
+      system: this.document.system,
+      item: this.document,
+      alphabets: {
+        latin: "Łaciński",
+        cyrillic: "Cyrylica",
+        arabic: "Arabski",
+        none: "Brak"
+      }
+    };
+  }
+}

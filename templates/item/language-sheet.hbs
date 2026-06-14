@@ -1,0 +1,31 @@
+<section class="crp-item crp-language-item">
+
+  <div class="crp-item-header">
+    <div class="crp-item-left">
+      <label>Nazwa</label>
+      <input type="text" data-path="name" value="{{item.name}}">
+    </div>
+
+    <div class="crp-item-img">
+      <img src="{{item.img}}" data-edit="img">
+    </div>
+  </div>
+
+  <div class="crp-form">
+    <label>Alfabet</label>
+    <select data-path="system.alphabet">
+      {{#each alphabets as |label key|}}
+        <option value="{{key}}"
+                {{#if (eq key ../system.alphabet)}}selected{{/if}}>
+          {{label}}
+        </option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="crp-item-description">
+    <label>Opis</label>
+    <textarea data-path="system.description">{{system.description}}</textarea>
+  </div>
+
+</section>

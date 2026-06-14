@@ -435,7 +435,7 @@
     <h2 class="crp-section-header">Inne</h2>
     <div class="crp-item-list">
       {{#each document.items as |item|}}
-        {{#unless (or (eq item.type "weapon") (eq item.type "armor") (eq item.type "shield"))}}
+        {{#unless (or (eq item.type "weapon") (eq item.type "armor") (eq item.type "shield") (eq item.type "language"))}}
           <div class="crp-item-row" draggable="true" data-item-id="{{item.id}}">
             <img src="{{item.img}}" class="crp-item-img">
             <div class="crp-item-name">{{item.name}}</div>
@@ -457,6 +457,59 @@
 {{#if (eq activeTab "bio")}}
   <div class="crp-tab-content">
 <div class="crp-bio">
+
+  <div class="crp-languages">
+    <section class="crp-language-section">
+      <h2>Język ojczysty</h2>
+      <div class="crp-language-drop" data-language-role="native">
+        {{#if languages.native}}
+          <div class="crp-item-row crp-language-row"
+               draggable="true"
+               data-item-id="{{languages.native.id}}">
+            <img src="{{languages.native.img}}" class="crp-item-img">
+            <div class="crp-language-details">
+              <strong>{{languages.native.name}}</strong>
+              <span>Alfabet: {{lookup languages.alphabets languages.native.system.alphabet}}</span>
+            </div>
+            <button type="button"
+                    class="crp-item-delete"
+                    data-item-id="{{languages.native.id}}">✖</button>
+          </div>
+        {{else}}
+          <div class="crp-language-empty">Przeciągnij tutaj język ojczysty</div>
+        {{/if}}
+      </div>
+    </section>
+
+    <section class="crp-language-section">
+      <h2>Języki obce {{languages.remaining}}/{{languages.limit}}</h2>
+      <div class="crp-language-drop crp-language-foreign"
+           data-language-role="foreign">
+        {{#each languages.foreign as |language|}}
+          <div class="crp-item-row crp-language-row"
+               draggable="true"
+               data-item-id="{{language.id}}">
+            <img src="{{language.img}}" class="crp-item-img">
+            <div class="crp-language-details">
+              <strong>{{language.name}}</strong>
+              <span>Alfabet: {{lookup ../languages.alphabets language.system.alphabet}}</span>
+            </div>
+            <button type="button"
+                    class="crp-item-delete"
+                    data-item-id="{{language.id}}">✖</button>
+          </div>
+        {{/each}}
+
+        {{#if languages.remaining}}
+          <div class="crp-language-empty">Przeciągnij tutaj język obcy</div>
+        {{else}}
+          {{#unless languages.foreign.length}}
+            <div class="crp-language-empty">Brak dostępnych miejsc</div>
+          {{/unless}}
+        {{/if}}
+      </div>
+    </section>
+  </div>
 
   <div class="crp-bio-header">
     <button type="button" class="crp-bio-edit" title="Edytuj biografię">

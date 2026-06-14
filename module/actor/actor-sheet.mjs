@@ -419,6 +419,92 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     this.render(false);
   }
 
+  _getForeignLanguageLimit() {
+    const value = Number(
+      this.document.system.attributes?.reason?.skills?.languages?.value ?? 0
+    );
+
+    if (value >= 10) return 4;
+    if (value >= 9) return 3;
+    if (value >= 6) return 2;
+    if (value >= 3) return 1;
+    return 0;
+  }
+
+  async _assignLanguage(item, role) {
+    if (item.type !== "language") {
+      ui.notifications.warn("W tym miejscu można umieszczać tylko przedmioty typu Język.");
+      return;
+    }
+
+    const sourceActor = item.parent?.documentName === "Actor" ? item.parent : null;
+    const belongsToActor = sourceActor?.id === this.document.id;
+    const duplicate = this.document.items.find(candidate =>
+      candidate.type === "language" &&
+      candidate.id !== item.id &&
+      candidate.name.trim().toLocaleLowerCase() === item.name.trim().toLocaleLowerCase() &&
+      String(candidate.system.alphabet).trim().toLocaleLowerCase() ===
+        String(item.system.alphabet).trim().toLocaleLowerCase()
+    );
+
+    if (duplicate) {
+      ui.notifications.warn("Postać zna już ten język.");
+      return;
+    }
+
+    const foreignLanguages = this.document.items.filter(candidate =>
+      candidate.type === "language" &&
+      candidate.system.role === "foreign" &&
+      candidate.id !== item.id
+    );
+
+    if (role === "foreign" && foreignLanguages.length >= this._getForeignLanguageLimit()) {
+      ui.notifications.warn("Postać nie może znać więcej języków obcych.");
+      return;
+    }
+
+    if (sourceActor && !belongsToActor && !sourceActor.isOwner && !game.user.isGM) {
+      ui.notifications.warn("Brak uprawnień do przeniesienia języka z aktora źródłowego.");
+      return;
+    }
+
+    const previousNative = role === "native"
+      ? this.document.items.find(candidate =>
+          candidate.type === "language" &&
+          candidate.system.role === "native" &&
+          candidate.id !== item.id
+        )
+      : null;
+
+    let assigned = item;
+
+    if (belongsToActor) {
+      if (item.system.role !== role) {
+        this._rememberScrollPosition();
+        await item.update({ "system.role": role });
+      }
+    } else {
+      const itemData = item.toObject();
+      delete itemData._id;
+      foundry.utils.setProperty(itemData, "system.role", role);
+
+      this._rememberScrollPosition();
+      [assigned] = await this.document.createEmbeddedDocuments("Item", [itemData]);
+    }
+
+    if (previousNative) {
+      this._rememberScrollPosition();
+      await this.document.deleteEmbeddedDocuments("Item", [previousNative.id]);
+    }
+
+    if (sourceActor && !belongsToActor) {
+      await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+      sourceActor.sheet?.render(false);
+    }
+
+    assigned?.sheet?.rendered && assigned.sheet.render(false);
+  }
+
   //  JEDYNE źródło danych dla template
 async _preparePartContext(partId, context) {
     if (partId !== "body") return context;
@@ -462,6 +548,14 @@ hp.percent = hp.max > 0
   ? Math.floor((hp.value / hp.max) * 100)
   : 0;
 
+const nativeLanguage = this.document.items.find(item =>
+  item.type === "language" && item.system.role === "native"
+) ?? null;
+const foreignLanguages = this.document.items.filter(item =>
+  item.type === "language" && item.system.role === "foreign"
+);
+const foreignLanguageLimit = this._getForeignLanguageLimit();
+
 return {
   ...context,
   system,
@@ -481,6 +575,18 @@ return {
   tokenImg,
   activeTab: this.activeTab,
   characterSheetsLocked: game.settings.get("crp", "characterSheetsLocked"),
+  languages: {
+    native: nativeLanguage,
+    foreign: foreignLanguages,
+    remaining: Math.max(0, foreignLanguageLimit - foreignLanguages.length),
+    limit: foreignLanguageLimit,
+    alphabets: {
+      latin: "Łaciński",
+      cyrillic: "Cyrylica",
+      arabic: "Arabski",
+      none: "Brak"
+    }
+  }
 };
 
   }
@@ -767,6 +873,18 @@ if (!root.dataset?.dropBound) {
 
       const item = await fromUuid(data.uuid);
       if (!item) return;
+
+      const languageDrop = ev.target.closest?.(".crp-language-drop");
+
+      if (languageDrop) {
+        await this._assignLanguage(item, languageDrop.dataset.languageRole);
+        return;
+      }
+
+      if (item.type === "language") {
+        ui.notifications.warn("Przeciągnij język do odpowiedniej sekcji w zakładce Biografia.");
+        return;
+      }
 
       let slotEl = ev.target;
 
