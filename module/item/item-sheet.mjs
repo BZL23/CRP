@@ -5,6 +5,12 @@ import {
 } from "../currency.mjs";
 
 const { DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const ORIGIN_SKILL_BUDGET = 14;
+const ORIGIN_SKILL_COSTS = Object.freeze({
+  1: 2,
+  2: 4,
+  3: 7
+});
 
 export class CRPItemSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
 
@@ -275,5 +281,229 @@ export class CRPLanguageSheet extends CRPItemSheet {
         none: "Brak"
       }
     };
+  }
+}
+
+export class CRPOriginSheet extends CRPItemSheet {
+  static DEFAULT_OPTIONS = {
+    ...super.DEFAULT_OPTIONS,
+    position: {
+      width: 620,
+      height: "auto"
+    }
+  };
+
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/origin-sheet.hbs"
+    }
+  };
+
+  _getSkillSelections() {
+    return Array.from(this.document.system.skills ?? [], selection => ({
+      key: selection.key,
+      level: Number(selection.level)
+    }));
+  }
+
+  _getSkillCost(level) {
+    return ORIGIN_SKILL_COSTS[level] ?? 0;
+  }
+
+  _getUsedSkillPoints(selections = this._getSkillSelections()) {
+    return selections.reduce(
+      (total, selection) => total + this._getSkillCost(selection.level),
+      0
+    );
+  }
+
+  async _updateSkills(selections) {
+    const used = this._getUsedSkillPoints(selections);
+
+    if (used > ORIGIN_SKILL_BUDGET) {
+      ui.notifications.warn("Wybrane umiejętności przekraczają limit 14 punktów.");
+      return false;
+    }
+
+    if (new Set(selections.map(selection => selection.key)).size !== selections.length) {
+      ui.notifications.warn("Każdą umiejętność można wybrać tylko raz.");
+      return false;
+    }
+
+    this._rememberScrollPosition();
+    await this.document.update({ "system.skills": selections });
+    return true;
+  }
+
+  _preparePartContext(partId, context) {
+    if (partId !== "body") return context;
+
+    const selections = this._getSkillSelections();
+    const selectedKeys = new Set(selections.map(selection => selection.key));
+    const used = this._getUsedSkillPoints(selections);
+    const remaining = ORIGIN_SKILL_BUDGET - used;
+    const skillEntries = Object.entries(CONFIG.CRP.skills);
+
+    const skillRows = selections.map((selection, index) => ({
+      index,
+      key: selection.key,
+      level: selection.level,
+      cost: this._getSkillCost(selection.level),
+      skillOptions: skillEntries.map(([key, label]) => ({
+        key,
+        label,
+        selected: key === selection.key,
+        disabled: key !== selection.key && selectedKeys.has(key)
+      })),
+      levelOptions: [1, 2, 3].map(level => ({
+        level,
+        cost: this._getSkillCost(level),
+        selected: level === selection.level,
+        disabled:
+          used - this._getSkillCost(selection.level) + this._getSkillCost(level) >
+          ORIGIN_SKILL_BUDGET
+      }))
+    }));
+
+    const languageUuid = this.document.system.language;
+    const language = languageUuid && languageUuid !== "none"
+      ? fromUuidSync(languageUuid)
+      : null;
+
+    return {
+      ...context,
+      system: this.document.system,
+      item: this.document,
+      attributes: CONFIG.CRP.attributes,
+      skillRows,
+      skillBudget: {
+        used,
+        remaining,
+        total: ORIGIN_SKILL_BUDGET
+      },
+      canAddSkill:
+        remaining >= ORIGIN_SKILL_COSTS[1] &&
+        selectedKeys.size < skillEntries.length,
+      language
+    };
+  }
+
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    const html = this._getRootElement();
+    if (!html) return;
+
+    const languageDrop = html.querySelector(".crp-origin-language-drop");
+
+    languageDrop?.addEventListener("dragover", event => {
+      event.preventDefault();
+      languageDrop.classList.add("drag-over");
+    });
+
+    languageDrop?.addEventListener("dragleave", () => {
+      languageDrop.classList.remove("drag-over");
+    });
+
+    languageDrop?.addEventListener("drop", async event => {
+      event.preventDefault();
+      event.stopPropagation();
+      languageDrop.classList.remove("drag-over");
+
+      const TextEditorImpl =
+        foundry.applications?.ux?.TextEditor?.implementation ?? TextEditor;
+      let data = TextEditorImpl.getDragEventData(event);
+
+      if (!data?.type) {
+        try {
+          data = JSON.parse(event.dataTransfer.getData("text/plain"));
+        } catch {
+          return;
+        }
+      }
+
+      if (data.type !== "Item") {
+        ui.notifications.warn("W tym polu można umieścić tylko Item typu Język.");
+        return;
+      }
+
+      const item = await fromUuid(data.uuid);
+
+      if (!item || item.type !== "language") {
+        ui.notifications.warn("W tym polu można umieścić tylko Item typu Język.");
+        return;
+      }
+
+      this._rememberScrollPosition();
+      await this.document.update({ "system.language": item.uuid });
+    });
+
+    languageDrop?.addEventListener("click", event => {
+      if (event.target.closest(".crp-origin-language-clear")) return;
+
+      const languageUuid = this.document.system.language;
+      if (!languageUuid || languageUuid === "none") return;
+
+      fromUuidSync(languageUuid)?.sheet?.render(true);
+    });
+
+    html.querySelector(".crp-origin-language-clear")?.addEventListener("click", async event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      this._rememberScrollPosition();
+      await this.document.update({ "system.language": "none" });
+    });
+
+    html.querySelectorAll(".crp-origin-skill-key").forEach(select => {
+      select.addEventListener("change", async event => {
+        const index = Number(event.currentTarget.dataset.index);
+        const selections = this._getSkillSelections();
+        selections[index].key = event.currentTarget.value;
+
+        if (!await this._updateSkills(selections)) {
+          this.render(false);
+        }
+      });
+    });
+
+    html.querySelectorAll(".crp-origin-skill-level").forEach(select => {
+      select.addEventListener("change", async event => {
+        const index = Number(event.currentTarget.dataset.index);
+        const selections = this._getSkillSelections();
+        selections[index].level = Number(event.currentTarget.value);
+
+        if (!await this._updateSkills(selections)) {
+          this.render(false);
+        }
+      });
+    });
+
+    html.querySelector(".crp-origin-skill-add")?.addEventListener("click", async event => {
+      event.preventDefault();
+
+      const selections = this._getSkillSelections();
+      const selectedKeys = new Set(selections.map(selection => selection.key));
+      const nextSkill = Object.keys(CONFIG.CRP.skills).find(key => !selectedKeys.has(key));
+
+      if (!nextSkill || this._getUsedSkillPoints(selections) + ORIGIN_SKILL_COSTS[1] > ORIGIN_SKILL_BUDGET) {
+        ui.notifications.warn("Brak punktów na kolejną umiejętność.");
+        return;
+      }
+
+      selections.push({ key: nextSkill, level: 1 });
+      await this._updateSkills(selections);
+    });
+
+    html.querySelectorAll(".crp-origin-skill-remove").forEach(button => {
+      button.addEventListener("click", async event => {
+        event.preventDefault();
+
+        const index = Number(event.currentTarget.dataset.index);
+        const selections = this._getSkillSelections();
+        selections.splice(index, 1);
+        await this._updateSkills(selections);
+      });
+    });
   }
 }

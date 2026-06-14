@@ -1,0 +1,110 @@
+<section class="crp-item crp-origin-item">
+
+  <div class="crp-origin-header">
+    <div class="crp-item-left">
+      <label>Nazwa</label>
+      <input type="text" data-path="name" value="{{item.name}}">
+    </div>
+
+    <div class="crp-item-img">
+      <img src="{{item.img}}" data-edit="img">
+    </div>
+  </div>
+
+  <div class="crp-form crp-origin-form">
+    <label>Bonus do cechy</label>
+    <select data-path="system.bonusAttribute">
+      {{#each attributes as |label key|}}
+        <option value="{{key}}"
+                {{#if (eq key ../system.bonusAttribute)}}selected{{/if}}>
+          {{label}}
+        </option>
+      {{/each}}
+    </select>
+
+  </div>
+
+  <div class="crp-origin-language">
+    <label>Język</label>
+    <div class="crp-origin-language-drop">
+      {{#if language}}
+        <img src="{{language.img}}" class="crp-origin-language-img">
+        <div class="crp-origin-language-details">
+          <strong>{{language.name}}</strong>
+          <span>Przeciągnij inny język, aby zastąpić</span>
+        </div>
+        <button type="button"
+                class="crp-origin-language-clear"
+                title="Usuń język">
+          ✖
+        </button>
+      {{else}}
+        <div class="crp-origin-language-empty">
+          Przeciągnij tutaj Item typu Język
+        </div>
+      {{/if}}
+    </div>
+  </div>
+
+  <section class="crp-origin-skills">
+    <div class="crp-origin-skills-header">
+      <div>
+        <h2>Umiejętności</h2>
+        <span>Wydano {{skillBudget.used}}/{{skillBudget.total}} punktów</span>
+      </div>
+
+      <button type="button"
+              class="crp-origin-skill-add"
+              {{#unless canAddSkill}}disabled{{/unless}}>
+        Dodaj umiejętność
+      </button>
+    </div>
+
+    <div class="crp-origin-skill-list">
+      {{#each skillRows as |row|}}
+        <div class="crp-origin-skill-row">
+          <select class="crp-origin-skill-key" data-index="{{row.index}}">
+            {{#each row.skillOptions as |skill|}}
+              <option value="{{skill.key}}"
+                      {{#if skill.selected}}selected{{/if}}
+                      {{#if skill.disabled}}disabled{{/if}}>
+                {{skill.label}}
+              </option>
+            {{/each}}
+          </select>
+
+          <select class="crp-origin-skill-level" data-index="{{row.index}}">
+            {{#each row.levelOptions as |option|}}
+              <option value="{{option.level}}"
+                      {{#if option.selected}}selected{{/if}}
+                      {{#if option.disabled}}disabled{{/if}}>
+                Poziom {{option.level}} ({{option.cost}} pkt)
+              </option>
+            {{/each}}
+          </select>
+
+          <button type="button"
+                  class="crp-origin-skill-remove"
+                  data-index="{{row.index}}"
+                  title="Usuń umiejętność">
+            ✖
+          </button>
+        </div>
+      {{else}}
+        <div class="crp-origin-skill-empty">
+          Nie wybrano jeszcze żadnych umiejętności.
+        </div>
+      {{/each}}
+    </div>
+
+    <div class="crp-origin-budget">
+      Pozostało: <strong>{{skillBudget.remaining}}</strong> punktów
+    </div>
+  </section>
+
+  <div class="crp-item-description">
+    <label>Opis</label>
+    <textarea data-path="system.description">{{system.description}}</textarea>
+  </div>
+
+</section>

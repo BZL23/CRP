@@ -7,8 +7,8 @@ import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet, CRPAdvancementWindow } from "./actor/actor-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPItem } from "./item/item.mjs";
-import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData, CRPLanguageData } from "./item/item-data.mjs";
-import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet, CRPLanguageSheet } from "./item/item-sheet.mjs";
+import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData, CRPLanguageData, CRPOriginData } from "./item/item-data.mjs";
+import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet, CRPLanguageSheet, CRPOriginSheet } from "./item/item-sheet.mjs";
 
 const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
 const CRP_INITIATIVE_TOTALS = new Map();
@@ -335,7 +335,8 @@ Hooks.once("init", () => {
     armor: CRPArmorData,
     shield: CRPShieldData,
     stuff: CRPStuffData,
-    language: CRPLanguageData
+    language: CRPLanguageData,
+    origin: CRPOriginData
   };
 
   CONFIG.Actor.documentClass = CRPActor;
@@ -378,6 +379,11 @@ foundry.documents.collections.Items.registerSheet("crp", CRPLanguageSheet, {
   makeDefault: true
 });
 
+foundry.documents.collections.Items.registerSheet("crp", CRPOriginSheet, {
+  types: ["origin"],
+  makeDefault: true
+});
+
 CONFIG.Combat = CONFIG.Combat || {};
 
 // ======================
@@ -409,6 +415,23 @@ Combat.prototype.rollInitiative = async function(ids, options = {}) {
   return this;
 };
 
+});
+
+Hooks.on("updateItem", async (item, changed) => {
+  if (
+    item.type !== "origin" ||
+    item.parent?.documentName !== "Actor" ||
+    item.parent.system.bio?.origin?.id !== item.id ||
+    !hasChangedPath(changed, "system.language")
+  ) {
+    return;
+  }
+
+  const actorSheet = item.parent.sheet;
+  if (typeof actorSheet?._assignOriginLanguage !== "function") return;
+
+  await actorSheet._assignOriginLanguage(item);
+  actorSheet.render(false);
 });
 
 

@@ -92,7 +92,8 @@ const {
   SchemaField,
   NumberField,
   StringField,
-  BooleanField
+  BooleanField,
+  ArrayField
 } = foundry.data.fields;
 
 export class CRPWeaponData extends TypeDataModel {
@@ -167,8 +168,13 @@ export class CRPStuffData extends TypeDataModel {
 
 export class CRPLanguageData extends TypeDataModel {
   static migrateData(source) {
-    if (!source.role) source.role = "unassigned";
-    if (!["latin", "cyrillic", "arabic", "none"].includes(source.alphabet)) {
+    if (Object.hasOwn(source, "role") && !source.role) {
+      source.role = "unassigned";
+    }
+    if (
+      Object.hasOwn(source, "alphabet") &&
+      !["latin", "cyrillic", "arabic", "none"].includes(source.alphabet)
+    ) {
       source.alphabet = "none";
     }
     return super.migrateData(source);
@@ -185,6 +191,41 @@ export class CRPLanguageData extends TypeDataModel {
         initial: "unassigned",
         choices: ["unassigned", "native", "foreign"]
       })
+    };
+  }
+}
+
+export class CRPOriginData extends TypeDataModel {
+  static migrateData(source) {
+    if (Object.hasOwn(source, "bonusAttribute") && !source.bonusAttribute) {
+      source.bonusAttribute = "strength";
+    }
+    if (Object.hasOwn(source, "language") && !source.language) {
+      source.language = "none";
+    }
+    if (Object.hasOwn(source, "skills") && !Array.isArray(source.skills)) {
+      source.skills = [];
+    }
+    return super.migrateData(source);
+  }
+
+  static defineSchema() {
+    return {
+      bonusAttribute: new StringField({
+        initial: "strength",
+        choices: ["strength", "agility", "perception", "character", "reason"]
+      }),
+      skills: new ArrayField(new SchemaField({
+        key: new StringField(),
+        level: new NumberField({
+          initial: 1,
+          min: 1,
+          max: 3,
+          integer: true
+        })
+      }), { initial: [] }),
+      language: new StringField({ initial: "none" }),
+      description: new StringField({ initial: "" })
     };
   }
 }

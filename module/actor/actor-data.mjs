@@ -208,7 +208,13 @@ money: new SchemaField({
 }),
 
 bio: new SchemaField({
-  description: new HTMLField({ initial: "" })
+  description: new HTMLField({ initial: "" }),
+  origin: new SchemaField({
+    id: new StringField({ nullable: true }),
+    name: new StringField({ nullable: true }),
+    img: new StringField({ nullable: true })
+  }),
+  crest: new StringField({ initial: "" })
 }),
 
     };

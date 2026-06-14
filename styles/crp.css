@@ -537,6 +537,149 @@ input:focus {
   resize: vertical;
 }
 
+.crp-origin-header {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  align-items: start;
+  gap: 16px;
+}
+
+.crp-origin-header .crp-item-img {
+  width: 120px;
+  height: 120px;
+  max-width: none;
+}
+
+.crp-origin-form {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 14px;
+}
+
+.crp-origin-language {
+  margin-top: 14px;
+}
+
+.crp-origin-language > label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.crp-origin-language-drop {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  gap: 10px;
+  padding: 8px;
+  border: 1px dashed rgba(75, 48, 20, 0.9);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.12);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.crp-origin-language-drop.drag-over {
+  border-color: #d6b66a;
+  background: rgba(214, 182, 106, 0.18);
+}
+
+.crp-origin-language-drop:has(.crp-origin-language-details) {
+  cursor: pointer;
+}
+
+.crp-origin-language-img {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border: 1px solid rgba(75, 48, 20, 0.85);
+}
+
+.crp-origin-language-details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.crp-origin-language-details span {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.crp-origin-language-clear {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.crp-origin-language-empty {
+  width: 100%;
+  text-align: center;
+  opacity: 0.72;
+}
+
+.crp-origin-skills {
+  margin-top: 16px;
+  padding: 10px;
+  border: 1px solid rgba(75, 48, 20, 0.85);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.crp-origin-skills-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.crp-origin-skills-header h2 {
+  margin: 0;
+}
+
+.crp-origin-skills-header span {
+  font-size: 13px;
+}
+
+.crp-origin-skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.crp-origin-skill-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px 34px;
+  align-items: center;
+  gap: 8px;
+}
+
+.crp-origin-skill-row select {
+  min-width: 0;
+}
+
+.crp-origin-skill-remove {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.crp-origin-skill-empty {
+  padding: 12px;
+  border: 1px dashed rgba(75, 48, 20, 0.65);
+  border-radius: 4px;
+  text-align: center;
+  opacity: 0.75;
+}
+
+.crp-origin-budget {
+  margin-top: 10px;
+  text-align: right;
+}
+
 .crp-weapons {
   display: flex;
   flex-direction: column;
@@ -1174,6 +1317,90 @@ justify-content: flex-start;
   padding: 10px;
 }
 
+.crp-bio-identity {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.crp-bio-identity-section {
+  padding: 10px;
+  border: 1px solid rgba(75, 48, 20, 0.85);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.crp-bio-identity-section h2 {
+  margin: 0 0 8px;
+}
+
+.crp-origin-drop,
+.crp-crest-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  gap: 10px;
+  padding: 8px;
+  border: 1px dashed rgba(75, 48, 20, 0.9);
+  border-radius: 4px;
+}
+
+.crp-origin-drop:has(.crp-bio-identity-details) {
+  cursor: pointer;
+}
+
+.crp-bio-identity-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border: 1px solid rgba(75, 48, 20, 0.85);
+}
+
+.crp-bio-identity-details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.crp-bio-identity-details span {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.crp-bio-identity-empty {
+  text-align: center;
+  opacity: 0.72;
+}
+
+.crp-origin-clear,
+.crp-crest-clear {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
+.crp-crest-image {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: 132px;
+  object-fit: contain;
+  cursor: pointer;
+  border: none;
+}
+
+.crp-crest-empty {
+  width: 100%;
+  min-height: 132px;
+}
+
 .crp-languages {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1280,6 +1507,7 @@ justify-content: flex-start;
 }
 
 @media (max-width: 720px) {
+  .crp-bio-identity,
   .crp-languages {
     grid-template-columns: 1fr;
   }

@@ -505,6 +505,112 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     assigned?.sheet?.rendered && assigned.sheet.render(false);
   }
 
+  async _assignOriginLanguage(origin) {
+    const hasNativeLanguage = this.document.items.some(item =>
+      item.type === "language" && item.system.role === "native"
+    );
+    const languageUuid = origin.system.language;
+
+    if (hasNativeLanguage || !languageUuid || languageUuid === "none") return;
+
+    const sourceLanguage = await fromUuid(languageUuid);
+    if (!sourceLanguage || sourceLanguage.type !== "language") {
+      ui.notifications.warn("Nie udało się odnaleźć języka przypisanego do Pochodzenia.");
+      return;
+    }
+
+    const normalizedName = sourceLanguage.name.trim().toLocaleLowerCase();
+    const normalizedAlphabet = String(sourceLanguage.system.alphabet)
+      .trim()
+      .toLocaleLowerCase();
+    const existingLanguage = this.document.items.find(item =>
+      item.type === "language" &&
+      (
+        item.uuid === sourceLanguage.uuid ||
+        (
+          item.name.trim().toLocaleLowerCase() === normalizedName &&
+          String(item.system.alphabet).trim().toLocaleLowerCase() === normalizedAlphabet
+        )
+      )
+    );
+
+    if (existingLanguage) {
+      if (existingLanguage.system.role !== "native") {
+        this._rememberScrollPosition();
+        await existingLanguage.update({ "system.role": "native" });
+      }
+      return;
+    }
+
+    const languageData = sourceLanguage.toObject();
+    delete languageData._id;
+    foundry.utils.setProperty(languageData, "system.role", "native");
+
+    this._rememberScrollPosition();
+    await this.document.createEmbeddedDocuments("Item", [languageData]);
+  }
+
+  async _assignOrigin(item) {
+    if (item.type !== "origin") {
+      ui.notifications.warn("W tym miejscu można umieścić tylko przedmiot typu Pochodzenie.");
+      return;
+    }
+
+    const sourceActor = item.parent?.documentName === "Actor" ? item.parent : null;
+    const belongsToActor = sourceActor?.id === this.document.id;
+
+    if (sourceActor && !belongsToActor && !sourceActor.isOwner && !game.user.isGM) {
+      ui.notifications.warn("Brak uprawnień do przeniesienia Pochodzenia z aktora źródłowego.");
+      return;
+    }
+
+    let assigned = item;
+
+    if (!belongsToActor) {
+      const itemData = item.toObject();
+      delete itemData._id;
+
+      this._rememberScrollPosition();
+      [assigned] = await this.document.createEmbeddedDocuments("Item", [itemData]);
+    }
+
+    const previousOriginId = this.document.system.bio?.origin?.id;
+
+    this._rememberScrollPosition();
+    await this.document.update({
+      "system.bio.origin": {
+        id: assigned.id,
+        name: assigned.name,
+        img: assigned.img
+      }
+    });
+
+    await this._assignOriginLanguage(assigned);
+
+    if (previousOriginId && previousOriginId !== assigned.id) {
+      const previousOrigin = this.document.items.get(previousOriginId);
+      if (previousOrigin?.type === "origin") {
+        this._rememberScrollPosition();
+        await this.document.deleteEmbeddedDocuments("Item", [previousOriginId]);
+      }
+    }
+
+    if (sourceActor && !belongsToActor) {
+      if (sourceActor.system.bio?.origin?.id === item.id) {
+        await sourceActor.update({
+          "system.bio.origin": {
+            id: null,
+            name: null,
+            img: null
+          }
+        });
+      }
+
+      await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+      sourceActor.sheet?.render(false);
+    }
+  }
+
   //  JEDYNE źródło danych dla template
 async _preparePartContext(partId, context) {
     if (partId !== "body") return context;
@@ -827,6 +933,14 @@ if (!html.dataset.deleteBound) {
     }
   }
 
+  if (this.document.system.bio?.origin?.id === itemId) {
+    updates["system.bio.origin"] = {
+      id: null,
+      name: null,
+      img: null
+    };
+  }
+
   this._rememberScrollPosition();
   await this.document.deleteEmbeddedDocuments("Item", [itemId]);
 
@@ -874,6 +988,13 @@ if (!root.dataset?.dropBound) {
       const item = await fromUuid(data.uuid);
       if (!item) return;
 
+      const originDrop = ev.target.closest?.(".crp-origin-drop");
+
+      if (originDrop) {
+        await this._assignOrigin(item);
+        return;
+      }
+
       const languageDrop = ev.target.closest?.(".crp-language-drop");
 
       if (languageDrop) {
@@ -883,6 +1004,11 @@ if (!root.dataset?.dropBound) {
 
       if (item.type === "language") {
         ui.notifications.warn("Przeciągnij język do odpowiedniej sekcji w zakładce Biografia.");
+        return;
+      }
+
+      if (item.type === "origin") {
+        ui.notifications.warn("Przeciągnij Pochodzenie do odpowiedniego slotu w zakładce Biografia.");
         return;
       }
 
@@ -1352,6 +1478,53 @@ html.querySelector(".crp-bio-edit")?.addEventListener("click", ev => {
   ev.stopPropagation();
 
   this._openBioEditor();
+});
+
+html.querySelector(".crp-origin-drop")?.addEventListener("click", ev => {
+  if (ev.target.closest(".crp-origin-clear")) return;
+
+  const originId = this.document.system.bio?.origin?.id;
+  this.document.items.get(originId)?.sheet?.render(true);
+});
+
+html.querySelector(".crp-origin-clear")?.addEventListener("click", async ev => {
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const originId = this.document.system.bio?.origin?.id;
+
+  this._rememberScrollPosition();
+  await this.document.update({
+    "system.bio.origin": {
+      id: null,
+      name: null,
+      img: null
+    }
+  });
+
+  if (originId && this.document.items.get(originId)?.type === "origin") {
+    this._rememberScrollPosition();
+    await this.document.deleteEmbeddedDocuments("Item", [originId]);
+  }
+});
+
+html.querySelector(".crp-crest-select")?.addEventListener("click", () => {
+  new foundry.applications.apps.FilePicker.implementation({
+    type: "image",
+    current: this.document.system.bio?.crest || "",
+    callback: async path => {
+      this._rememberScrollPosition();
+      await this.document.update({ "system.bio.crest": path });
+    }
+  }).render(true);
+});
+
+html.querySelector(".crp-crest-clear")?.addEventListener("click", async ev => {
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  this._rememberScrollPosition();
+  await this.document.update({ "system.bio.crest": "" });
 });
 
 
