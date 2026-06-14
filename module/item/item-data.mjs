@@ -229,3 +229,25 @@ export class CRPOriginData extends TypeDataModel {
     };
   }
 }
+
+export class CRPTraitData extends TypeDataModel {
+  static migrateData(source) {
+    if (
+      Object.hasOwn(source, "category") &&
+      !["advantage", "flaw"].includes(source.category)
+    ) {
+      source.category = "advantage";
+    }
+    return super.migrateData(source);
+  }
+
+  static defineSchema() {
+    return {
+      category: new StringField({
+        initial: "advantage",
+        choices: ["advantage", "flaw"]
+      }),
+      description: new StringField({ initial: "" })
+    };
+  }
+}

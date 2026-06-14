@@ -507,3 +507,21 @@ export class CRPOriginSheet extends CRPItemSheet {
     });
   }
 }
+
+export class CRPTraitSheet extends CRPItemSheet {
+  static PARTS = {
+    body: {
+      template: "systems/crp/templates/item/trait-sheet.hbs"
+    }
+  };
+
+  _preparePartContext(partId, context) {
+    if (partId !== "body") return context;
+
+    return {
+      ...context,
+      system: this.document.system,
+      item: this.document
+    };
+  }
+}

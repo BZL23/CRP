@@ -7,8 +7,8 @@ import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet, CRPAdvancementWindow } from "./actor/actor-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPItem } from "./item/item.mjs";
-import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData, CRPLanguageData, CRPOriginData } from "./item/item-data.mjs";
-import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet, CRPLanguageSheet, CRPOriginSheet } from "./item/item-sheet.mjs";
+import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData, CRPLanguageData, CRPOriginData, CRPTraitData } from "./item/item-data.mjs";
+import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet, CRPLanguageSheet, CRPOriginSheet, CRPTraitSheet } from "./item/item-sheet.mjs";
 
 const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
 const CRP_INITIATIVE_TOTALS = new Map();
@@ -336,7 +336,9 @@ Hooks.once("init", () => {
     shield: CRPShieldData,
     stuff: CRPStuffData,
     language: CRPLanguageData,
-    origin: CRPOriginData
+    origin: CRPOriginData,
+    trait: CRPTraitData,
+    flaw: CRPTraitData
   };
 
   CONFIG.Actor.documentClass = CRPActor;
@@ -381,6 +383,11 @@ foundry.documents.collections.Items.registerSheet("crp", CRPLanguageSheet, {
 
 foundry.documents.collections.Items.registerSheet("crp", CRPOriginSheet, {
   types: ["origin"],
+  makeDefault: true
+});
+
+foundry.documents.collections.Items.registerSheet("crp", CRPTraitSheet, {
+  types: ["trait", "flaw"],
   makeDefault: true
 });
 

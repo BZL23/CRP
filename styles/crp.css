@@ -1457,6 +1457,47 @@ justify-content: flex-start;
   text-align: center;
 }
 
+.crp-traits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.crp-trait-section {
+  padding: 10px;
+  border: 1px solid rgba(75, 48, 20, 0.85);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.crp-trait-section h2 {
+  margin: 0 0 8px;
+}
+
+.crp-trait-drop {
+  display: flex;
+  flex-direction: column;
+  min-height: 74px;
+  gap: 6px;
+  padding: 6px;
+  border: 1px dashed rgba(75, 48, 20, 0.9);
+  border-radius: 4px;
+}
+
+.crp-trait-row {
+  width: 100%;
+}
+
+.crp-trait-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+}
+
 .crp-bio-header {
   display: flex;
   justify-content: flex-end;
@@ -1508,7 +1549,8 @@ justify-content: flex-start;
 
 @media (max-width: 720px) {
   .crp-bio-identity,
-  .crp-languages {
+  .crp-languages,
+  .crp-traits {
     grid-template-columns: 1fr;
   }
 }

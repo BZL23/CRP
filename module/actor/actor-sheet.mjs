@@ -611,6 +611,68 @@ export class CRPActorSheet extends HandlebarsApplicationMixin(DocumentSheetV2) {
     }
   }
 
+  async _assignTrait(item, category) {
+    if (item.type !== "trait") {
+      ui.notifications.warn("W tym miejscu można umieszczać tylko przedmioty typu Wada/Zaleta.");
+      return;
+    }
+
+    if (item.system.category !== category) {
+      const expected = category === "advantage" ? "Zaletę" : "Wadę";
+      ui.notifications.warn(`W tym slocie można umieścić tylko ${expected}.`);
+      return;
+    }
+
+    const limits = {
+      advantage: 2,
+      flaw: 1
+    };
+    const assignedTraits = this.document.items.filter(candidate =>
+      candidate.type === "trait" &&
+      candidate.system.category === category &&
+      candidate.id !== item.id
+    );
+
+    if (assignedTraits.length >= limits[category]) {
+      ui.notifications.warn(
+        category === "advantage"
+          ? "Postać może posiadać maksymalnie dwie Zalety."
+          : "Postać może posiadać maksymalnie jedną Wadę."
+      );
+      return;
+    }
+
+    const duplicate = assignedTraits.some(candidate =>
+      candidate.name.trim().toLocaleLowerCase() === item.name.trim().toLocaleLowerCase()
+    );
+
+    if (duplicate) {
+      ui.notifications.warn("Ten przedmiot jest już przypisany do postaci.");
+      return;
+    }
+
+    const sourceActor = item.parent?.documentName === "Actor" ? item.parent : null;
+    const belongsToActor = sourceActor?.id === this.document.id;
+
+    if (belongsToActor) return;
+
+    if (sourceActor && !sourceActor.isOwner && !game.user.isGM) {
+      ui.notifications.warn("Brak uprawnień do przeniesienia przedmiotu z aktora źródłowego.");
+      return;
+    }
+
+    const itemData = item.toObject();
+    delete itemData._id;
+
+    this._rememberScrollPosition();
+    await this.document.createEmbeddedDocuments("Item", [itemData]);
+
+    if (sourceActor) {
+      await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+      sourceActor.sheet?.render(false);
+    }
+  }
+
   //  JEDYNE źródło danych dla template
 async _preparePartContext(partId, context) {
     if (partId !== "body") return context;
@@ -661,6 +723,12 @@ const foreignLanguages = this.document.items.filter(item =>
   item.type === "language" && item.system.role === "foreign"
 );
 const foreignLanguageLimit = this._getForeignLanguageLimit();
+const advantages = this.document.items.filter(item =>
+  item.type === "trait" && item.system.category === "advantage"
+);
+const flaws = this.document.items.filter(item =>
+  item.type === "trait" && item.system.category === "flaw"
+);
 
 return {
   ...context,
@@ -692,6 +760,12 @@ return {
       arabic: "Arabski",
       none: "Brak"
     }
+  },
+  traits: {
+    advantages,
+    flaws,
+    advantagesRemaining: Math.max(0, 2 - advantages.length),
+    flawsRemaining: Math.max(0, 1 - flaws.length)
   }
 };
 
@@ -988,6 +1062,13 @@ if (!root.dataset?.dropBound) {
       const item = await fromUuid(data.uuid);
       if (!item) return;
 
+      const traitDrop = ev.target.closest?.(".crp-trait-drop");
+
+      if (traitDrop) {
+        await this._assignTrait(item, traitDrop.dataset.traitCategory);
+        return;
+      }
+
       const originDrop = ev.target.closest?.(".crp-origin-drop");
 
       if (originDrop) {
@@ -1009,6 +1090,11 @@ if (!root.dataset?.dropBound) {
 
       if (item.type === "origin") {
         ui.notifications.warn("Przeciągnij Pochodzenie do odpowiedniego slotu w zakładce Biografia.");
+        return;
+      }
+
+      if (item.type === "trait") {
+        ui.notifications.warn("Przeciągnij Wadę lub Zaletę do odpowiedniej sekcji w zakładce Biografia.");
         return;
       }
 

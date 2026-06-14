@@ -25,6 +25,13 @@ function migrateLegacyExportSource(source) {
 export class CRPItem extends Item {
   static migrateData(source) {
     migrateLegacyExportSource(source);
+
+    if (source.type === "flaw") {
+      source.type = "trait";
+      source.system ??= {};
+      source.system.category ??= "flaw";
+    }
+
     return super.migrateData(source);
   }
 }

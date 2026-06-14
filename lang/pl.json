@@ -8,12 +8,11 @@
     "Item": {
       "armor": "Pancerz",
       "effect": "Efekt",
-      "flaw": "Wada",
       "language": "Język",
       "origin": "Pochodzenie",
       "shield": "Tarcza",
       "stuff": "Przedmiot",
-      "trait": "Zaleta",
+      "trait": "Wada/Zaleta",
       "weapon": "Broń"
     }
   }

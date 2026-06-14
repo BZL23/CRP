@@ -1,0 +1,33 @@
+<section class="crp-item crp-trait-item">
+
+  <div class="crp-item-header">
+    <div class="crp-item-left">
+      <label>Nazwa</label>
+      <input type="text" data-path="name" value="{{item.name}}">
+    </div>
+
+    <div class="crp-item-img">
+      <img src="{{item.img}}" data-edit="img">
+    </div>
+  </div>
+
+  <div class="crp-form">
+    <label>Rodzaj</label>
+    <select data-path="system.category">
+      <option value="advantage"
+              {{#if (eq system.category "advantage")}}selected{{/if}}>
+        Zaleta
+      </option>
+      <option value="flaw"
+              {{#if (eq system.category "flaw")}}selected{{/if}}>
+        Wada
+      </option>
+    </select>
+  </div>
+
+  <div class="crp-item-description">
+    <label>Opis</label>
+    <textarea data-path="system.description">{{system.description}}</textarea>
+  </div>
+
+</section>
