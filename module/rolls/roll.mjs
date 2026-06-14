@@ -25,6 +25,19 @@ static formatMargin(margin) {
   return margin >= 0 ? `+${margin}` : margin;
 }
 
+static async showDiceSoNice(roll) {
+  const diceSoNiceActive = game.modules.get("dice-so-nice")?.active;
+  const showForRoll = game.dice3d?.showForRoll;
+
+  if (!diceSoNiceActive || typeof showForRoll !== "function") return;
+
+  try {
+    await showForRoll.call(game.dice3d, roll, game.user, true);
+  } catch (error) {
+    console.warn("CRP | Nie udało się wyświetlić rzutu w Dice So Nice.", error);
+  }
+}
+
 
     static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0, displayModifier = null } = {}) {
 
@@ -58,6 +71,7 @@ static formatMargin(margin) {
 
         // rzut 2k10
         const roll = await new Roll("2d10").roll();
+        await this.showDiceSoNice(roll);
         const dice = roll.dice?.[0]?.results?.map(r => r.result) ?? [];
         const total = roll.total;
 
