@@ -22,6 +22,16 @@ export class CRPActorData extends TypeDataModel {
       };
     }
 
+    if (
+      source.attributes &&
+      source.resources &&
+      !Object.hasOwn(source.resources, "advantageUses")
+    ) {
+      source.resources.advantageUses = {
+        value: source.attributes.reason?.value ?? 4
+      };
+    }
+
     return super.migrateData(source);
   }
 
@@ -117,6 +127,13 @@ export class CRPActorData extends TypeDataModel {
             date: new StringField(),
             text: new StringField()
           }), { initial: [] })
+        }),
+        advantageUses: new SchemaField({
+          value: new NumberField({
+            initial: 4,
+            min: 0,
+            integer: true
+          })
         })
       }),
 

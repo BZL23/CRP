@@ -765,7 +765,8 @@ return {
     advantages,
     flaws,
     advantagesRemaining: Math.max(0, 2 - advantages.length),
-    flawsRemaining: Math.max(0, 1 - flaws.length)
+    flawsRemaining: Math.max(0, 1 - flaws.length),
+    advantageUses: system.resources.advantageUses?.value ?? 0
   }
 };
 
@@ -1624,6 +1625,35 @@ html.querySelector(".crp-crest-clear")?.addEventListener("click", async ev => {
 
   this._rememberScrollPosition();
   await this.document.update({ "system.bio.crest": "" });
+});
+
+html.querySelector(".crp-use-advantage")?.addEventListener("click", async ev => {
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const current = this.document.system.resources.advantageUses?.value ?? 0;
+
+  if (current <= 0) {
+    ui.notifications.warn("Brak dostępnych użyć Zalet.");
+    return;
+  }
+
+  this._rememberScrollPosition();
+  await this.document.update({
+    "system.resources.advantageUses.value": Math.max(0, current - 1)
+  });
+});
+
+html.querySelector(".crp-add-advantage-use")?.addEventListener("click", async ev => {
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const current = this.document.system.resources.advantageUses?.value ?? 0;
+
+  this._rememberScrollPosition();
+  await this.document.update({
+    "system.resources.advantageUses.value": current + 1
+  });
 });
 
 

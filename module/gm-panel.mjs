@@ -66,6 +66,34 @@ html.querySelector("[data-action='give-fate-selected']")?.addEventListener("clic
   this.render(); // odśwież panel (ważne!)
 });
 
+html.querySelector("[data-action='spend-fate-selected']")?.addEventListener("click", async () => {
+
+  const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+  if (!selected.length) {
+    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+    return;
+  }
+
+  for (const checkbox of selected) {
+
+    const actorId = checkbox.value;
+    const actor = game.actors.get(actorId);
+    if (!actor) continue;
+
+    const current = actor.system.resources.fate.value ?? 0;
+
+    await actor.update({
+      "system.resources.fate.value": Math.max(current - 1, 0)
+    });
+
+  }
+
+  ui.notifications.info("Odjęto -1 Doli wybranym");
+
+  this.render();
+});
+
 html.querySelector("[data-action='give-xp-selected']")?.addEventListener("click", async () => {
 
   const selected = html.querySelectorAll(".crp-actor-row input:checked");
@@ -172,6 +200,29 @@ html.querySelector("[data-action='give-maneuver-selected']")?.addEventListener("
   }
 
   ui.notifications.info("Dodano +1 punkt manewru zaznaczonym");
+  this.render();
+});
+
+html.querySelector("[data-action='spend-maneuver-selected']")?.addEventListener("click", async () => {
+  const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+  if (!selected.length) {
+    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+    return;
+  }
+
+  for (const checkbox of selected) {
+    const actor = game.actors.get(checkbox.value);
+    if (!actor) continue;
+
+    const current = actor.system.derived.maneuver?.value ?? 0;
+
+    await actor.update({
+      "system.derived.maneuver.value": Math.max(current - 1, 0)
+    });
+  }
+
+  ui.notifications.info("Odjęto -1 punkt manewru zaznaczonym");
   this.render();
 });
 

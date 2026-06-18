@@ -447,9 +447,11 @@ Hooks.on("createActor", async (actor) => {
   if (actor.type !== "character") return;
 
   const max = actor.system.derived.health.max;
+  const reason = actor.system.attributes?.reason?.value ?? 4;
 
   await actor.update({
-    "system.derived.health.value": max
+    "system.derived.health.value": max,
+    "system.resources.advantageUses.value": reason
   });
 
   // TOKEN DEFAULT

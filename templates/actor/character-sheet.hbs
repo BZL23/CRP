@@ -488,9 +488,9 @@
           <img src="{{system.bio.crest}}"
                class="crp-crest-select crp-crest-image"
                title="Kliknij, aby zmienić herb">
-          <button type="button"
+        <!--  <button type="button"
                   class="crp-crest-clear"
-                  title="Usuń herb">✖</button>
+                  title="Usuń herb">✖</button> -->
         {{else}}
           <button type="button" class="crp-crest-select crp-crest-empty">
             Wybierz grafikę herbu
@@ -559,7 +559,21 @@
 
   <div class="crp-traits">
     <section class="crp-trait-section">
-      <h2>Zalety {{traits.advantages.length}}/2</h2>
+      <div class="crp-trait-header">
+        <h2>Zalety {{traits.advantageUses}}</h2>
+        <div class="crp-trait-uses-actions">
+          <button type="button"
+                  class="crp-add-advantage-use"
+                  title="Dodaj użycie Zalety">
+            +
+          </button>
+          <button type="button"
+                  class="crp-use-advantage"
+                  {{#unless traits.advantageUses}}disabled{{/unless}}>
+            Użyj
+          </button>
+        </div>
+      </div>
       <div class="crp-trait-drop"
            data-trait-category="advantage">
         {{#each traits.advantages as |trait|}}
@@ -583,7 +597,7 @@
     </section>
 
     <section class="crp-trait-section">
-      <h2>Wada {{traits.flaws.length}}/1</h2>
+      <h2>Wada</h2>
       <div class="crp-trait-drop"
            data-trait-category="flaw">
         {{#each traits.flaws as |trait|}}

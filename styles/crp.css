@@ -1475,6 +1475,31 @@ justify-content: flex-start;
   margin: 0 0 8px;
 }
 
+.crp-trait-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.crp-trait-header h2 {
+  margin: 0;
+}
+
+.crp-use-advantage {
+  min-width: 64px;
+}
+
+.crp-trait-uses-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.crp-add-advantage-use {
+  min-width: 32px;
+}
+
 .crp-trait-drop {
   display: flex;
   flex-direction: column;
