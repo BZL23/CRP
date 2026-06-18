@@ -454,7 +454,7 @@ input:focus {
 
 .crp-actor-row {
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-columns: auto 1fr auto auto auto auto;
   align-items: center;
   gap: 8px;
     background:
@@ -483,6 +483,12 @@ input:focus {
   font-weight: bold;
   color: #4b3014;
 }
+
+.crp-advantage-uses {
+  font-weight: bold;
+  color: #4b3014;
+}
+
 
 /* HEADER */
 

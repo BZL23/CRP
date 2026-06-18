@@ -10,7 +10,7 @@ export class CRPGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: true
     },
     position: {
-      width: 600,
+      width: 650,
       height: "auto"
     }
   };
@@ -226,6 +226,52 @@ html.querySelector("[data-action='spend-maneuver-selected']")?.addEventListener(
   this.render();
 });
 
+html.querySelector("[data-action='give-advantageUses-selected']")?.addEventListener("click", async () => {
+  const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+  if (!selected.length) {
+    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+    return;
+  }
+
+  for (const checkbox of selected) {
+    const actor = game.actors.get(checkbox.value);
+    if (!actor) continue;
+
+    const current = actor.system.resources.advantageUses?.value ?? 0;
+
+    await actor.update({
+      "system.resources.advantageUses.value": current + 1
+    });
+  }
+
+  ui.notifications.info("Dodano +1 użycie Zalety zaznaczonym");
+  this.render();
+});
+
+html.querySelector("[data-action='spend-advantageUses-selected']")?.addEventListener("click", async () => {
+  const selected = html.querySelectorAll(".crp-actor-row input:checked");
+
+  if (!selected.length) {
+    ui.notifications.warn("Wybierz przynajmniej jednego gracza");
+    return;
+  }
+
+  for (const checkbox of selected) {
+    const actor = game.actors.get(checkbox.value);
+    if (!actor) continue;
+
+    const current = actor.system.resources.advantageUses?.value ?? 0;
+
+    await actor.update({
+      "system.resources.advantageUses.value": Math.max(current - 1, 0)
+    });
+  }
+
+  ui.notifications.info("Odjęto -1 użycie Zalety zaznaczonym");
+  this.render();
+});
+
 html.querySelector("[data-action='toggle-all']")?.addEventListener("click", () => {
 
   const checkboxes = html.querySelectorAll(".crp-actor-row input");
@@ -411,6 +457,7 @@ _prepareContext() {
       maneuverMax: a.system.derived.maneuver?.max ?? 0,
       fate: a.system.resources.fate.value,
       fateMax: a.system.resources.fate.max ?? 2,
+      advantageUses: a.system.resources.advantageUses?.value ?? 0,
       experience: a.system.resources.experience?.value ?? 0,
       experienceFree: a.system.resources.experience?.free ?? 0
     }));

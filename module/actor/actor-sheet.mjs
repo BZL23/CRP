@@ -278,11 +278,18 @@ export class CRPAdvancementWindow extends HandlebarsApplicationMixin(Application
         this._rememberScrollPosition();
 
         try {
-          await this.actor.update({
+          const updates = {
             [path]: nextValue,
             "system.resources.experience.free": freeExperience - cost,
             "system.resources.experience.log": log
-          });
+          };
+
+          if (type === "attribute" && attr === "reason") {
+            const advantageUses = this.actor.system.resources.advantageUses?.value ?? 0;
+            updates["system.resources.advantageUses.value"] = advantageUses + 1;
+          }
+
+          await this.actor.update(updates);
         } finally {
           this.render({ force: true });
         }
