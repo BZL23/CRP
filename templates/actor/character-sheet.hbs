@@ -466,7 +466,7 @@
           <img src="{{system.bio.origin.img}}" class="crp-bio-identity-img">
           <div class="crp-bio-identity-details">
             <strong>{{system.bio.origin.name}}</strong>
-            <span>Kliknij, aby otworzyć</span>
+            <span><!-- Kliknij, aby otworzyć --></span>
           </div>
           {{#unless characterSheetsLocked}}
             <button type="button"
@@ -484,18 +484,24 @@
     <section class="crp-bio-identity-section">
       <h2>Herb postaci</h2>
       <div class="crp-crest-slot">
-        {{#if system.bio.crest}}
-          <img src="{{system.bio.crest}}"
-               class="crp-crest-select crp-crest-image"
-               title="Kliknij, aby zmienić herb">
-        <!--  <button type="button"
-                  class="crp-crest-clear"
-                  title="Usuń herb">✖</button> -->
-        {{else}}
-          <button type="button" class="crp-crest-select crp-crest-empty">
-            Wybierz grafikę herbu
-          </button>
-        {{/if}}
+        <textarea class="crp-crest-description"
+                  data-path="system.bio.crestDescription"
+                  placeholder="Opis herbu">{{system.bio.crestDescription}}</textarea>
+
+        <div class="crp-crest-image-wrap">
+          {{#if system.bio.crest}}
+            <img src="{{system.bio.crest}}"
+                 class="crp-crest-select crp-crest-image"
+                 title="Kliknij, aby zmienić herb">
+          <!--  <button type="button"
+                    class="crp-crest-clear"
+                    title="Usuń herb">✖</button> -->
+          {{else}}
+            <button type="button" class="crp-crest-select crp-crest-empty">
+              Wybierz grafikę herbu
+            </button>
+          {{/if}}
+        </div>
       </div>
     </section>
   </div>
@@ -526,7 +532,7 @@
     </section>
 
     <section class="crp-language-section">
-      <h2>Języki obce {{languages.remaining}}/{{languages.limit}}</h2>
+      <h2>Języki obce {{languages.used}}/{{languages.limit}}</h2>
       <div class="crp-language-drop crp-language-foreign"
            data-language-role="foreign">
         {{#each languages.foreign as |language|}}
@@ -560,7 +566,7 @@
   <div class="crp-traits">
     <section class="crp-trait-section">
       <div class="crp-trait-header">
-        <h2>Zalety {{traits.advantageUses}}</h2>
+        <h2>Zalety: {{traits.advantageUses}}</h2>
         <div class="crp-trait-uses-actions">
           <button type="button"
                   class="crp-add-advantage-use"

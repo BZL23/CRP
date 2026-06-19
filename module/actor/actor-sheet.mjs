@@ -759,6 +759,7 @@ return {
   languages: {
     native: nativeLanguage,
     foreign: foreignLanguages,
+    used: foreignLanguages.length,
     remaining: Math.max(0, foreignLanguageLimit - foreignLanguages.length),
     limit: foreignLanguageLimit,
     alphabets: {
@@ -844,7 +845,7 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
   // ======================
   //  INPUTY
   // ======================
-html.querySelectorAll("input[data-path]").forEach(input => {
+html.querySelectorAll("input[data-path], textarea[data-path]").forEach(input => {
 
   input.addEventListener("change", async ev => {
 
@@ -852,18 +853,27 @@ html.querySelectorAll("input[data-path]").forEach(input => {
 
     const isCheckbox =
       ev.currentTarget.type === "checkbox";
+    const isText =
+      ev.currentTarget.tagName === "TEXTAREA" ||
+      ev.currentTarget.type === "text";
 
     let value = isCheckbox
       ? ev.currentTarget.checked
-      : Number(ev.currentTarget.value);
+      : isText
+        ? ev.currentTarget.value
+        : Number(ev.currentTarget.value);
 
-    if (!isCheckbox && isNaN(value)) {
+    if (!isCheckbox && !isText && isNaN(value)) {
       value = 0;
     }
 
     if (isCheckbox) {
 
       // checkbox bez ograniczeń
+
+    } else if (isText) {
+
+      // tekst bez ograniczeń liczbowych
 
     } else if (path.startsWith("system.attributes")) {
 

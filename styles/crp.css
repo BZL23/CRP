@@ -11,6 +11,18 @@
   font-weight: bold;
 }
 
+@font-face {
+  font-family: "CRP-Scroll";
+  src: url("../fonts/Kingthings-Petrock-light.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "CRP-Scroll";
+  src: url("../fonts/Kingthings-Petrock.ttf") format("truetype");
+  font-weight: bold;
+}
+
+
 /* ===== OGÓLNE ===== */
 
 .crp-sheet {
@@ -523,8 +535,6 @@ input:focus {
   width: 50%;
   max-width: 300px; /* opcjonalne ograniczenie */
   aspect-ratio: 1 / 1;
-  border: 1px solid #444;
-  background: #ddd;
   overflow: hidden;
 }
 
@@ -772,6 +782,23 @@ input:focus {
 
   background: rgba(0, 0, 0, 0.2);
 }
+
+/*
+.crp-item-row-bio {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-family: "CRP-Header", serif;
+  font-weight: 800;
+  padding: 6px;
+  border: 1px solid rgba(75, 48, 20, 0.8);
+  border-radius: 4px;
+
+   background:
+  url("../assets/parchment.png");
+  background-size: cover;
+}
+  */
 
 /* Ikona */
 .crp-item-img {
@@ -1338,6 +1365,10 @@ justify-content: flex-start;
 }
 
 .crp-bio-identity-section h2 {
+    font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
+  color: #4b3014;
+  font-size: 1.5em;
   margin: 0 0 8px;
 }
 
@@ -1354,15 +1385,19 @@ justify-content: flex-start;
   border-radius: 4px;
 }
 
+.crp-crest-slot {
+  justify-content: space-between;
+}
+
 .crp-origin-drop:has(.crp-bio-identity-details) {
   cursor: pointer;
 }
 
-.crp-bio-identity-img {
-  width: 96px;
-  height: 96px;
+.crp-bio-identity-img{
+  width: auto;
+  height: 132px;
   object-fit: cover;
-  border: 1px solid rgba(75, 48, 20, 0.85);
+
 }
 
 .crp-bio-identity-details {
@@ -1370,6 +1405,9 @@ justify-content: flex-start;
   flex: 1;
   flex-direction: column;
   min-width: 0;
+      font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
+  color: #4b3014;
 }
 
 .crp-bio-identity-details span {
@@ -1402,8 +1440,40 @@ justify-content: flex-start;
   border: none;
 }
 
+.crp-crest-image-wrap {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.crp-crest-description {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 132px;
+  resize: vertical;
+  font-family: "CRP-Scroll", serif;
+  letter-spacing: 1px;
+  font-size: 1.2em;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.12);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  outline: none;
+}
+
+.crp-crest-description::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.crp-crest-description:focus {
+  border-color: rgba(214, 182, 106, 0.55);
+  box-shadow: 0 0 0 1px rgba(214, 182, 106, 0.16);
+}
+
 .crp-crest-empty {
-  width: 100%;
+  width: 160px;
   min-height: 132px;
 }
 
@@ -1422,6 +1492,10 @@ justify-content: flex-start;
 }
 
 .crp-language-section h2 {
+      font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
+  color: #4b3014;
+  font-size: 1.5em;
   margin: 0 0 8px;
 }
 
@@ -1478,6 +1552,10 @@ justify-content: flex-start;
 }
 
 .crp-trait-section h2 {
+      font-family: "CRP-Header", serif;
+  letter-spacing: 1px;
+  color: #4b3014;
+  font-size: 1.5em;
   margin: 0 0 8px;
 }
 
@@ -1553,6 +1631,8 @@ justify-content: flex-start;
   overflow: visible;
 
   background: rgba(0, 0, 0, 0.2);
+
+
 }
 
 .crp-bio-content h1,
@@ -1565,7 +1645,9 @@ justify-content: flex-start;
 }
 
 .crp-bio-content {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "CRP-Scroll", serif;
+  letter-spacing: 1px;
+  font-size: 1.5em;
 }
 
 .crp-bio-dialog prose-mirror {

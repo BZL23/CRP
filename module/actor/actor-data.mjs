@@ -231,7 +231,8 @@ bio: new SchemaField({
     name: new StringField({ nullable: true }),
     img: new StringField({ nullable: true })
   }),
-  crest: new StringField({ initial: "" })
+  crest: new StringField({ initial: "" }),
+  crestDescription: new StringField({ initial: "" })
 }),
 
     };
