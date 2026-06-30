@@ -9,10 +9,42 @@ function getSkillAdvancementCost(skillValue, attrValue) {
 }
 
 async function getAttackModifier(actor) {
+  const strikeText = text => [...text].map(character => `${character}\u0336`).join("");
+  const maneuvers = [
+    { key: "none", cost: 0, implemented: true },
+    { key: "assault", cost: 0, implemented: false },
+    { key: "holdBack", cost: 0, implemented: false },
+    { key: "charge", cost: 0, implemented: false },
+    { key: "shieldGuard", cost: 0, implemented: false },
+    { key: "harry", cost: 1, implemented: false },
+    { key: "withdraw", cost: 1, implemented: false },
+    { key: "knockdown", cost: 1, implemented: false },
+    { key: "standUp", cost: 1, implemented: false },
+    { key: "defensiveAttack", cost: 2, implemented: false },
+    { key: "aimedAttack", cost: 2, implemented: false },
+    { key: "lightningAttack", cost: 2, implemented: false },
+    { key: "shieldBash", cost: 2, implemented: false },
+    { key: "extraDodge", cost: 4, implemented: false },
+    { key: "disarm", cost: 4, implemented: false }
+  ].map(maneuver => ({
+    ...maneuver,
+    name: game.i18n.localize(`CRP.Maneuvers.${maneuver.key}.name`),
+    description: game.i18n.localize(`CRP.Maneuvers.${maneuver.key}.description`)
+  })).sort((a, b) => {
+    if (a.key === "none") return -1;
+    if (b.key === "none") return 1;
+    if (a.cost !== b.cost) return a.cost - b.cost;
+    return a.name.localeCompare(b.name, game.i18n.lang);
+  }).map(maneuver => ({
+    ...maneuver,
+    displayName: maneuver.implemented ? maneuver.name : strikeText(maneuver.name)
+  }));
+
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/crp/templates/attack.hbs",
     {
-      maneuver: actor.system.derived.maneuver
+      maneuver: actor.system.derived.maneuver,
+      maneuvers
     }
   );
 
@@ -26,9 +58,15 @@ async function getAttackModifier(actor) {
         default: true,
         callback: (_event, _button, dialog) => {
           const value = Number(dialog.element.querySelector("input[name='attackModifier']")?.value ?? 0);
+          const maneuverSelect = dialog.element.querySelector("select[name='maneuver']");
+          const maneuverOption = maneuverSelect?.selectedOptions[0];
+          const maneuverCost = Number(maneuverOption?.dataset.cost ?? 0);
+
           return {
             confirmed: true,
-            modifier: Math.max(-4, Math.min(4, Number.isFinite(value) ? value : 0))
+            modifier: Math.max(-4, Math.min(4, Number.isFinite(value) ? value : 0)),
+            maneuver: maneuverSelect?.value ?? "none",
+            maneuverCost: Number.isFinite(maneuverCost) ? maneuverCost : 0
           };
         }
       },
@@ -50,6 +88,19 @@ async function getAttackModifier(actor) {
 
       input.addEventListener("input", refreshOutput);
       refreshOutput();
+
+      const maneuverSelect = dialog.element.querySelector("select[name='maneuver']");
+      const maneuverDescription = dialog.element.querySelector(".crp-attack-maneuver-description");
+
+      if (maneuverSelect && maneuverDescription) {
+        const refreshManeuverDescription = () => {
+          const option = maneuverSelect.selectedOptions[0];
+          maneuverDescription.textContent = option?.dataset.description ?? "";
+        };
+
+        maneuverSelect.addEventListener("change", refreshManeuverDescription);
+        refreshManeuverDescription();
+      }
     }
   });
 }
@@ -1409,6 +1460,19 @@ const attackChoice = await getAttackModifier(this.document).catch(() => null);
 if (!attackChoice?.confirmed) return;
 
 const selectedAttackModifier = attackChoice.modifier;
+const maneuverCost = Math.max(0, Number(attackChoice.maneuverCost) || 0);
+const currentManeuver = this.document.system.derived.maneuver?.value ?? 0;
+
+if (maneuverCost > currentManeuver) {
+  ui.notifications.warn("Brak wystarczającej liczby Punktów Manewru.");
+  return;
+}
+
+if (maneuverCost > 0) {
+  await this.document.update({
+    "system.derived.maneuver.value": currentManeuver - maneuverCost
+  });
+}
 
 const msg = await ChatMessage.create({
 content: `

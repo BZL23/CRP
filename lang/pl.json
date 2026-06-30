@@ -1,4 +1,68 @@
 {
+  "CRP": {
+    "Maneuvers": {
+      "none": {
+        "name": "Brak",
+        "description": "Brak"
+      },
+      "assault": {
+        "name": "Natarcie",
+        "description": "Gwałtowny, śmiały atak, który daje premię +1 do testu ataku, lecz osłabia czujność; wszystkie testy obrony w tej rundzie obarczone są karą -1."
+      },
+      "holdBack": {
+        "name": "Powstrzymanie",
+        "description": "Ostrożna postawa, skupiona na obronie; +1 do wybranego testu obrony, lecz wszystkie testy ataku w tej rundzie otrzymują karę -1."
+      },
+      "charge": {
+        "name": "Szarża",
+        "description": "Impet natarcia z rozbiegu wzmacnia siłę ciosu; +2 do testu ataku."
+      },
+      "shieldGuard": {
+        "name": "Zastawa tarczą",
+        "description": "Pełne skupienie na obronie; +2 do testów obrony tarczą kosztem rezygnacji ze wszystkich ataków w rundzie."
+      },
+      "harry": {
+        "name": "Harc",
+        "description": "Postać próbuje olśnić lub zastraszyć przeciwnika - słowem, gestem bądź zręczną sztuczką, która podkopuje pewność siebie oponenta. Jeśli przeciwnik nie wykona udanego testu Siły Woli, do końca bieżącej rundy wszystkie jego testy obarczone są karą -2."
+      },
+      "withdraw": {
+        "name": "Odstąpienie",
+        "description": "Umiejętne wycofanie się ze zwarcia bez narażania się na atak okazyjny."
+      },
+      "knockdown": {
+        "name": "Powalenie",
+        "description": "Poza zadaniem obrażeń zmusza przeciwnika do przeciwstawnego testu Tężyzny (atakujący) przeciw Atletyce (broniący się); porażka oznacza upadek."
+      },
+      "standUp": {
+        "name": "Powstanie",
+        "description": "Dodatkowa próba poderwania się z ziemi po nieudanym wstaniu."
+      },
+      "aimedAttack": {
+        "name": "Atak celowany",
+        "description": "Precyzyjne uderzenie prowadzone z rozwagą; +3 do testu ataku."
+      },
+      "defensiveAttack": {
+        "name": "Defensywny atak",
+        "description": "Cios zadany z zachowaniem szczególnej ostrożności; +3 do testu obrony."
+      },
+      "lightningAttack": {
+        "name": "Błyskawiczny atak",
+        "description": "Uderzenie wyprzedzające bieg wydarzeń; wykonywane przed ustaloną kolejnością Inicjatywy, jednak dopiero w kolejnej rundzie."
+      },
+      "shieldBash": {
+        "name": "Uderzenie tarczą",
+        "description": "Wykorzystanie tarczy jako broni; poza obrażeniami, po udanym trafieniu, może powalić przeciwnika (test Atletyki)."
+      },
+      "extraDodge": {
+        "name": "Dodatkowy unik",
+        "description": "Ostatnia, desperacka próba ocalenia; po wykonaniu dowolnej obrony postać może jeszcze raz spróbować uniknąć ciosu."
+      },
+      "disarm": {
+        "name": "Rozbrojenie",
+        "description": "Zamiast zadawać rany, postać wytrąca broń z dłoni przeciwnika, jeśli osiągnie sukces w teście walki."
+      }
+    }
+  },
   "TYPES": {
     "Actor": {
       "character": "Postać",

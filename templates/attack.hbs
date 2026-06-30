@@ -14,5 +14,18 @@
   </div>
 <label for="crp-attack-modifier">Dostępne Punkty Manewru: {{maneuver.value}} / {{maneuver.max}}</label>
 
+  <label for="crp-attack-maneuver">Manewr</label>
+  <select id="crp-attack-maneuver" name="maneuver">
+    {{#each maneuvers as |maneuver|}}
+      <option value="{{maneuver.key}}"
+              data-cost="{{maneuver.cost}}"
+              data-description="{{maneuver.description}}"
+              {{#if (eq maneuver.key "none")}}selected{{/if}}>
+        {{maneuver.displayName}} (koszt: {{maneuver.cost}})
+      </option>
+    {{/each}}
+  </select>
+
+  <div class="crp-attack-maneuver-description"></div>
 
 </div>

@@ -896,6 +896,8 @@ input:focus {
   gap: 8px;
 
   min-width: 300px;
+  width: 340px;
+  max-width: 340px;
   font-family: "CRP-Header", serif;
   padding: 10px;
     overflow-y: auto;
@@ -904,7 +906,7 @@ input:focus {
   url("../assets/parchment.png");
   background-size: cover;
   color: #4b3014;
-  align-items: center;
+  align-items: stretch;
 }
 
 .crp-attack-modifier-row {
@@ -917,6 +919,24 @@ input:focus {
 .crp-attack-modifier-value {
   text-align: center;
   font-weight: 800;
+}
+
+.crp-attack-dialog select {
+  width: 100%;
+}
+
+.crp-attack-maneuver-description {
+  min-height: 42px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid rgba(75, 48, 20, 0.45);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.12);
+  font-family: Georgia, "Times New Roman", serif;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .crp-skills-dialog {
