@@ -1019,6 +1019,28 @@ if (!html.dataset.deleteBound) {
 
   const item = this.document.items.get(itemId);
 
+  const confirmed = await foundry.applications.api.DialogV2.confirm({
+    window: {
+      title: "Usunąć przedmiot?"
+    },
+    content: `
+      <p>
+        Czy na pewno chcesz usunąć przedmiot
+        <strong>${foundry.utils.escapeHTML(item?.name ?? "bez nazwy")}</strong>?
+      </p>
+    `,
+    yes: {
+      label: "Usuń",
+      icon: "fa-solid fa-trash"
+    },
+    no: {
+      label: "Anuluj",
+      icon: "fa-solid fa-times"
+    }
+  });
+
+  if (!confirmed) return;
+
   const eq = this.document.system.equipment;
   const updates = {};
   const slots = ["rightHand", "leftHand", "armor"];
