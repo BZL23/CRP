@@ -20,6 +20,7 @@
       <option value="{{maneuver.key}}"
               data-cost="{{maneuver.cost}}"
               data-description="{{maneuver.description}}"
+              {{#if maneuver.disabled}}disabled{{/if}}
               {{#if (eq maneuver.key "none")}}selected{{/if}}>
         {{maneuver.displayName}} (koszt: {{maneuver.cost}})
       </option>

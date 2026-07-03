@@ -42,7 +42,7 @@
         "description": "Precyzyjne uderzenie prowadzone z rozwagą; +3 do testu ataku."
       },
       "defensiveAttack": {
-        "name": "Defensywny atak",
+        "name": "Defensywa",
         "description": "Cios zadany z zachowaniem szczególnej ostrożności; +3 do testu obrony."
       },
       "lightningAttack": {

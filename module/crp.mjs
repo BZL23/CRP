@@ -78,6 +78,25 @@ async function flushPendingCombatInitiatives(combat) {
   }
 }
 
+async function clearCombatManeuverFlags(combat) {
+  if (!game.user.isGM || !combat) return;
+
+  const actors = [
+    ...new Set(
+      combat.combatants
+        .map(combatant => combatant.actor)
+        .filter(Boolean)
+    )
+  ];
+
+  await Promise.all(
+    actors.flatMap(actor => [
+      actor.unsetFlag("crp", "aimedAttack"),
+      actor.unsetFlag("crp", "defensiveAttack")
+    ])
+  );
+}
+
 function renderDamageControls({ messageId, defenderUuid, damage, hasFate, resolved = false, status = "" } = {}) {
   const disabled = resolved || !hasFate ? "disabled" : "";
   const note = status || (!hasFate ? "Brak Doli - obrażenia przyjęte automatycznie." : "Obrońca może przyjąć albo anulować obrażenia wydając punkt Doli.");
@@ -727,6 +746,11 @@ Handlebars.registerHelper("eq", (a, b) => a === b);
 
 Hooks.on("updateCombat", async (combat, changed) => {
 
+  if (changed.started === false) {
+    await clearCombatManeuverFlags(combat);
+    return;
+  }
+
   if (!combat.started || (changed.turn === undefined && changed.round === undefined)) return;
 
   if (changed.round !== undefined) {
@@ -748,11 +772,30 @@ if (game.user.isGM) {
   if (!combatant) return;
 
   const actor = combatant.actor;
+
+  if (game.user.isGM && actor) {
+    for (const flagName of ["aimedAttack", "defensiveAttack"]) {
+      const maneuver = actor.getFlag("crp", flagName);
+
+      if (
+        maneuver?.combatId === combat.id &&
+        maneuver?.combatantId === combatant.id &&
+        combat.round >= maneuver.expiresRound
+      ) {
+        await actor.unsetFlag("crp", flagName);
+      }
+    }
+  }
+
   if (!actor) return;
 
   if (actor.type !== "character") return;
 
   await CRPRoll.processTurn(actor);
+});
+
+Hooks.on("deleteCombat", async (combat) => {
+  await clearCombatManeuverFlags(combat);
 });
 
 
@@ -953,6 +996,27 @@ const parryCandidates = [
   }
 
   defSkill = "shield";
+  defenseModifier = mountedDefenseModifier + 1;
+}
+
+const combat = game.combat;
+const combatant = combat?.combatants.find(combatant => combatant.actor?.id === defender.id);
+const defensiveAttack = defender.getFlag("crp", "defensiveAttack");
+const defensiveAttackBonus =
+  defensiveAttack?.oneTime
+    ? Number(defensiveAttack.bonus) || 3
+    : combat?.started &&
+      defensiveAttack?.combatId === combat.id &&
+      defensiveAttack?.combatantId === combatant?.id
+      ? Number(defensiveAttack.bonus) || 3
+      : 0;
+
+if (defensiveAttackBonus) {
+  defenseModifier += defensiveAttackBonus;
+
+  if (defensiveAttack.oneTime) {
+    await defender.unsetFlag("crp", "defensiveAttack");
+  }
 }
 
 const result = await attacker.opposedTest(

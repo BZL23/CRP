@@ -10,6 +10,10 @@ function getSkillAdvancementCost(skillValue, attrValue) {
 
 async function getAttackModifier(actor) {
   const strikeText = text => [...text].map(character => `${character}\u0336`).join("");
+  const activeAimedAttack = actor.getFlag("crp", "aimedAttack");
+  const activeDefensiveAttack = actor.getFlag("crp", "defensiveAttack");
+  const hasActiveManeuver = !!activeAimedAttack || !!activeDefensiveAttack;
+  const availableManeuver = actor.system.derived.maneuver?.value ?? 0;
   const maneuvers = [
     { key: "none", cost: 0, implemented: true },
     { key: "assault", cost: 0, implemented: false },
@@ -20,8 +24,8 @@ async function getAttackModifier(actor) {
     { key: "withdraw", cost: 1, implemented: false },
     { key: "knockdown", cost: 1, implemented: false },
     { key: "standUp", cost: 1, implemented: false },
-    { key: "defensiveAttack", cost: 2, implemented: false },
-    { key: "aimedAttack", cost: 2, implemented: false },
+    { key: "defensiveAttack", cost: 2, implemented: true },
+    { key: "aimedAttack", cost: 2, implemented: true },
     { key: "lightningAttack", cost: 2, implemented: false },
     { key: "shieldBash", cost: 2, implemented: false },
     { key: "extraDodge", cost: 4, implemented: false },
@@ -37,7 +41,10 @@ async function getAttackModifier(actor) {
     return a.name.localeCompare(b.name, game.i18n.lang);
   }).map(maneuver => ({
     ...maneuver,
-    displayName: maneuver.implemented ? maneuver.name : strikeText(maneuver.name)
+    displayName: maneuver.implemented ? maneuver.name : strikeText(maneuver.name),
+    disabled:
+      maneuver.key !== "none" &&
+      (hasActiveManeuver || maneuver.cost > availableManeuver)
   }));
 
   const content = await foundry.applications.handlebars.renderTemplate(
@@ -61,12 +68,13 @@ async function getAttackModifier(actor) {
           const maneuverSelect = dialog.element.querySelector("select[name='maneuver']");
           const maneuverOption = maneuverSelect?.selectedOptions[0];
           const maneuverCost = Number(maneuverOption?.dataset.cost ?? 0);
+          const maneuverDisabled = maneuverOption?.disabled;
 
           return {
             confirmed: true,
             modifier: Math.max(-4, Math.min(4, Number.isFinite(value) ? value : 0)),
-            maneuver: maneuverSelect?.value ?? "none",
-            maneuverCost: Number.isFinite(maneuverCost) ? maneuverCost : 0
+            maneuver: maneuverDisabled ? "none" : maneuverSelect?.value ?? "none",
+            maneuverCost: maneuverDisabled ? 0 : Number.isFinite(maneuverCost) ? maneuverCost : 0
           };
         }
       },
@@ -1474,6 +1482,61 @@ if (maneuverCost > 0) {
   });
 }
 
+const combat = game.combat;
+const combatant = combat?.combatants.find(combatant => combatant.actor?.id === this.document.id);
+const aimedAttack = this.document.getFlag("crp", "aimedAttack");
+const aimedAttackBonus =
+  combat?.started &&
+  aimedAttack?.combatId === combat.id &&
+  aimedAttack?.combatantId === combatant?.id
+    ? Number(aimedAttack.bonus) || 3
+    : 0;
+const startsAimedAttack =
+  attackChoice.maneuver === "aimedAttack" &&
+  combat?.started &&
+  combatant;
+const oneTimeAimedAttack =
+  attackChoice.maneuver === "aimedAttack" &&
+  !combat?.started;
+const startsDefensiveAttack =
+  attackChoice.maneuver === "defensiveAttack" &&
+  combat?.started &&
+  combatant;
+const oneTimeDefensiveAttack =
+  attackChoice.maneuver === "defensiveAttack" &&
+  !combat?.started;
+
+if (startsAimedAttack) {
+  await this.document.setFlag("crp", "aimedAttack", {
+    combatId: combat.id,
+    combatantId: combatant.id,
+    expiresRound: (combat.round ?? 0) + 1,
+    bonus: 3
+  });
+}
+
+if (startsDefensiveAttack) {
+  await this.document.setFlag("crp", "defensiveAttack", {
+    combatId: combat.id,
+    combatantId: combatant.id,
+    expiresRound: (combat.round ?? 0) + 1,
+    bonus: 3
+  });
+}
+
+if (oneTimeDefensiveAttack) {
+  await this.document.setFlag("crp", "defensiveAttack", {
+    oneTime: true,
+    bonus: 3
+  });
+}
+
+const totalAttackModifier =
+  attackModifier +
+  mountedAdvantage +
+  selectedAttackModifier +
+  (startsAimedAttack || oneTimeAimedAttack ? 3 : aimedAttackBonus);
+
 const msg = await ChatMessage.create({
 content: `
   <div class="crp-defense-choice"
@@ -1483,7 +1546,7 @@ content: `
     data-skill="${attackSkill}"
 data-item-type="${itemType}"
 data-range="${itemRange}"
-data-attack-modifier="${attackModifier + mountedAdvantage + selectedAttackModifier}"
+data-attack-modifier="${totalAttackModifier}"
 data-selected-attack-modifier="${selectedAttackModifier}"
 data-attacker-mounted="${attackerMounted ? "true" : "false"}"
 data-defender-mounted="${defenderMounted ? "true" : "false"}">
