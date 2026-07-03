@@ -26,15 +26,38 @@ export class CRPActor extends Actor {
       derived.initiativeArmorModifier;
 
     // Zdrowie
-    const maxHealth =
-      attr.strength.value +
-      attr.character.value;
+    const maxHealth = this.type === "npc"
+      ? Math.max(1, Number(derived.health.max) || 8)
+      : attr.strength.value + attr.character.value;
 
-    derived.health.max = maxHealth;
+    if (this.type !== "npc") {
+      derived.health.max = maxHealth;
+    }
+
+    if (this.type === "npc" && (!Number.isFinite(Number(derived.health.value)) || derived.health.value < 1)) {
+      derived.health.value = maxHealth;
+    }
 
     // clamp
     if (derived.health.value > maxHealth) {
       derived.health.value = maxHealth;
+    }
+
+    if (this.type === "npc") {
+      const equipment = system.equipment ?? {};
+      const armorId = equipment.armor?.id;
+      const armor = armorId ? this.items.get(armorId) : null;
+      const shields = ["rightHand", "leftHand"]
+        .map(slot => {
+          const id = equipment[slot]?.id;
+          return id ? this.items.get(id) : null;
+        })
+        .filter(item => item?.type === "shield");
+
+      system.npc.protection = [
+        armor?.type === "armor" ? armor : null,
+        ...shields
+      ].filter(Boolean).reduce((sum, item) => sum + (Number(item.system.protection) || 0), 0);
     }
 
     // PUNKTY MANEWRU

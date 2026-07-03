@@ -451,6 +451,14 @@ Combat.prototype.rollInitiative = async function(ids, options = {}) {
 
 Hooks.on("updateItem", async (item, changed) => {
   if (
+    ["armor", "shield"].includes(item.type) &&
+    item.parent?.documentName === "Actor" &&
+    hasChangedPath(changed, "system.protection")
+  ) {
+    item.parent.sheet?.render(false);
+  }
+
+  if (
     item.type !== "origin" ||
     item.parent?.documentName !== "Actor" ||
     item.parent.system.bio?.origin?.id !== item.id ||

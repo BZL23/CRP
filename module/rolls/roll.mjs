@@ -39,7 +39,7 @@ static async showDiceSoNice(roll) {
 }
 
 
-    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0, displayModifier = null, targetOverride = null } = {}) {
+    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0, displayModifier = null, targetOverride = null, rollLabel = null } = {}) {
 
         if (!actor) {
             console.error("Brak aktora");
@@ -113,7 +113,8 @@ const result = {
 if (chat) {
   const content = this.renderRollHTML(actor, attrKey, skillKey, result, {
     usedFate: false,
-    allowFate: effectiveAllowFate
+    allowFate: effectiveAllowFate,
+    rollLabel
   });
 
   await ChatMessage.create({
@@ -248,7 +249,7 @@ return {
 };
     }
 
-static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allowFate = true } = {}) {
+static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allowFate = true, rollLabel = null } = {}) {
 
   const canUseFate = allowFate && (actor.isOwner || game.user.isGM);
 
@@ -301,7 +302,7 @@ const fateButton = canUseFate ? `
         <img src="${actor.img}" class="crp-roll-avatar">
         <div>
           <div class="crp-roll-actor">${actor.name}</div>
-          <div class="crp-roll-skill">${skillLabel} (${attrLabel})</div>
+          <div class="crp-roll-skill">${rollLabel ?? `${skillLabel} (${attrLabel})`}</div>
         </div>
       </div>
 

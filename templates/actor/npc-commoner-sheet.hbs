@@ -23,7 +23,11 @@
             <input type="number" 
                    data-path="system.derived.health.value"
                    value="{{system.derived.health.value}}">
-            / {{system.derived.health.max}}
+            /
+            <input type="number"
+                   class="crp-pd-value"
+                   data-path="system.derived.health.max"
+                   value="{{system.derived.health.max}}">
           </div>
                     <div class="crp-health-bar">
             <div class="crp-health-fill {{system.derived.woundState}}"
@@ -40,12 +44,23 @@
              data-path="system.npc.attributes"
              value="{{system.npc.attributes}}">
     </div>
+    <button type="button" class="crp-roll-initiative crp-roll-npc-attributes">Rzuć</button>
   </div>
 
   <div class="crp-stat">
     <label>Ochrona</label>
-    <div class="crp-stat-value">
-      {{system.npc.protection}}
+    <div class="crp-stat-value crp-protection-value">
+      <span class="crp-protection-total">{{system.npc.protection}}</span>
+      <span class="crp-protection-components">
+      <span class="crp-initiative-mod">
+        {{protection.armor}}
+        <i class="fa-solid fa-shirt" title="Redukcja z pancerza"></i>
+      </span>
+      <span class="crp-initiative-mod">
+        + {{protection.shield}}
+        <i class="fa-solid fa-shield-halved" title="Redukcja z tarczy"></i>
+      </span>
+      </span>
     </div>
   </div>
 
@@ -59,10 +74,17 @@
       </span>
       <span class="crp-initiative-mod">
         {{initiative.armorModifierText}}
-        <i class="fa-solid fa-shield-halved" title="Modyfikator z pancerza"></i>
+        <i class="fa-solid fa-shirt" title="Modyfikator z pancerza"></i>
       </span>
     </div>
     <button class="crp-roll-initiative">Rzuć</button>
+  </div>
+
+  <div class="crp-stat">
+    <label>Karta</label>
+    <button type="button" class="crp-roll-initiative crp-npc-sheet-lock">
+      {{#if npcSheetLocked}}Odblokuj kartę{{else}}Zablokuj kartę{{/if}}
+    </button>
   </div>
 
 </div>
@@ -126,7 +148,7 @@
 <div class="crp-equipment">
 
   <!-- PRAWA RĘKA -->
-  <div class="crp-eq-slot" data-slot="rightHand">
+  <div class="crp-eq-slot" data-slot="rightHand" style="max-height: 85px">
     <div class="crp-eq-header">Prawa ręka</div>
 
     {{#if document.system.equipment.rightHand.id}}
@@ -147,7 +169,7 @@
   </div>
 
   <!-- LEWA RĘKA -->
-  <div class="crp-eq-slot" data-slot="leftHand">
+  <div class="crp-eq-slot" data-slot="leftHand" style="max-height: 85px">
     <div class="crp-eq-header">Lewa ręka</div>
 
     {{#if document.system.equipment.leftHand.id}}
@@ -168,7 +190,7 @@
   </div>
 
   <!-- PANCERZ -->
-  <div class="crp-eq-slot" data-slot="armor">
+  <div class="crp-eq-slot" data-slot="armor" style="max-height: 85px">
     <div class="crp-eq-header">Pancerz</div>
 
     {{#if document.system.equipment.armor.id}}
@@ -186,7 +208,7 @@
   </div>
 
   <!-- KONNO -->
-  <div class="crp-eq-slot crp-mounted-slot" data-slot="mounted">
+  <div class="crp-eq-slot crp-mounted-slot" data-slot="mounted" style="max-height: 85px">
     <div class="crp-eq-header">Konno</div>
 
     <label class="crp-mounted-toggle">
@@ -202,7 +224,7 @@
 
 
 
-<div class="crp-fullwidth">
+<div class="crp-fullwidth" style="margin-top: -50px">
 
   <div class="crp-inventory-section">
     

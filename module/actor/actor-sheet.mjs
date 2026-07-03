@@ -796,6 +796,24 @@ const advantages = this.document.items.filter(item =>
 const flaws = this.document.items.filter(item =>
   item.type === "trait" && item.system.category === "flaw"
 );
+const equippedArmor = system.equipment.armor?.id
+  ? this.document.items.get(system.equipment.armor.id)
+  : null;
+const equippedShields = ["rightHand", "leftHand"]
+  .map(slot => {
+    const id = system.equipment[slot]?.id;
+    return id ? this.document.items.get(id) : null;
+  })
+  .filter(item => item?.type === "shield");
+const protection = {
+  armor: equippedArmor?.type === "armor"
+    ? Number(equippedArmor.system.protection) || 0
+    : 0,
+  shield: equippedShields.reduce(
+    (sum, item) => sum + (Number(item.system.protection) || 0),
+    0
+  )
+};
 
 return {
   ...context,
@@ -813,6 +831,8 @@ return {
       ? `+${system.derived.initiativeArmorModifier}`
       : `${system.derived.initiativeArmorModifier}`
   },
+  protection,
+  npcSheetLocked: false,
   tokenImg,
   activeTab: this.activeTab,
   characterSheetsLocked: game.settings.get("crp", "characterSheetsLocked"),
@@ -881,6 +901,23 @@ this._pendingScrollTop = undefined;
     });
   });
 
+html.querySelectorAll(".crp-roll-npc-attributes").forEach(btn => {
+  btn.addEventListener("click", async ev => {
+    ev.stopPropagation();
+
+    const choice = await getSkillModifier().catch(() => null);
+
+    if (!choice?.confirmed) return;
+
+    CRPRoll.skill(this.document, "strength", "endurance", {
+      modifier: choice.modifier,
+      displayModifier: choice.modifier,
+      targetOverride: this.document.system.npc?.attributes,
+      rollLabel: "Rzut na Atrybut postaci"
+    });
+  });
+});
+
   // ======================
 //  ROLL WILLPOWER
 // ======================
@@ -901,6 +938,11 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
   btn.addEventListener("click", ev => {
 
     ev.stopPropagation();
+
+    if (
+      btn.classList.contains("crp-roll-npc-attributes") ||
+      btn.classList.contains("crp-npc-sheet-lock")
+    ) return;
 
     CRPRoll.initiative(this.document);
 

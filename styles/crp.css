@@ -767,6 +767,9 @@ input:focus {
   flex-direction: column;
   gap: 4px;
   width: 100%;
+
+      height: 48px;
+    overflow-y: auto;
 }
 
 /* Pojedynczy item */
@@ -829,6 +832,9 @@ input:focus {
 .crp-inventory-section {
   width: 100%;
   margin-top:10px;
+
+      display: flex;
+    flex-direction: column;
 }
 
 /* WYŁAMANIE Z GRIDU FOUNDRY */
@@ -858,10 +864,7 @@ input:focus {
   flex: 0 0 100%;
 }
 
-/* item list */
-.crp-item-list {
-  width: 100%;
-}
+
 
 /* pojedynczy item */
 .crp-item-row {
@@ -1198,6 +1201,20 @@ text-align: center;
   align-items: center;
   gap: 4px;
   font-size: 0.65em;
+}
+
+.crp-protection-value {
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.1;
+}
+
+.crp-protection-components {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .crp-footer {
