@@ -114,6 +114,11 @@ export class CRPActorData extends TypeDataModel {
         })
       }),
 
+      npc: new SchemaField({
+        attributes: new NumberField({ initial: 8, min: 0, integer: true }),
+        protection: new NumberField({ initial: 0, min: 0, integer: true })
+      }),
+
       // ZASOBY
       resources: new SchemaField({
         fate: new SchemaField({

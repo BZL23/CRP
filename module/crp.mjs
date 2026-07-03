@@ -5,6 +5,7 @@ import { CRPActorData } from "./actor/actor-data.mjs";
 import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet, CRPAdvancementWindow } from "./actor/actor-sheet.mjs";
+import { CRPNPCCommonerSheet } from "./actor/npc-commoner-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPItem } from "./item/item.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData, CRPLanguageData, CRPOriginData, CRPTraitData } from "./item/item-data.mjs";
@@ -372,6 +373,11 @@ Hooks.once("init", () => {
 
   foundry.documents.collections.Actors.registerSheet("crp", CRPActorSheet, {
   types: ["character"],
+  makeDefault: true
+  });
+
+  foundry.documents.collections.Actors.registerSheet("crp", CRPNPCCommonerSheet, {
+  types: ["npc"],
   makeDefault: true
   });
 

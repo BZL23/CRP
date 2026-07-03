@@ -8,7 +8,7 @@ function getSkillAdvancementCost(skillValue, attrValue) {
   return skillValue + 1 > attrValue ? baseCost * 2 : baseCost;
 }
 
-async function getAttackModifier(actor) {
+async function getAttackModifier(actor, { allowManeuvers = true } = {}) {
   const strikeText = text => [...text].map(character => `${character}\u0336`).join("");
   const activeAimedAttack = actor.getFlag("crp", "aimedAttack");
   const activeDefensiveAttack = actor.getFlag("crp", "defensiveAttack");
@@ -51,7 +51,8 @@ async function getAttackModifier(actor) {
     "systems/crp/templates/attack.hbs",
     {
       maneuver: actor.system.derived.maneuver,
-      maneuvers
+      maneuvers,
+      allowManeuvers
     }
   );
 
@@ -73,8 +74,8 @@ async function getAttackModifier(actor) {
           return {
             confirmed: true,
             modifier: Math.max(-4, Math.min(4, Number.isFinite(value) ? value : 0)),
-            maneuver: maneuverDisabled ? "none" : maneuverSelect?.value ?? "none",
-            maneuverCost: maneuverDisabled ? 0 : Number.isFinite(maneuverCost) ? maneuverCost : 0
+            maneuver: allowManeuvers && !maneuverDisabled ? maneuverSelect?.value ?? "none" : "none",
+            maneuverCost: allowManeuvers && !maneuverDisabled && Number.isFinite(maneuverCost) ? maneuverCost : 0
           };
         }
       },
@@ -868,9 +869,14 @@ this._pendingScrollTop = undefined;
 
       if (!choice?.confirmed) return;
 
+      const targetOverride = this.document.type === "npc"
+        ? this.document.system.npc?.attributes
+        : null;
+
       CRPRoll.skill(this.document, attr, skill, {
         modifier: choice.modifier,
-        displayModifier: choice.modifier
+        displayModifier: choice.modifier,
+        targetOverride
       });
     });
   });
@@ -1463,7 +1469,9 @@ const hasShield =
   isShield(leftItem);
 
 const mountedAdvantage = attackerMounted && !defenderMounted ? 2 : 0;
-const attackChoice = await getAttackModifier(this.document).catch(() => null);
+const attackChoice = await getAttackModifier(this.document, {
+  allowManeuvers: this.document.type !== "npc"
+}).catch(() => null);
 
 if (!attackChoice?.confirmed) return;
 

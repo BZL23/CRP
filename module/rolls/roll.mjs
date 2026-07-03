@@ -39,7 +39,7 @@ static async showDiceSoNice(roll) {
 }
 
 
-    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0, displayModifier = null } = {}) {
+    static async skill(actor, attrKey, skillKey, { chat = true, allowFate = true, modifier = 0, displayModifier = null, targetOverride = null } = {}) {
 
         if (!actor) {
             console.error("Brak aktora");
@@ -60,12 +60,21 @@ static async showDiceSoNice(roll) {
             return null;
         }
 
-        const penalty = actor.system.derived.woundPenalty ?? 0;
-        const armorPenalty = actor.getArmorSkillPenalty?.(skillKey) ?? 0;
+        const isNPC = actor.type === "npc";
+        const effectiveAllowFate = allowFate && !isNPC;
+        const penalty = isNPC ? 0 : actor.system.derived.woundPenalty ?? 0;
+        const armorPenalty = isNPC ? 0 : actor.getArmorSkillPenalty?.(skillKey) ?? 0;
+
+        const npcTarget = isNPC ? Number(actor.system.npc?.attributes ?? 8) : NaN;
+        const targetBase = Number.isFinite(Number(targetOverride))
+          ? Number(targetOverride)
+          : Number.isFinite(npcTarget)
+          ? npcTarget
+          : attr.value + skill.value + penalty - armorPenalty;
 
         const target = Math.max(
   2,
-  attr.value + skill.value + penalty + modifier - armorPenalty
+  targetBase + modifier
 );
 
 
@@ -104,7 +113,7 @@ const result = {
 if (chat) {
   const content = this.renderRollHTML(actor, attrKey, skillKey, result, {
     usedFate: false,
-    allowFate
+    allowFate: effectiveAllowFate
   });
 
   await ChatMessage.create({
@@ -132,10 +141,10 @@ return result;
             return;
         }
 
-        const penaltyA = actorA.system.derived.woundPenalty ?? 0;
-        const penaltyB = actorB.system.derived.woundPenalty ?? 0;
-        const armorPenaltyA = rollA.armorPenalty ?? 0;
-        const armorPenaltyB = rollB.armorPenalty ?? 0;
+        const penaltyA = actorA.type === "npc" ? 0 : actorA.system.derived.woundPenalty ?? 0;
+        const penaltyB = actorB.type === "npc" ? 0 : actorB.system.derived.woundPenalty ?? 0;
+        const armorPenaltyA = actorA.type === "npc" ? 0 : rollA.armorPenalty ?? 0;
+        const armorPenaltyB = actorB.type === "npc" ? 0 : rollB.armorPenalty ?? 0;
         const attackModifierText = rollA.displayModifier === null
           ? ""
           : ` (modyfikator: ${rollA.displayModifier >= 0 ? "+" : ""}${rollA.displayModifier})`;
@@ -241,13 +250,14 @@ return {
 
 static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allowFate = true } = {}) {
 
-  const canUseFate = actor.isOwner || game.user.isGM;
+  const canUseFate = allowFate && (actor.isOwner || game.user.isGM);
 
   const skillLabel = CONFIG.CRP.skills[skillKey] ?? skillKey;
   const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
 
-  const penalty = actor.system.derived.woundPenalty ?? 0;
-  const armorPenalty = result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
+  const isNPC = actor.type === "npc";
+  const penalty = isNPC ? 0 : actor.system.derived.woundPenalty ?? 0;
+  const armorPenalty = isNPC ? 0 : result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
   const modifierText = result.displayModifier === null
     ? ""
     : ` (modyfikator: ${result.displayModifier >= 0 ? "+" : ""}${result.displayModifier})`;
