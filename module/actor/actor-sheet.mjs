@@ -770,7 +770,12 @@ async _preparePartContext(partId, context) {
     key: sk,
     label: String(config.skills[sk]),
     value: skillValue,
-    total: Math.max(0, skillValue + attrValue - armorPenalty),
+    total: Math.max(
+      0,
+      this.document.type === "npc"
+        ? (Number(system.npc?.attributes) || 0) - armorPenalty
+        : skillValue + attrValue - armorPenalty
+    ),
     armorPenalty
   };
 })
@@ -832,7 +837,7 @@ return {
       : `${system.derived.initiativeArmorModifier}`
   },
   protection,
-  npcSheetLocked: false,
+  npcSheetLocked: !!this.document.getFlag("crp", "npcSheetLocked"),
   tokenImg,
   activeTab: this.activeTab,
   characterSheetsLocked: game.settings.get("crp", "characterSheetsLocked"),
@@ -947,6 +952,15 @@ html.querySelectorAll(".crp-roll-initiative").forEach(btn => {
     CRPRoll.initiative(this.document);
 
   });
+});
+
+html.querySelector(".crp-npc-sheet-lock")?.addEventListener("click", async ev => {
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const locked = !!this.document.getFlag("crp", "npcSheetLocked");
+  await this.document.setFlag("crp", "npcSheetLocked", !locked);
+  this.render(false);
 });
 
   // ======================

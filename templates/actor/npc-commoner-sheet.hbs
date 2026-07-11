@@ -27,7 +27,8 @@
             <input type="number"
                    class="crp-pd-value"
                    data-path="system.derived.health.max"
-                   value="{{system.derived.health.max}}">
+                   value="{{system.derived.health.max}}"
+                   {{#if npcSheetLocked}}disabled{{/if}}>
           </div>
                     <div class="crp-health-bar">
             <div class="crp-health-fill {{system.derived.woundState}}"
@@ -42,7 +43,8 @@
     <div class="crp-health-values">
       <input type="number"
              data-path="system.npc.attributes"
-             value="{{system.npc.attributes}}">
+             value="{{system.npc.attributes}}"
+             {{#if npcSheetLocked}}disabled{{/if}}>
     </div>
     <button type="button" class="crp-roll-initiative crp-roll-npc-attributes">Rzuć</button>
   </div>
@@ -131,7 +133,7 @@
   </span>
 
   <div class="crp-skill-total">
-    {{../../system.npc.attributes}}
+    {{skill.total}}
   </div>
 
 </div>

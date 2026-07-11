@@ -63,18 +63,22 @@ static async showDiceSoNice(roll) {
         const isNPC = actor.type === "npc";
         const effectiveAllowFate = allowFate && !isNPC;
         const penalty = isNPC ? 0 : actor.system.derived.woundPenalty ?? 0;
-        const armorPenalty = isNPC ? 0 : actor.getArmorSkillPenalty?.(skillKey) ?? 0;
+        const armorPenalty = actor.getArmorSkillPenalty?.(skillKey) ?? 0;
 
-        const npcTarget = isNPC ? Number(actor.system.npc?.attributes ?? 8) : NaN;
-        const targetBase = Number.isFinite(Number(targetOverride))
+        const hasTargetOverride =
+          targetOverride !== null &&
+          targetOverride !== undefined &&
+          Number.isFinite(Number(targetOverride));
+
+        const targetBase = hasTargetOverride
           ? Number(targetOverride)
-          : Number.isFinite(npcTarget)
-          ? npcTarget
-          : attr.value + skill.value + penalty - armorPenalty;
+          : isNPC
+          ? Number(actor.system.npc?.attributes ?? 8)
+          : attr.value + skill.value + penalty;
 
         const target = Math.max(
   2,
-  targetBase + modifier
+  targetBase + modifier - armorPenalty
 );
 
 
@@ -144,8 +148,8 @@ return result;
 
         const penaltyA = actorA.type === "npc" ? 0 : actorA.system.derived.woundPenalty ?? 0;
         const penaltyB = actorB.type === "npc" ? 0 : actorB.system.derived.woundPenalty ?? 0;
-        const armorPenaltyA = actorA.type === "npc" ? 0 : rollA.armorPenalty ?? 0;
-        const armorPenaltyB = actorB.type === "npc" ? 0 : rollB.armorPenalty ?? 0;
+        const armorPenaltyA = rollA.armorPenalty ?? 0;
+        const armorPenaltyB = rollB.armorPenalty ?? 0;
         const attackModifierText = rollA.displayModifier === null
           ? ""
           : ` (modyfikator: ${rollA.displayModifier >= 0 ? "+" : ""}${rollA.displayModifier})`;
@@ -258,7 +262,7 @@ static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allo
 
   const isNPC = actor.type === "npc";
   const penalty = isNPC ? 0 : actor.system.derived.woundPenalty ?? 0;
-  const armorPenalty = isNPC ? 0 : result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
+  const armorPenalty = result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
   const modifierText = result.displayModifier === null
     ? ""
     : ` (modyfikator: ${result.displayModifier >= 0 ? "+" : ""}${result.displayModifier})`;
