@@ -248,7 +248,6 @@ function removeMountedTokenUnderlay(token) {
 async function refreshMountedTokenUnderlay(token) {
 
   const mounted = !!token?.actor?.system?.equipment?.mounted;
-  const spriteName = `crp-mounted-underlay-${token.document.id}`;
 
   if (!mounted) {
     removeMountedTokenUnderlay(token);
@@ -266,31 +265,31 @@ async function refreshMountedTokenUnderlay(token) {
     if (!texture) return;
 
     sprite = PIXI.Sprite.from(texture);
-    sprite.name = spriteName;
+    sprite.name = "crp-mounted-underlay";
     sprite.eventMode = "none";
     sprite.interactive = false;
 
     token._crpMountUnderlay = sprite;
 
     for (const child of token.mesh.parent.children) {
-    if (child.name === spriteName && child !== sprite) {
+    if (child.name === "crp-mounted-underlay" && child !== sprite) {
       child.destroy();
     }
   }
   }
 
-  // Zachowaj unikalną nazwę także dla sprite'ów utworzonych przed aktualizacją.
-  sprite.name = spriteName;
-
   const parent = token.mesh.parent;
 
   // upewnij się że jest tylko jeden sprite
-if (!sprite.parent) {
-  const parent = token.mesh.parent;
-  const meshIndex = parent.getChildIndex(token.mesh);
+  if (sprite.parent && sprite.parent !== parent) {
+    sprite.parent.removeChild(sprite);
+  }
 
-  parent.addChildAt(sprite, Math.max(0, meshIndex));
-}
+  if (!sprite.parent) {
+    const meshIndex = parent.getChildIndex(token.mesh);
+
+    parent.addChildAt(sprite, Math.max(0, meshIndex));
+  }
 
   // update pozycji – TERAZ bez laga
   sprite.position.copyFrom(token.mesh.position);
@@ -315,8 +314,27 @@ if (!sprite.parent) {
   }
 }
 
+function getMountedActorTokens(actor) {
+  const tokens = new Set(actor?.getActiveTokens?.(false) ?? []);
+
+  if (!canvas?.ready) return [...tokens];
+
+  for (const token of canvas.tokens?.placeables ?? []) {
+    const tokenActor = token.actor;
+    const matchesActor =
+      tokenActor === actor ||
+      tokenActor?.uuid === actor?.uuid ||
+      tokenActor?.id === actor?.id ||
+      token.document?.actorId === actor?.id;
+
+    if (matchesActor) tokens.add(token);
+  }
+
+  return [...tokens];
+}
+
 function refreshMountedActorUnderlays(actor) {
-  const tokens = actor?.getActiveTokens?.(false) ?? [];
+  const tokens = getMountedActorTokens(actor);
 
   for (const token of tokens) {
     refreshMountedTokenUnderlay(token);
@@ -539,6 +557,20 @@ Hooks.on("refreshToken", token => {
 
 Hooks.on("deleteToken", tokenDocument => {
   removeMountedTokenUnderlay(tokenDocument?.object);
+});
+
+Hooks.on("crpMountedChanged", actor => {
+  refreshMountedActorUnderlays(actor);
+});
+
+Hooks.on("updateToken", (tokenDocument, changed) => {
+  const mountedChanged = [
+    "actorData.system.equipment.mounted",
+    "delta.system.equipment.mounted",
+    "system.equipment.mounted"
+  ].some(path => hasChangedPath(changed, path));
+
+  if (mountedChanged) refreshMountedTokenUnderlay(tokenDocument?.object);
 });
 
 Hooks.on("preUpdateActor", (actor, changed) => {

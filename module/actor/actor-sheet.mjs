@@ -1033,6 +1033,10 @@ html.querySelectorAll("input[data-path], textarea[data-path]").forEach(input => 
       [path]: value
     });
 
+    if (path === "system.equipment.mounted") {
+      Hooks.callAll("crpMountedChanged", this.document);
+    }
+
   });
 
 });
