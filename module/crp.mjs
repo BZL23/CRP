@@ -1118,6 +1118,29 @@ if (eq.armor?.id) {
   armorProtection = armorItem?.system?.protection ?? 0;
 }
 
+// --- SHIELD ---
+let shieldProtection = 0;
+
+const rightShield = eq.rightHand?.id
+  ? defender.items.get(eq.rightHand.id)
+  : null;
+
+const leftShield = eq.leftHand?.id
+  ? defender.items.get(eq.leftHand.id)
+  : null;
+
+const getShieldProtection = item =>
+  item?.type === "shield"
+    ? Number(item.system?.protection) || 0
+    : 0;
+
+shieldProtection = defenseType === "shield"
+  ? Math.max(
+      getShieldProtection(rightShield),
+      getShieldProtection(leftShield)
+    )
+  : 0;
+
 // =====================
 // SYMBOLE – OBRONA
 // =====================
@@ -1126,6 +1149,7 @@ const defenseShields = result.rollB?.shields ?? 0;
 
 let reduction =
   armorProtection +
+  shieldProtection +
   defenseEagles -
   defenseShields;
 
@@ -1140,6 +1164,7 @@ damage = Math.max(0, damage);
 const reductionText = `
   🛡 Redukcja: ${reduction}
   (${armorProtection} pancerz
+   ${shieldProtection ? ` + ${shieldProtection} tarcza` : ""}
    ${defenseEagles ? ` + ${defenseEagles} 🦅` : ""}
    ${defenseShields ? ` - ${defenseShields} 🛡️` : ""}
   )
