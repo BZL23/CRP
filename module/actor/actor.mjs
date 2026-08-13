@@ -90,7 +90,7 @@ export class CRPActor extends Actor {
     // progi
     if (hp <= 0) {
       penalty = -2;
-    } else if (hp <= Math.floor(max / 2)) {
+    } else if (hp < max / 2) {
       penalty = -1;
     }
 
@@ -100,7 +100,7 @@ export class CRPActor extends Actor {
 
     if (hp <= 0) {
       woundState = "critical";
-    } else if (hp <= Math.floor(max / 2)) {
+    } else if (hp < max / 2) {
       woundState = "wounded";
     }
 
