@@ -767,9 +767,6 @@ input:focus {
   flex-direction: column;
   gap: 4px;
   width: 100%;
-
-      height: 48px;
-    overflow-y: auto;
 }
 
 /* Pojedynczy item */
