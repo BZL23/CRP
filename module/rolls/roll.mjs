@@ -62,7 +62,7 @@ static async showDiceSoNice(roll) {
 
         const isNPC = actor.type === "npc";
         const effectiveAllowFate = allowFate && !isNPC;
-        const penalty = isNPC ? 0 : actor.system.derived.woundPenalty ?? 0;
+        const penalty = actor.system.derived.woundPenalty ?? 0;
         const armorPenalty = actor.getArmorSkillPenalty?.(skillKey) ?? 0;
 
         const hasTargetOverride =
@@ -74,11 +74,11 @@ static async showDiceSoNice(roll) {
           ? Number(targetOverride)
           : isNPC
           ? Number(actor.system.npc?.attributes ?? 8)
-          : attr.value + skill.value + penalty;
+          : attr.value + skill.value;
 
         const target = Math.max(
   2,
-  targetBase + modifier - armorPenalty
+  targetBase + penalty + modifier - armorPenalty
 );
 
 
@@ -146,8 +146,8 @@ return result;
             return;
         }
 
-        const penaltyA = actorA.type === "npc" ? 0 : actorA.system.derived.woundPenalty ?? 0;
-        const penaltyB = actorB.type === "npc" ? 0 : actorB.system.derived.woundPenalty ?? 0;
+        const penaltyA = actorA.system.derived.woundPenalty ?? 0;
+        const penaltyB = actorB.system.derived.woundPenalty ?? 0;
         const armorPenaltyA = rollA.armorPenalty ?? 0;
         const armorPenaltyB = rollB.armorPenalty ?? 0;
         const attackModifierText = rollA.displayModifier === null
@@ -260,8 +260,7 @@ static renderRollHTML(actor, attrKey, skillKey, result, { usedFate = false, allo
   const skillLabel = CONFIG.CRP.skills[skillKey] ?? skillKey;
   const attrLabel = CONFIG.CRP.attributes[attrKey] ?? attrKey;
 
-  const isNPC = actor.type === "npc";
-  const penalty = isNPC ? 0 : actor.system.derived.woundPenalty ?? 0;
+  const penalty = actor.system.derived.woundPenalty ?? 0;
   const armorPenalty = result.armorPenalty ?? actor.getArmorSkillPenalty?.(skillKey) ?? 0;
   const modifierText = result.displayModifier === null
     ? ""
