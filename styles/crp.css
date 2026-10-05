@@ -396,11 +396,18 @@ input:focus {
   padding: 10px;
     font-family: "CRP-Header", serif;
   color: #4b3014;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
 
     background:
   url("../assets/parchment.png");
   background-size: cover;
   border: 5px double rgba(75, 48, 20, 1);
+}
+
+.crp.gm-panel .window-content {
+  overflow-y: auto;
 }
 
 /* TYTUŁ */

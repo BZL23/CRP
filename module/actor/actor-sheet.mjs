@@ -1706,11 +1706,22 @@ btn.innerHTML = `
     ev.preventDefault();
     ev.stopPropagation();
 
-new foundry.applications.sheets.PrototypeTokenConfig({
-  prototype: this.document.prototypeToken
-}).render({ force: true });
+    const renderOptions = { force: true };
+    const tokenDocument = [
+      this.token?.document,
+      this.token,
+      this.options?.token?.document,
+      this.options?.token,
+      this.document.token
+    ].find(candidate => candidate instanceof foundry.documents.TokenDocument) ?? null;
 
-
+    if (tokenDocument?.sheet) {
+      tokenDocument.sheet.render(renderOptions);
+    } else {
+      new CONFIG.Token.prototypeSheetClass({
+        prototype: this.document.prototypeToken
+      }).render(renderOptions);
+    }
 
 
   });

@@ -495,15 +495,19 @@ Hooks.on("updateItem", async (item, changed) => {
 
 Hooks.on("createActor", async (actor) => {
 
-  if (actor.type !== "character") return;
+  if (!["character", "npc"].includes(actor.type)) return;
 
   const max = actor.system.derived.health.max;
-  const reason = actor.system.attributes?.reason?.value ?? 4;
 
-  await actor.update({
-    "system.derived.health.value": max,
-    "system.resources.advantageUses.value": reason
-  });
+  const updates = {
+    "system.derived.health.value": max
+  };
+
+  if (actor.type === "character") {
+    updates["system.resources.advantageUses.value"] = actor.system.attributes?.reason?.value ?? 4;
+  }
+
+  await actor.update(updates);
 
   // TOKEN DEFAULT
   await actor.update({

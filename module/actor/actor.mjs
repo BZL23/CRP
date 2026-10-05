@@ -14,9 +14,9 @@ export class CRPActor extends Actor {
     const derived = system.derived;
 
     // Inicjatywa
-    derived.initiative =
-      attr.agility.value +
-      attr.perception.value;
+    derived.initiative = this.type === "npc"
+      ? Number(system.npc?.attributes) || 0
+      : attr.agility.value + attr.perception.value;
 
     derived.initiativeWeaponModifier = this.getInitiativeWeaponModifier();
     derived.initiativeArmorModifier = this.getInitiativeArmorModifier();
