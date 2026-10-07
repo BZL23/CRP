@@ -3,6 +3,11 @@ import { CRPRoll } from "../rolls/roll.mjs";
 // module/actor/actor.mjs
 
 const ARMOR_PENALIZED_SKILLS = new Set(["athletics", "stealth", "survival"]);
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+
+function isNPCActor(actor) {
+  return CRP_NPC_ACTOR_TYPES.has(actor?.type);
+}
 
 export class CRPActor extends Actor {
   prepareDerivedData() {
@@ -12,9 +17,10 @@ export class CRPActor extends Actor {
     const system = this.system;
     const attr = system.attributes;
     const derived = system.derived;
+    const isNPC = isNPCActor(this);
 
     // Inicjatywa
-    derived.initiative = this.type === "npc"
+    derived.initiative = isNPC
       ? Number(system.npc?.attributes) || 0
       : attr.agility.value + attr.perception.value;
 
@@ -26,15 +32,15 @@ export class CRPActor extends Actor {
       derived.initiativeArmorModifier;
 
     // Zdrowie
-    const maxHealth = this.type === "npc"
+    const maxHealth = isNPC
       ? Math.max(1, Number(derived.health.max) || 8)
       : attr.strength.value + attr.character.value;
 
-    if (this.type !== "npc") {
+    if (!isNPC) {
       derived.health.max = maxHealth;
     }
 
-    if (this.type === "npc" && (!Number.isFinite(Number(derived.health.value)) || derived.health.value < 1)) {
+    if (isNPC && (!Number.isFinite(Number(derived.health.value)) || derived.health.value < 1)) {
       derived.health.value = maxHealth;
     }
 
@@ -43,7 +49,7 @@ export class CRPActor extends Actor {
       derived.health.value = maxHealth;
     }
 
-    if (this.type === "npc") {
+    if (isNPC) {
       const equipment = system.equipment ?? {};
       const armorId = equipment.armor?.id;
       const armor = armorId ? this.items.get(armorId) : null;

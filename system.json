@@ -2,7 +2,7 @@
   "id": "crp",
   "title": "Corona Regni Poloniae",
   "description": "Corona Regni Poloniae RPG system for FoundryVTT!",
-  "version": "0.15.8",
+  "version": "0.16.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -29,6 +29,9 @@
         "htmlFields": ["bio.description"]
       },
       "npc": {
+        "htmlFields": ["bio.description"]
+      },
+      "npc-knecht": {
         "htmlFields": ["bio.description"]
       },
       "creature": {

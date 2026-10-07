@@ -2,6 +2,11 @@ import { CRPRoll } from "../rolls/roll.mjs";
 import { formatMoney, normalizeMoney, obolsToMoney } from "../currency.mjs";
 
 const { ApplicationV2, DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+
+function isNPCActor(actor) {
+  return CRP_NPC_ACTOR_TYPES.has(actor?.type);
+}
 
 function getSkillAdvancementCost(skillValue, attrValue) {
   const baseCost = skillValue === 0 ? 2 : skillValue + 1;
@@ -772,7 +777,7 @@ async _preparePartContext(partId, context) {
     value: skillValue,
     total: Math.max(
       0,
-      this.document.type === "npc"
+      isNPCActor(this.document)
         ? (Number(system.npc?.attributes) || 0) - armorPenalty
         : skillValue + attrValue - armorPenalty
     ),
@@ -894,7 +899,7 @@ this._pendingScrollTop = undefined;
 
       if (!choice?.confirmed) return;
 
-      const targetOverride = this.document.type === "npc"
+      const targetOverride = isNPCActor(this.document)
         ? this.document.system.npc?.attributes
         : null;
 
@@ -1530,7 +1535,7 @@ const hasShield =
 
 const mountedAdvantage = attackerMounted && !defenderMounted ? 2 : 0;
 const attackChoice = await getAttackModifier(this.document, {
-  allowManeuvers: this.document.type !== "npc"
+  allowManeuvers: !isNPCActor(this.document)
 }).catch(() => null);
 
 if (!attackChoice?.confirmed) return;

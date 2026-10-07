@@ -1,5 +1,11 @@
 // module/rolls/roll.mjs
 
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+
+function isNPCActor(actor) {
+    return CRP_NPC_ACTOR_TYPES.has(actor?.type);
+}
+
 export class CRPRoll {
 
       static resolveCritical(dice, total) {
@@ -60,7 +66,7 @@ static async showDiceSoNice(roll) {
             return null;
         }
 
-        const isNPC = actor.type === "npc";
+        const isNPC = isNPCActor(actor);
         const effectiveAllowFate = allowFate && !isNPC;
         const penalty = actor.system.derived.woundPenalty ?? 0;
         const armorPenalty = actor.getArmorSkillPenalty?.(skillKey) ?? 0;

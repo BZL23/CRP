@@ -67,7 +67,8 @@
     "Actor": {
       "character": "Postać",
       "creature": "Bestia",
-      "npc": "NPC - Pospolitak"
+      "npc": "NPC - Pospolitak",
+      "npc-knecht": "NPC - Knecht"
     },
     "Item": {
       "armor": "Pancerz",
