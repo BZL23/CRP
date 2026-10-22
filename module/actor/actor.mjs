@@ -3,7 +3,7 @@ import { CRPRoll } from "../rolls/roll.mjs";
 // module/actor/actor.mjs
 
 const ARMOR_PENALIZED_SKILLS = new Set(["athletics", "stealth", "survival"]);
-const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht", "npc-rycerz"]);
 
 function isNPCActor(actor) {
   return CRP_NPC_ACTOR_TYPES.has(actor?.type);

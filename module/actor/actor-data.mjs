@@ -248,3 +248,5 @@ bio: new SchemaField({
 }
 
 export class CRPNPCKnechtData extends CRPActorData {}
+
+export class CRPNPCRycerzData extends CRPActorData {}

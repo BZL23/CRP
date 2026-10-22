@@ -1,12 +1,13 @@
 // module/crp.mjs
 
 import { CRPActor } from "./actor/actor.mjs";
-import { CRPActorData, CRPNPCKnechtData } from "./actor/actor-data.mjs";
+import { CRPActorData, CRPNPCKnechtData, CRPNPCRycerzData } from "./actor/actor-data.mjs";
 import { CRP } from "./config.mjs";
 import { CRPRoll } from "./rolls/roll.mjs";
 import { CRPActorSheet, CRPAdvancementWindow } from "./actor/actor-sheet.mjs";
 import { CRPNPCCommonerSheet } from "./actor/npc-commoner-sheet.mjs";
 import { CRPNPCKnechtSheet } from "./actor/npc-knecht-sheet.mjs";
+import { CRPNPCRycerzSheet } from "./actor/npc-rycerz-sheet.mjs";
 import { CRPGMPanel } from "./gm-panel.mjs";
 import { CRPItem } from "./item/item.mjs";
 import { CRPWeaponData, CRPArmorData, CRPShieldData, CRPStuffData, CRPLanguageData, CRPOriginData, CRPTraitData } from "./item/item-data.mjs";
@@ -15,7 +16,7 @@ import { CRPWeaponSheet, CRPArmorSheet, CRPShieldSheet, CRPStuffSheet, CRPLangua
 const CRP_MOUNT_UNDERLAY = "systems/crp/assets/wierzchowiec.webp";
 const CRP_INITIATIVE_TOTALS = new Map();
 const CRP_PENDING_INITIATIVE_UPDATES = new Map();
-const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht", "npc-rycerz"]);
 
 function hasChangedPath(changed, path) {
   return foundry.utils.hasProperty(changed, path) || Object.hasOwn(changed, path);
@@ -387,6 +388,7 @@ Hooks.once("init", () => {
     character: CRPActorData,
     npc: CRPActorData,
     "npc-knecht": CRPNPCKnechtData,
+    "npc-rycerz": CRPNPCRycerzData,
     creature: CRPActorData
   };
 
@@ -404,6 +406,11 @@ Hooks.once("init", () => {
 
   foundry.documents.collections.Actors.registerSheet("crp", CRPNPCKnechtSheet, {
   types: ["npc-knecht"],
+  makeDefault: true
+  });
+
+  foundry.documents.collections.Actors.registerSheet("crp", CRPNPCRycerzSheet, {
+  types: ["npc-rycerz"],
   makeDefault: true
   });
 

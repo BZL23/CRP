@@ -1,6 +1,6 @@
 // module/rolls/roll.mjs
 
-const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht", "npc-rycerz"]);
 
 function isNPCActor(actor) {
     return CRP_NPC_ACTOR_TYPES.has(actor?.type);

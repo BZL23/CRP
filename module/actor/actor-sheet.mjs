@@ -2,7 +2,7 @@ import { CRPRoll } from "../rolls/roll.mjs";
 import { formatMoney, normalizeMoney, obolsToMoney } from "../currency.mjs";
 
 const { ApplicationV2, DocumentSheetV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht"]);
+const CRP_NPC_ACTOR_TYPES = new Set(["npc", "npc-knecht", "npc-rycerz"]);
 
 function isNPCActor(actor) {
   return CRP_NPC_ACTOR_TYPES.has(actor?.type);
